@@ -18,7 +18,7 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45 }}
         >
-          Student housing around RSU — no agents, no stress
+         Verified housing in port-harcourt - no hidden fees, no stress
         </motion.p>
 
         <motion.h1
@@ -35,8 +35,8 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, delay: 0.2 }}
         >
-          Browse verified listings near RSU with clear prices, real photos,
-          and direct contact to landlords. No agents. No hidden fees.
+          Browse verified listings in port-harcourt with clear prices, real photos,
+          and direct contact to landlords. No stress. No hidden fees.
         </motion.p>
 
         <motion.div
@@ -78,8 +78,8 @@ export default function Hero() {
             <span>Trusted properties only</span>
           </div>
           <div className="hero__stat">
-            <strong>RSU Focused</strong>
-            <span>Built for RSU students</span>
+            <strong>Port-harcourt Focused</strong>
+            <span>Built for easy hosuing</span>
           </div>
         </motion.div>
       </div>

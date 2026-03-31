@@ -34,12 +34,29 @@
     margin: 14px 0 24px;
     color: #94a3b8;
     font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .listings-page__filter-count {
+    color: #4f6ef7;
+    font-weight: 600;
+    font-size: 0.88rem;
   }
   
   .listings-page__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
     gap: 26px;
+  }
+  
+  .listings-page__loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 64px 20px;
+    color: #64748b;
+    font-size: 0.95rem;
   }
   
   .listings-page__empty {
@@ -54,10 +71,12 @@
   .listings-page__empty h3 {
     margin-bottom: 10px;
     color: #f8fafc;
+    font-size: 1.2rem;
   }
   
   .listings-page__empty p {
     color: #94a3b8;
+    font-size: 0.95rem;
   }
   
   @media (max-width: 720px) {

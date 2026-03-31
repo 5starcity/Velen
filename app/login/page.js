@@ -37,7 +37,7 @@ export default function LoginPage() {
       <div className="auth-card">
         <div className="auth-header">
           <h1>Welcome Back</h1>
-          <p>Log in to your RSU Housing account</p>
+          <p>Log in to your Dwella account</p>
         </div>
 
         {error && <div className="auth-error">{error}</div>}

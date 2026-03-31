@@ -774,3 +774,40 @@
     height: 48px;
   }
 }
+@media (max-width: 480px) {
+  .details-page__facts {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .details-page__fact {
+    padding: 12px;
+    border-radius: 14px;
+    gap: 8px;
+  }
+
+  .details-page__fact svg {
+    font-size: 1rem;
+  }
+
+  .details-page__fact span {
+    font-size: 0.72rem;
+  }
+
+  .details-page__fact strong {
+    font-size: 0.85rem;
+  }
+
+  .details-page__header h1,
+  .details-page__content h1 {
+    font-size: 1.5rem;
+  }
+
+  .details-page__price {
+    font-size: 1.6rem;
+  }
+
+  .details-page__content {
+    padding: 18px;
+  }
+}

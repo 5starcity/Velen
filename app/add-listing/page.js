@@ -366,7 +366,7 @@ export default function AddListingPage() {
           <div className="form-section">
             <p className="form-section__title">Description</p>
             <div className="form-group">
-              <label className="file-label">Tell students about this property</label>
+              <label className="file-label">About this property</label>
               <textarea rows="5" name="description" placeholder="Describe the property, neighbourhood, what makes it a good place to live..." value={formData.description} onChange={handleChange} />
               {errors.description && <p className="form-error">{errors.description}</p>}
             </div>

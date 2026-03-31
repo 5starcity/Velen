@@ -22,10 +22,10 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="navbar__container">
 
-        {/* Logo */}
-        <Link href="/" className="navbar__logo">
-          RSU <span>Housing</span>
-        </Link>
+    // New logo:
+     <Link href="/" className="navbar__logo">
+     Dwe<span>lla</span>
+        </Link>   
 
         {/* Desktop Nav */}
         <div className="navbar__links">

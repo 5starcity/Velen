@@ -11,6 +11,8 @@ export default function ListingsPage() {
   const [location, setLocation] = useState("All");
   const [type, setType] = useState("All");
   const [price, setPrice] = useState("All");
+  const [verified, setVerified] = useState(false);
+  const [availability, setAvailability] = useState("All");
   const [allListings, setAllListings] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,7 +20,6 @@ export default function ListingsPage() {
     async function loadListings() {
       try {
         const data = await fetchListings();
-        console.log("Listings from Firestore:", data);
         setAllListings(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching listings:", error);
@@ -27,7 +28,6 @@ export default function ListingsPage() {
         setLoading(false);
       }
     }
-
     loadListings();
   }, []);
 
@@ -51,16 +51,38 @@ export default function ListingsPage() {
       const matchesPrice =
         price === "All" || listingPrice <= Number(price);
 
-      return matchesSearch && matchesLocation && matchesType && matchesPrice;
+      const matchesVerified =
+        !verified || listing.verified === true;
+
+      const matchesAvailability =
+        availability === "All" || listing.availability === availability;
+
+      return (
+        matchesSearch &&
+        matchesLocation &&
+        matchesType &&
+        matchesPrice &&
+        matchesVerified &&
+        matchesAvailability
+      );
     });
-  }, [allListings, search, location, type, price]);
+  }, [allListings, search, location, type, price, verified, availability]);
+
+  const activeFilterCount = [
+    search !== "",
+    location !== "All",
+    type !== "All",
+    price !== "All",
+    verified,
+    availability !== "All",
+  ].filter(Boolean).length;
 
   return (
     <main className="listings-page">
       <div className="listings-page__header">
         <p className="listings-page__tag">Browse Properties</p>
-        <h1>Student housing around RSU</h1>
-        <p>Search and filter listings by area, type and budget.</p>
+        <h1>Housing in Port Harcourt</h1>
+        <p>Search and filter listings by area, type, budget and more.</p>
       </div>
 
       <FilterBar
@@ -72,25 +94,40 @@ export default function ListingsPage() {
         setType={setType}
         price={price}
         setPrice={setPrice}
+        verified={verified}
+        setVerified={setVerified}
+        availability={availability}
+        setAvailability={setAvailability}
       />
 
       <div className="listings-page__results">
-        <p>
-          {loading
-            ? "Loading listings..."
-            : `${filteredListings.length} listing(s) found`}
-        </p>
+        {loading ? (
+          <p>Loading listings...</p>
+        ) : (
+          <p>
+            {filteredListings.length} listing{filteredListings.length !== 1 ? "s" : ""} found
+            {activeFilterCount > 0 && (
+              <span className="listings-page__filter-count">
+                · {activeFilterCount} filter{activeFilterCount !== 1 ? "s" : ""} active
+              </span>
+            )}
+          </p>
+        )}
       </div>
 
       <div className="listings-page__grid">
-        {loading ? null : filteredListings.length > 0 ? (
+        {loading ? (
+          <div className="listings-page__loading">
+            <p>Loading properties...</p>
+          </div>
+        ) : filteredListings.length > 0 ? (
           filteredListings.map((listing) => (
             <ListingCard key={listing.id} listing={listing} />
           ))
         ) : (
           <div className="listings-page__empty">
             <h3>No listings found</h3>
-            <p>Try adding a new property from the app.</p>
+            <p>Try adjusting your filters or search terms.</p>
           </div>
         )}
       </div>
