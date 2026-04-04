@@ -374,7 +374,7 @@ export default function ListingDetailsPage() {
                   <label>Type</label>
                   <input name="type" value={editForm.type || ""} onChange={handleEditChange} />
                 </div>
-                <div className="edit-form__field">
+                 <div className="edit-form__field">
                   <label>Location / Area</label>
                   <input name="location" value={editForm.location || ""} onChange={handleEditChange} />
                 </div>

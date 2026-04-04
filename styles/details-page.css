@@ -1,5 +1,5 @@
 .details-page {
-  max-width: 1240px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 48px 20px 90px;
 }
@@ -918,4 +918,53 @@
 
 .details-page__map-btn svg {
   font-size: 1rem;
+}
+/* Address text under location */
+.details-page__address-text {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-top: 4px;
+  margin-left: 24px;
+}
+
+/* No media fallback */
+.details-page__no-media {
+  width: 100%;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #111827;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.details-page__no-media svg {
+  font-size: 3rem;
+  color: #1e293b;
+}
+
+/* Play video button for video-only listings */
+.details-page__play-video-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: rgba(79, 110, 247, 0.1);
+  border: 1px solid rgba(79, 110, 247, 0.2);
+  border-radius: 12px;
+  color: #4f6ef7;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+
+.details-page__play-video-btn:hover {
+  background: rgba(79, 110, 247, 0.18);
 }

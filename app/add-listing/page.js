@@ -273,11 +273,6 @@ export default function AddListingPage() {
           <div className="form-section">
             <p className="form-section__title">Location</p>
             <div className="form-group">
-              <label className="file-label">Area / Neighbourhood</label>
-              <input type="text" name="location" placeholder="e.g. Alakahia, Choba, Rumuola" value={formData.location} onChange={handleChange} />
-              {errors.location && <p className="form-error">{errors.location}</p>}
-            </div>
-            <div className="form-group">
               <label className="file-label">Full Property Address</label>
               <input type="text" name="address" placeholder="e.g. No. 5 Alakahia Road, Choba, Port Harcourt" value={formData.address} onChange={handleChange} />
               <p className="form-hint">Used to generate a Google Maps link for students</p>
