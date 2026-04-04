@@ -99,13 +99,12 @@ export default function AddListingPage() {
       newErrors.price = "Price must be greater than 0";
     }
     if (!formData.location.trim()) newErrors.location = "Location is required";
-    if (!formData.address.trim()) newErrors.address = "Property address is required for map";
+    if (!formData.address.trim()) newErrors.address = "Property address is required";
     if (!formData.type.trim()) newErrors.type = "Property type is required";
     if (!formData.furnishing.trim()) newErrors.furnishing = "Furnishing status is required";
     if (!formData.availability.trim()) newErrors.availability = "Availability is required";
     if (!formData.paymentTerms.trim()) newErrors.paymentTerms = "Payment terms are required";
 
-    // Must have at least one image OR a video
     if (imageFiles.length === 0 && !videoFile) {
       newErrors.media = "Upload at least one photo or a video";
     }
@@ -147,7 +146,6 @@ export default function AddListingPage() {
 
       setUploadProgress("Saving listing...");
 
-      // Build Google Maps URL from address
       const mapsUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(formData.address + ", Port Harcourt, Nigeria");
 
       await createListing({
@@ -203,8 +201,8 @@ export default function AddListingPage() {
         <p className="add-listing-page__tag">Post a Property</p>
         <h1>Add a New Listing</h1>
         <p className="add-listing-page__text">
-          Fill in as much detail as possible — the more info you provide, the
-          fewer questions students will need to ask before deciding.
+          Fill in as much detail as possible — the more information you provide,
+          the easier it is for interested tenants to make a decision.
         </p>
 
         {submitted && (
@@ -223,13 +221,13 @@ export default function AddListingPage() {
             <p className="form-section__title">Basic Information</p>
             <div className="form-group">
               <label className="file-label">Property Title</label>
-              <input type="text" name="title" placeholder="e.g. Modern self contain in Alakahia" value={formData.title} onChange={handleChange} />
+              <input type="text" name="title" placeholder="e.g. Modern 2-bedroom flat in GRA" value={formData.title} onChange={handleChange} />
               {errors.title && <p className="form-error">{errors.title}</p>}
             </div>
             <div className="form-row">
               <div className="form-group">
                 <label className="file-label">Annual Rent (₦)</label>
-                <input type="number" name="price" placeholder="e.g. 250000" value={formData.price} onChange={handleChange} />
+                <input type="number" name="price" placeholder="e.g. 500000" value={formData.price} onChange={handleChange} />
                 {errors.price && <p className="form-error">{errors.price}</p>}
               </div>
               <div className="form-group">
@@ -273,9 +271,14 @@ export default function AddListingPage() {
           <div className="form-section">
             <p className="form-section__title">Location</p>
             <div className="form-group">
+              <label className="file-label">Area / Neighbourhood</label>
+              <input type="text" name="location" placeholder="e.g. GRA Phase 2, Rumuola, Woji" value={formData.location} onChange={handleChange} />
+              {errors.location && <p className="form-error">{errors.location}</p>}
+            </div>
+            <div className="form-group">
               <label className="file-label">Full Property Address</label>
-              <input type="text" name="address" placeholder="e.g. No. 5 Alakahia Road, Choba, Port Harcourt" value={formData.address} onChange={handleChange} />
-              <p className="form-hint">Used to generate a Google Maps link for students</p>
+              <input type="text" name="address" placeholder="e.g. No. 12 Rumuola Road, Port Harcourt" value={formData.address} onChange={handleChange} />
+              <p className="form-hint">Used to generate a Google Maps link for prospective tenants</p>
               {errors.address && <p className="form-error">{errors.address}</p>}
             </div>
           </div>
@@ -316,7 +319,7 @@ export default function AddListingPage() {
           <div className="form-section">
             <p className="form-section__title">Move-in Costs</p>
             <p className="form-hint" style={{ marginBottom: "12px" }}>
-              Enter 0 if a fee doesn't apply. This helps students know the total cost upfront.
+              Enter 0 if a fee does not apply. This helps prospective tenants know the total cost upfront.
             </p>
             <div className="form-row">
               <div className="form-group">
@@ -428,7 +431,7 @@ export default function AddListingPage() {
                 className="file-input"
                 onChange={handleVideoChange}
               />
-              <p className="form-hint">Short walkthrough videos work best. Max 50MB recommended.</p>
+              <p className="form-hint">A short walkthrough video works best. Max 50MB recommended.</p>
               {videoPreview && (
                 <div className="media-preview__video">
                   <video src={videoPreview} controls />
@@ -455,7 +458,7 @@ export default function AddListingPage() {
             <p className="form-section__title">Description</p>
             <div className="form-group">
               <label className="file-label">About this property</label>
-              <textarea rows="5" name="description" placeholder="Describe the property, neighbourhood, what makes it a good place to live..." value={formData.description} onChange={handleChange} />
+              <textarea rows="5" name="description" placeholder="Describe the property, the neighbourhood, and what makes it a great place to live..." value={formData.description} onChange={handleChange} />
               {errors.description && <p className="form-error">{errors.description}</p>}
             </div>
           </div>

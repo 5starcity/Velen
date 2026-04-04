@@ -23,6 +23,10 @@ import {
   HiOutlineCalendarDays,
   HiOutlinePlayCircle,
   HiOutlineCalculator,
+  HiOutlineReceiptPercent,
+  HiOutlineShieldCheck,
+  HiOutlineBuildingOffice,
+  HiOutlineCog6Tooth,
 } from "react-icons/hi2";
 import {
   fetchListingById,
@@ -132,6 +136,16 @@ export default function ListingDetailsPage() {
     ? [listing.image]
     : [];
 
+  const hasImages = images.length > 0;
+  const hasVideo = !!listing.videoUrl;
+
+  // VIDEO FALLBACK: auto-show video if no images uploaded
+  // useEffect(() => {
+    // if (!hasImages && hasVideo) {
+      //setShowVideo(true);
+    //}
+  //}, [hasImages, hasVideo]);
+
   const isOwner = user && user.uid === listing.landlordId;
   const saved = favorites.includes(listing.id);
 
@@ -151,7 +165,6 @@ export default function ListingDetailsPage() {
     (Number(listing.agencyFee) || 0) +
     (Number(listing.serviceCharge) || 0);
 
-  // Build maps URL from address if not already saved
   const mapsUrl = listing.mapsUrl ||
     (listing.address
       ? "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(listing.address + ", Port Harcourt, Nigeria")
@@ -245,9 +258,9 @@ export default function ListingDetailsPage() {
     }
     setSendingInterest(true);
     try {
-      await expressInterest(listingId, user.uid, user.displayName || "A student");
-      const studentName = user.displayName || "A student";
-      const message = "Hi, I found your listing \"" + listing.title + "\" on Dwella and I'm interested. My name is " + studentName + ".";
+      await expressInterest(listingId, user.uid, user.displayName || "A prospective tenant");
+      const tenantName = user.displayName || "A prospective tenant";
+      const message = "Hi, I found your listing \"" + listing.title + "\" on Dwella and I am interested. My name is " + tenantName + ".";
       const encodedMessage = encodeURIComponent(message);
       const waUrl = "https://wa.me/" + whatsappNumber + "?text=" + encodedMessage;
       setInterestSent(true);
@@ -266,6 +279,14 @@ export default function ListingDetailsPage() {
       day: "numeric", month: "short", year: "numeric",
     });
   }
+
+  const costIcons = {
+    rent: <HiOutlineBanknotes />,
+    caution: <HiOutlineShieldCheck />,
+    legal: <HiOutlineReceiptPercent />,
+    agency: <HiOutlineBuildingOffice />,
+    service: <HiOutlineCog6Tooth />,
+  };
 
   return (
     <main className="details-page">
@@ -322,16 +343,6 @@ export default function ListingDetailsPage() {
               )}
             </div>
           )}
-
-          {/* Video only listing — show video directly */}
-          {images.length === 0 && listing.videoUrl && !showVideo && (
-            <button
-              className="details-page__play-video-btn"
-              onClick={() => setShowVideo(true)}
-            >
-              <HiOutlinePlayCircle /> Watch Property Video
-            </button>
-          )}
         </motion.div>
 
         {/* Right — Content */}
@@ -374,7 +385,7 @@ export default function ListingDetailsPage() {
                   <label>Type</label>
                   <input name="type" value={editForm.type || ""} onChange={handleEditChange} />
                 </div>
-                 <div className="edit-form__field">
+                <div className="edit-form__field">
                   <label>Location / Area</label>
                   <input name="location" value={editForm.location || ""} onChange={handleEditChange} />
                 </div>
@@ -543,63 +554,103 @@ export default function ListingDetailsPage() {
                 </div>
               )}
 
-              {/* Move-in Cost Breakdown */}
+              {/* ── Move-in Cost Breakdown — REDESIGNED CARD ── */}
               {hasCostBreakdown && (
                 <div className="details-page__section">
-                  <h2>
-                    <HiOutlineCalculator style={{ display: "inline", marginRight: "8px", verticalAlign: "middle" }} />
-                    Move-in Cost Breakdown
-                  </h2>
-                  <div className="details-page__costs">
-                    <div className="details-page__cost-row">
-                      <span>Annual Rent</span>
-                      <span>₦{Number(listing.price).toLocaleString()}</span>
+                  <div className="cost-card">
+                    <div className="cost-card__header">
+                      <div className="cost-card__title-row">
+                        <div className="cost-card__icon-wrap">
+                          <HiOutlineCalculator />
+                        </div>
+                        <div>
+                          <h2 className="cost-card__title">Move-in Cost Breakdown</h2>
+                          <p className="cost-card__subtitle">Full upfront cost to move into this property</p>
+                        </div>
+                      </div>
                     </div>
-                    {Number(listing.cautionFee) > 0 && (
-                      <div className="details-page__cost-row">
-                        <span>Caution Fee</span>
-                        <span>₦{Number(listing.cautionFee).toLocaleString()}</span>
+
+                    <div className="cost-card__rows">
+                      {/* Annual Rent */}
+                      <div className="cost-card__row">
+                        <div className="cost-card__row-left">
+                          <span className="cost-card__row-icon cost-card__row-icon--rent">
+                            {costIcons.rent}
+                          </span>
+                          <span className="cost-card__row-label">Annual Rent</span>
+                        </div>
+                        <span className="cost-card__row-value">₦{Number(listing.price).toLocaleString()}</span>
                       </div>
-                    )}
-                    {Number(listing.cautionFee) === 0 && listing.cautionFee !== undefined && (
-                      <div className="details-page__cost-row details-page__cost-row--free">
-                        <span>Caution Fee</span>
-                        <span>None ✓</span>
+
+                      {/* Caution Fee */}
+                      {listing.cautionFee !== undefined && (
+                        <div className={"cost-card__row" + (Number(listing.cautionFee) === 0 ? " cost-card__row--free" : "")}>
+                          <div className="cost-card__row-left">
+                            <span className="cost-card__row-icon cost-card__row-icon--caution">
+                              {costIcons.caution}
+                            </span>
+                            <span className="cost-card__row-label">Caution Fee</span>
+                          </div>
+                          {Number(listing.cautionFee) === 0
+                            ? <span className="cost-card__row-free">None ✓</span>
+                            : <span className="cost-card__row-value">₦{Number(listing.cautionFee).toLocaleString()}</span>
+                          }
+                        </div>
+                      )}
+
+                      {/* Legal Fee */}
+                      {listing.legalFee !== undefined && (
+                        <div className={"cost-card__row" + (Number(listing.legalFee) === 0 ? " cost-card__row--free" : "")}>
+                          <div className="cost-card__row-left">
+                            <span className="cost-card__row-icon cost-card__row-icon--legal">
+                              {costIcons.legal}
+                            </span>
+                            <span className="cost-card__row-label">Legal Fee</span>
+                          </div>
+                          {Number(listing.legalFee) === 0
+                            ? <span className="cost-card__row-free">None ✓</span>
+                            : <span className="cost-card__row-value">₦{Number(listing.legalFee).toLocaleString()}</span>
+                          }
+                        </div>
+                      )}
+
+                      {/* Agency Fee */}
+                      {listing.agencyFee !== undefined && (
+                        <div className={"cost-card__row" + (Number(listing.agencyFee) === 0 ? " cost-card__row--free" : "")}>
+                          <div className="cost-card__row-left">
+                            <span className="cost-card__row-icon cost-card__row-icon--agency">
+                              {costIcons.agency}
+                            </span>
+                            <span className="cost-card__row-label">Agency Fee</span>
+                          </div>
+                          {Number(listing.agencyFee) === 0
+                            ? <span className="cost-card__row-free">No Agent ✓</span>
+                            : <span className="cost-card__row-value">₦{Number(listing.agencyFee).toLocaleString()}</span>
+                          }
+                        </div>
+                      )}
+
+                      {/* Service Charge */}
+                      {Number(listing.serviceCharge) > 0 && (
+                        <div className="cost-card__row">
+                          <div className="cost-card__row-left">
+                            <span className="cost-card__row-icon cost-card__row-icon--service">
+                              {costIcons.service}
+                            </span>
+                            <span className="cost-card__row-label">Service Charge</span>
+                          </div>
+                          <span className="cost-card__row-value">₦{Number(listing.serviceCharge).toLocaleString()}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Total */}
+                    <div className="cost-card__total">
+                      <div className="cost-card__total-left">
+                        <span className="cost-card__total-label">Total Move-in Cost</span>
+                        <span className="cost-card__total-note">One-time payment to secure this property</span>
                       </div>
-                    )}
-                    {Number(listing.legalFee) > 0 && (
-                      <div className="details-page__cost-row">
-                        <span>Legal Fee</span>
-                        <span>₦{Number(listing.legalFee).toLocaleString()}</span>
-                      </div>
-                    )}
-                    {Number(listing.legalFee) === 0 && listing.legalFee !== undefined && (
-                      <div className="details-page__cost-row details-page__cost-row--free">
-                        <span>Legal Fee</span>
-                        <span>None ✓</span>
-                      </div>
-                    )}
-                    {Number(listing.agencyFee) > 0 && (
-                      <div className="details-page__cost-row">
-                        <span>Agency Fee</span>
-                        <span>₦{Number(listing.agencyFee).toLocaleString()}</span>
-                      </div>
-                    )}
-                    {Number(listing.agencyFee) === 0 && listing.agencyFee !== undefined && (
-                      <div className="details-page__cost-row details-page__cost-row--free">
-                        <span>Agency Fee</span>
-                        <span>No Agent ✓</span>
-                      </div>
-                    )}
-                    {Number(listing.serviceCharge) > 0 && (
-                      <div className="details-page__cost-row">
-                        <span>Service Charge</span>
-                        <span>₦{Number(listing.serviceCharge).toLocaleString()}</span>
-                      </div>
-                    )}
-                    <div className="details-page__cost-total">
-                      <span>Total Move-in Cost</span>
-                      <strong>₦{totalMoveInCost.toLocaleString()}</strong>
+                      <strong className="cost-card__total-value">₦{totalMoveInCost.toLocaleString()}</strong>
                     </div>
                   </div>
                 </div>
@@ -626,16 +677,16 @@ export default function ListingDetailsPage() {
               <div className="details-page__section">
                 <h2>Quick Actions</h2>
                 <div className="details-page__actions">
-                  
-                    <a href={whatsappHref}
+                  <a
+                    href={whatsappHref}
                     target="_blank"
                     rel="noreferrer"
                     className="details-page__button details-page__button--primary"
                   >
                     <HiOutlineChatBubbleLeftRight /> Chat on WhatsApp
                   </a>
-                  
-                   <a href={telHref}
+                  <a
+                    href={telHref}
                     className="details-page__button details-page__button--secondary"
                   >
                     <HiOutlinePhone /> Call Now
@@ -653,7 +704,7 @@ export default function ListingDetailsPage() {
                     </button>
                   ) : (
                     <div className="details-page__interest-sent">
-                      <p>✅ Interest sent! The landlord has been notified on WhatsApp.</p>
+                      <p>✅ Interest sent! The property owner has been notified on WhatsApp.</p>
                     </div>
                   )}
                   {!user && (
@@ -687,7 +738,7 @@ export default function ListingDetailsPage() {
                       </button>
                     ) : (
                       <div className="details-page__report-box">
-                        <p>What's wrong with this listing?</p>
+                        <p>What is wrong with this listing?</p>
                         <input
                           type="text"
                           placeholder="e.g. Fake listing, wrong price, scam..."
@@ -702,7 +753,7 @@ export default function ListingDetailsPage() {
                     )}
                   </div>
                 ) : (
-                  <p className="details-page__report-sent">✅ Report submitted. We'll review this listing.</p>
+                  <p className="details-page__report-sent">✅ Report submitted. We will review this listing.</p>
                 )}
               </div>
             </motion.div>
