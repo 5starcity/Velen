@@ -651,18 +651,24 @@ export default function ListingDetailsPage() {
                 </div>
               )}
 
-              {listing.amenities && (
-                <div className="details-page__section">
-                  <h2>Amenities</h2>
-                  <div className="details-page__amenities">
-                    {listing.amenities.split(",").map((item, i) => (
-                      <span key={i} className="details-page__amenity-tag">
-                        <HiOutlineWrenchScrewdriver />{item.trim()}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
+{listing.amenities && (
+  <div className="details-page__section">
+    <h2>Amenities</h2>
+    <div className="details-page__amenities">
+      {/* Check if it's a string to split it; otherwise, treat it as an array */}
+      {(typeof listing.amenities === 'string' 
+        ? listing.amenities.split(",") 
+        : listing.amenities
+      ).map((item, i) => (
+        <span key={i} className="details-page__amenity-tag">
+          <HiOutlineWrenchScrewdriver />
+          {item.trim ? item.trim() : item}
+        </span>
+      ))}
+    </div>
+  </div>
+)}
+
 
               <div className="details-page__section">
                 <h2>Description</h2>

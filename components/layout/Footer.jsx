@@ -15,7 +15,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="footer__brand">
             <p className="footer__logo">
-              DWE <span>LLA</span>
+              Vel<span>en</span>
             </p>
 
             <p className="footer__tagline">
@@ -43,7 +43,7 @@ export default function Footer() {
           {/* Support / Trust */}
           <div className="footer__links-group">
             <p className="footer__links-title">Support</p>
-            <Link href="/about">About Dwella</Link>
+            <Link href="/about">About Velen</Link>
             <Link href="/contact">Contact</Link>
             <Link href="/report">Report a Listing</Link>
           </div>
@@ -60,7 +60,7 @@ export default function Footer() {
         {/* BOTTOM */}
         <div className="footer__bottom">
           <p className="footer__copy">
-            © {year} Dwella. All rights reserved.
+            © {year} Velen. All rights reserved.
           </p>
 
           <p className="footer__sub">

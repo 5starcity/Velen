@@ -43,7 +43,7 @@ export default function Navbar() {
       <nav className="navbar">
         <div className="navbar__container">
           <Link href="/" className="navbar__logo" onClick={closeMenu}>
-            Dwe<span>lla</span>
+            Vel<span>en</span>
           </Link>
 
           {/* Desktop Nav */}
