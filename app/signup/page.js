@@ -46,7 +46,7 @@ export default function SignupPage() {
       <div className="auth-card">
         <div className="auth-header">
           <h1>Create Account</h1>
-          <p>Join Dwella — find or list properties stress-free</p>
+          <p>Join Velen — find or list properties stress-free</p>
         </div>
 
         {error && <div className="auth-error">{error}</div>}

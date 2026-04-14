@@ -15,6 +15,7 @@ import {
   HiOutlineArrowLeftOnRectangle,
   HiOutlineUserPlus,
   HiOutlineChartBarSquare,
+  HiOutlineUserGroup,
   HiXMark,
   HiBars3,
 } from "react-icons/hi2";
@@ -51,6 +52,11 @@ export default function Navbar() {
             <Link href="/listings" className={isActive("/listings") ? "active" : ""}>
               Browse
             </Link>
+            {userRole === "student" && (
+              <Link href="/roommates" className={isActive("/roommates") ? "active" : ""}>
+                Roommates
+              </Link>
+            )}
             {userRole === "landlord" && (
               <>
                 <Link href="/add-listing" className={isActive("/add-listing") ? "active" : ""}>
@@ -124,6 +130,13 @@ export default function Navbar() {
             <HiOutlineHome />
             <span>Browse Listings</span>
           </Link>
+
+          {userRole === "student" && (
+            <Link href="/roommates" className={"navbar__drawer-link" + (isActive("/roommates") ? " active" : "")} onClick={closeMenu}>
+              <HiOutlineUserGroup />
+              <span>Roommates</span>
+            </Link>
+          )}
 
           {userRole === "landlord" && (
             <>

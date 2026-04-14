@@ -1,242 +1,281 @@
-.listing-card {
-  background: linear-gradient(180deg, rgba(17, 24, 39, 0.98), rgba(10, 15, 30, 0.98));
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-}
+/* =========================================================
+   listing-card.css — Velen Listing Card
+   ========================================================= */
 
-.listing-card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(96, 165, 250, 0.2);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
-}
-
-.listing-card__image-wrap {
-  position: relative;
-  overflow: hidden;
-}
-
-.listing-card__image-wrap::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(11, 16, 32, 0.4), transparent 50%);
-  pointer-events: none;
-}
-
-.listing-card__image {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.35s ease;
-}
-
-.listing-card:hover .listing-card__image {
-  transform: scale(1.03);
-}
-
-.listing-card__badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: rgba(34, 197, 94, 0.18);
-  border: 1px solid rgba(34, 197, 94, 0.35);
-  color: #86efac;
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  backdrop-filter: blur(8px);
-}
-
-/* Availability badge */
-.listing-card__availability {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 2;
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  backdrop-filter: blur(8px);
-}
-
-.listing-card__availability.available {
-  background: rgba(34, 197, 94, 0.82);
-  color: white;
-}
-
-.listing-card__availability.soon {
-  background: rgba(251, 191, 36, 0.82);
-  color: #1a1a2e;
-}
-
-.listing-card__availability.unavailable {
-  background: rgba(239, 68, 68, 0.82);
-  color: white;
-}
-
-/* When both badge and availability exist */
-.listing-card__badge + .listing-card__availability,
-.listing-card__availability + .listing-card__badge {
-  top: 40px;
-}
-
-/* Photo count */
-.listing-card__image-count {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.55);
-  color: white;
-  padding: 3px 9px;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  backdrop-filter: blur(4px);
-  z-index: 2;
-}
-
-.listing-card__content {
-  padding: 14px 16px 16px;
-}
-
-.listing-card__top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.listing-card__top h3 {
-  font-size: 1rem;
-  line-height: 1.35;
-  color: #f8fafc;
-  font-weight: 700;
-  flex: 1;
-}
-
-.listing-card__price {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: #60a5fa;
-  white-space: nowrap;
-}
-
-.listing-card__location {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #64748b;
-  font-size: 0.82rem;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
-}
-
-.listing-card__location svg {
-  color: #60a5fa;
-  font-size: 0.9rem;
-  flex-shrink: 0;
-}
-
-.listing-card__distance {
-  color: #4f6ef7;
-  font-size: 0.78rem;
-}
-
-.listing-card__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 14px;
-}
-
-.listing-card__meta span {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  color: #94a3b8;
-  font-size: 0.76rem;
-  font-weight: 600;
-}
-
-.listing-card__link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 42px;
-  width: 100%;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: white;
-  font-weight: 700;
-  font-size: 0.88rem;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-  text-decoration: none;
-}
-
-.listing-card__link:hover {
-  transform: translateY(-1px);
-  opacity: 0.92;
-}
-
-.listing-card__favorite {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 3;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  background: rgba(11, 16, 32, 0.65);
-  color: #f8fafc;
-  backdrop-filter: blur(8px);
-  cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.listing-card__favorite:hover {
-  transform: scale(1.08);
-}
-
-.listing-card__favorite svg {
-  font-size: 1rem;
-}
-
-.listing-card__favorite.active {
-  background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
-}
-
-@media (max-width: 640px) {
-  .listing-card__image {
-    height: 185px;
+   .listing-card {
+    display: flex;
+    flex-direction: column;
+    background: rgba(17, 24, 39, 0.97);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
+    overflow: hidden;
+    text-decoration: none;
+    transition: border-color 0.2s ease, transform 0.22s ease, box-shadow 0.22s ease;
+    cursor: pointer;
   }
-
-  .listing-card__content {
-    padding: 12px 14px 14px;
+  
+  .listing-card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-3px);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.32);
   }
-
-  .listing-card__top h3 {
-    font-size: 0.95rem;
+  
+  /* ── Thumbnail ── */
+  .listing-card__thumb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: #0f172a;
+    flex-shrink: 0;
   }
-
-  .listing-card__price {
+  
+  .listing-card__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.38s ease;
+  }
+  
+  .listing-card:hover .listing-card__thumb img {
+    transform: scale(1.05);
+  }
+  
+  .listing-card__thumb-video,
+  .listing-card__thumb-empty {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #1e293b;
+  }
+  
+  .listing-card__thumb-video svg,
+  .listing-card__thumb-empty svg {
+    font-size: 2rem;
+  }
+  
+  .listing-card__thumb-video {
+    color: #334155;
+  }
+  
+  .listing-card__thumb-video svg {
+    color: #4f6ef7;
+  }
+  
+  .listing-card__thumb-video span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+  }
+  
+  /* Favourite button */
+  .listing-card__fav {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(7, 13, 26, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: grid;
+    place-items: center;
+    color: #94a3b8;
     font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    backdrop-filter: blur(4px);
+    z-index: 2;
   }
-}
+  
+  .listing-card__fav:hover {
+    background: rgba(7, 13, 26, 0.9);
+    color: #f8fafc;
+    transform: scale(1.08);
+  }
+  
+  .listing-card__fav.active {
+    background: rgba(239, 68, 68, 0.18);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #f87171;
+  }
+  
+  /* Tags strip */
+  .listing-card__tags {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    z-index: 2;
+    max-width: calc(100% - 20px);
+  }
+  
+  /* ── Body ── */
+  .listing-card__body {
+    padding: 16px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+  }
+  
+  /* Price row */
+  .listing-card__price-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  
+  .listing-card__price {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #60a5fa;
+    letter-spacing: -0.5px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  
+  .listing-card__price-unit {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: #475569;
+    margin-left: 2px;
+  }
+  
+  .listing-card__movein {
+    font-size: 0.72rem;
+    color: #334155;
+    font-weight: 500;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  
+  /* Title */
+  .listing-card__title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  /* Location */
+  .listing-card__location {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.78rem;
+    color: #64748b;
+  }
+  
+  .listing-card__location svg {
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    color: #475569;
+  }
+  
+  /* Facts */
+  .listing-card__facts {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-top: 2px;
+  }
+  
+  .listing-card__facts span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: #475569;
+    font-weight: 500;
+  }
+  
+  .listing-card__facts svg {
+    font-size: 0.82rem;
+    color: #334155;
+  }
+  
+  /* Stats row */
+  .listing-card__stats {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-top: 4px;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    margin-top: auto;
+  }
+  
+  .listing-card__stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.74rem;
+    color: #334155;
+    font-weight: 500;
+  }
+  
+  .listing-card__stat svg {
+    font-size: 0.82rem;
+    color: #4f6ef7;
+  }
+  
+  .listing-card__stat--interest svg {
+    color: #fbbf24;
+  }
+  
+  /* Availability pill */
+  .listing-card__availability {
+    margin-left: auto;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px solid;
+  }
+  
+  .listing-card__availability.available {
+    background: rgba(34, 197, 94, 0.08);
+    border-color: rgba(34, 197, 94, 0.2);
+    color: #86efac;
+  }
+  
+  .listing-card__availability.soon {
+    background: rgba(251, 191, 36, 0.08);
+    border-color: rgba(251, 191, 36, 0.2);
+    color: #fcd34d;
+  }
+  
+  .listing-card__availability.unavailable {
+    background: rgba(239, 68, 68, 0.06);
+    border-color: rgba(239, 68, 68, 0.16);
+    color: #fca5a5;
+  }
+  
+  /* ── Responsive ── */
+  @media (max-width: 480px) {
+    .listing-card__body {
+      padding: 14px 14px 16px;
+    }
+  
+    .listing-card__price {
+      font-size: 1.1rem;
+    }
+  
+    .listing-card__title {
+      font-size: 0.88rem;
+    }
+  }

@@ -255,7 +255,7 @@ export default function ListingDetailsPage() {
     try {
       await expressInterest(listingId, user.uid, user.displayName || "A prospective tenant");
       const tenantName = user.displayName || "A prospective tenant";
-      const message = "Hi, I found your listing \"" + listing.title + "\" on Dwella and I am interested. My name is " + tenantName + ".";
+      const message = "Hi, I found your listing \"" + listing.title + "\" on Velen and I am interested. My name is " + tenantName + ".";
       const encodedMessage = encodeURIComponent(message);
       const waUrl = "https://wa.me/" + whatsappNumber + "?text=" + encodedMessage;
       setInterestSent(true);

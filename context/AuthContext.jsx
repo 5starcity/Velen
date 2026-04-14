@@ -1,4 +1,3 @@
-// context/AuthContext.jsx
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
@@ -15,19 +14,30 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        // Fetch role from Firestore
-        const docRef = doc(db, "users", firebaseUser.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setUserRole(docSnap.data().role);
+      try {
+        if (firebaseUser) {
+          setUser(firebaseUser);
+
+          // Fetch role from Firestore
+          const docRef = doc(db, "users", firebaseUser.uid);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            setUserRole(docSnap.data().role);
+          } else {
+            setUserRole(null);
+          }
+        } else {
+          setUser(null);
+          setUserRole(null);
         }
-        setUser(firebaseUser);
-      } else {
+      } catch (error) {
+        console.error("AuthContext error:", error);
         setUser(null);
         setUserRole(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -35,7 +45,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{ user, userRole, loading }}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 }

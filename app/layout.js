@@ -5,7 +5,7 @@ import PageTransition from "@/components/layout/PageTransition";
 import "./global.css";
 
 export const metadata = {
-  title: "Dwella",
+  title: "Velen",
   description: "Find verified housing across Nigeria — no agents, no stress",
 };
 

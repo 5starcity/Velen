@@ -165,7 +165,7 @@ export default function RoommateSection({ listing }) {
         ? "234" + post.posterContact.slice(1)
         : post.posterContact;
       const msg = encodeURIComponent(
-        `Hi ${post.posterName}, I saw your roommate post on Dwella for "${post.listingTitle}" and I'm interested in splitting the rent. My name is ${user.displayName || "a prospective tenant"}.`
+        `Hi ${post.posterName}, I saw your roommate post on Velen for "${post.listingTitle}" and I'm interested in splitting the rent. My name is ${user.displayName || "a prospective tenant"}.`
       );
       window.open(`https://wa.me/${waNum}?text=${msg}`, "_blank");
     } catch (e) {

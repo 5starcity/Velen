@@ -15,8 +15,8 @@ import {
   HiOutlineCalendarDays,
   HiOutlineMagnifyingGlass,
   HiOutlineArrowTopRightOnSquare,
-  HiOutlineFunnel,
   HiOutlineXMark,
+  HiOutlinePlus,
 } from "react-icons/hi2";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -37,7 +37,7 @@ const fadeUp = {
 };
 
 export default function RoommatesPage() {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
 
   const [posts, setPosts]           = useState([]);
   const [loading, setLoading]       = useState(true);
@@ -120,7 +120,7 @@ export default function RoommatesPage() {
         ? "234" + post.posterContact.slice(1)
         : post.posterContact;
       const msg = encodeURIComponent(
-        `Hi ${post.posterName}, I saw your roommate post on Dwella for "${post.listingTitle}" and I'm interested in splitting the rent. My name is ${user.displayName || "a prospective tenant"}.`
+        `Hi ${post.posterName}, I saw your roommate post on Velen for "${post.listingTitle}" and I'm interested in splitting the rent. My name is ${user.displayName || "a prospective tenant"}.`
       );
       window.open(`https://wa.me/${waNum}?text=${msg}`, "_blank");
     } catch (e) {
@@ -134,9 +134,7 @@ export default function RoommatesPage() {
     return d.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" });
   }
 
-  const ustAreas = LOCATION_FILTER_OPTIONS.filter(
-    (l) => l.value !== "All"
-  );
+  const ustAreas = LOCATION_FILTER_OPTIONS.filter((l) => l.value !== "All");
 
   return (
     <main className="roommates-page">
@@ -157,9 +155,18 @@ export default function RoommatesPage() {
             Browse roommate requests from people who found a listing they love but want to share the cost.
           </p>
         </div>
-        <Link href="/listings" className="roommates-page__browse-btn">
-          <HiOutlineHomeModern /> Browse Listings
-        </Link>
+
+        <div className="roommates-page__header-actions">
+          {/* Only students can post a roommate request */}
+          {user && userRole === "student" && (
+            <Link href="/roommates/post" className="roommates-page__post-btn">
+              <HiOutlinePlus /> Post Request
+            </Link>
+          )}
+          <Link href="/listings" className="roommates-page__browse-btn">
+            <HiOutlineHomeModern /> Browse Listings
+          </Link>
+        </div>
       </motion.div>
 
       {/* ── Filters ── */}
@@ -271,9 +278,16 @@ export default function RoommatesPage() {
               ? "Try adjusting your filters."
               : "Be the first — find a listing and post a roommate request."}
           </p>
-          <Link href="/listings" className="roommates-page__empty-btn">
-            Browse Listings
-          </Link>
+          <div className="roommates-page__empty-actions">
+            {user && userRole === "student" && (
+              <Link href="/roommates/post" className="roommates-page__post-btn">
+                <HiOutlinePlus /> Post a Request
+              </Link>
+            )}
+            <Link href="/listings" className="roommates-page__empty-btn">
+              Browse Listings
+            </Link>
+          </div>
         </div>
       ) : (
         <motion.div

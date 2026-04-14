@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /listings/{listingId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "landlord";
+      allow update: if (request.auth != null && resource.data.landlordId == request.auth.uid)
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(["views"]))
+        || (request.auth != null && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["interests"]));
+      allow delete: if request.auth != null
+        && resource.data.landlordId == request.auth.uid;
+    }
+    match /verificationRequests/{reqId} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid;
+      allow read: if request.auth != null
+        && resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+    match /reports/{reportId} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+    match /interests/{interestId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null;
+      allow update, delete: if false;
+    }
+    match /saved/{savedId} {
+      allow read, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+  }
+}

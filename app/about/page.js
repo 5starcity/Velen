@@ -19,7 +19,7 @@ const VALUES = [
   {
     number: "01",
     title:  "Full cost, upfront.",
-    body:   "Every listing on Dwella shows the complete move-in cost — rent, caution fee, legal fee, agency fee, all of it. No surprises after you have fallen in love with a place.",
+    body:   "Every listing on Velen shows the complete move-in cost — rent, caution fee, legal fee, agency fee, all of it. No surprises after you have fallen in love with a place.",
   },
   {
     number: "02",
@@ -57,13 +57,13 @@ export default function AboutPage() {
         animate="show"
         variants={stagger}
       >
-        <motion.p className="about__eyebrow" variants={fadeUp}>About Dwella</motion.p>
+        <motion.p className="about__eyebrow" variants={fadeUp}>About Velen</motion.p>
         <motion.h1 className="about__hero-title" variants={fadeUp}>
           Renting in Port Harcourt<br />
           <span className="about__hero-accent">should not be a gamble.</span>
         </motion.h1>
         <motion.p className="about__hero-sub" variants={fadeUp}>
-          We built Dwella because we were tired of listings that hide the real cost,
+          We built Velen because we were tired of listings that hide the real cost,
           agents who disappear after payment, and properties that look nothing like
           the photos. There had to be a better way.
         </motion.p>
@@ -109,7 +109,7 @@ export default function AboutPage() {
             </p>
             <p>
               This happens every day in Port Harcourt. It is not an accident —
-              it is how the informal rental market has always worked. Dwella
+              it is how the informal rental market has always worked. Velen
               exists to change that, one transparent listing at a time.
             </p>
           </motion.div>
@@ -170,7 +170,7 @@ export default function AboutPage() {
         viewport={{ once: true, margin: "-60px" }}
         variants={stagger}
       >
-        <motion.p className="about__section-label" variants={fadeUp}>Who Dwella is for</motion.p>
+        <motion.p className="about__section-label" variants={fadeUp}>Who Velen is for</motion.p>
         <motion.h2 className="about__section-heading" variants={fadeUp}>
           Everyone who rents.<br />Everyone who lets.
         </motion.h2>
