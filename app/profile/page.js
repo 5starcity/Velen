@@ -16,6 +16,10 @@ import {
   HiOutlineArrowRightOnRectangle,
   HiOutlineChartBarSquare,
   HiOutlineExclamationTriangle,
+  HiOutlineChatBubbleBottomCenterText,
+  HiOutlineUserGroup,
+  HiOutlineBookmark,
+  HiOutlineHome,
 } from "react-icons/hi2";
 import {
   updateProfile,
@@ -35,14 +39,18 @@ export default function ProfilePage() {
 
   const [displayName, setDisplayName] = useState("");
   const [phone, setPhone] = useState("");
+  const [bio, setBio] = useState("");
 
   const [editingName, setEditingName] = useState(false);
   const [editingPhone, setEditingPhone] = useState(false);
+  const [editingBio, setEditingBio] = useState(false);
   const [nameInput, setNameInput] = useState("");
   const [phoneInput, setPhoneInput] = useState("");
+  const [bioInput, setBioInput] = useState("");
 
   const [savingName, setSavingName] = useState(false);
   const [savingPhone, setSavingPhone] = useState(false);
+  const [savingBio, setSavingBio] = useState(false);
 
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -60,18 +68,21 @@ export default function ProfilePage() {
     setDisplayName(user.displayName || "");
     setNameInput(user.displayName || "");
 
-    async function loadPhone() {
+    async function loadProfile() {
       try {
         const snap = await getDoc(doc(db, "users", user.uid));
         if (snap.exists()) {
-          setPhone(snap.data().phone || "");
-          setPhoneInput(snap.data().phone || "");
+          const data = snap.data();
+          setPhone(data.phone || "");
+          setPhoneInput(data.phone || "");
+          setBio(data.bio || "");
+          setBioInput(data.bio || "");
         }
       } catch (e) {
         console.error("Error loading profile:", e);
       }
     }
-    loadPhone();
+    loadProfile();
   }, [user, authLoading]);
 
   function showToast(msg, type = "success") {
@@ -108,6 +119,21 @@ export default function ProfilePage() {
       showToast("Failed to update phone.", "error");
     } finally {
       setSavingPhone(false);
+    }
+  }
+
+  async function handleSaveBio() {
+    setSavingBio(true);
+    try {
+      await updateDoc(doc(db, "users", user.uid), { bio: bioInput.trim() });
+      setBio(bioInput.trim());
+      setEditingBio(false);
+      showToast("Bio updated.");
+    } catch (e) {
+      console.error("Bio update error:", e);
+      showToast("Failed to update bio.", "error");
+    } finally {
+      setSavingBio(false);
     }
   }
 
@@ -169,7 +195,7 @@ export default function ProfilePage() {
     ? displayName.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()
     : user.email?.[0]?.toUpperCase() ?? "?";
 
-  const roleLabel = userRole === "landlord" ? "Property Owner" : "Tenant";
+  const roleLabel = userRole === "landlord" ? "Property Owner" : "Student";
 
   return (
     <main className="profile-page">
@@ -198,6 +224,7 @@ export default function ProfilePage() {
           <div className="profile-page__avatar">{initials}</div>
           <div>
             <h1>{displayName || "Your Profile"}</h1>
+            {bio && <p className="profile-page__hero-bio">{bio}</p>}
             <span className={"profile-page__role-badge" + (userRole === "landlord" ? " landlord" : " tenant")}>
               {userRole === "landlord" ? <HiOutlineShieldCheck /> : <HiOutlineUser />}
               {roleLabel}
@@ -247,10 +274,7 @@ export default function ProfilePage() {
             ) : (
               <div className="profile-page__field-value">
                 <span>{displayName || <em>Not set</em>}</span>
-                <button
-                  className="profile-page__edit-btn"
-                  onClick={() => setEditingName(true)}
-                >
+                <button className="profile-page__edit-btn" onClick={() => setEditingName(true)}>
                   <HiOutlinePencilSquare /> Edit
                 </button>
               </div>
@@ -302,10 +326,50 @@ export default function ProfilePage() {
             ) : (
               <div className="profile-page__field-value">
                 <span>{phone || <em>Not set</em>}</span>
-                <button
-                  className="profile-page__edit-btn"
-                  onClick={() => setEditingPhone(true)}
-                >
+                <button className="profile-page__edit-btn" onClick={() => setEditingPhone(true)}>
+                  <HiOutlinePencilSquare /> Edit
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Bio */}
+          <div className={"profile-page__field" + (userRole !== "landlord" ? "" : " profile-page__field--last")}>
+            <div className="profile-page__field-label">
+              <HiOutlineChatBubbleBottomCenterText />
+              <span>Bio</span>
+            </div>
+            {editingBio ? (
+              <div className="profile-page__field-edit profile-page__field-edit--bio">
+                <textarea
+                  value={bioInput}
+                  onChange={(e) => setBioInput(e.target.value)}
+                  autoFocus
+                  placeholder="e.g. 300L student at UNIPORT, looking for quiet accommodation near campus."
+                  maxLength={160}
+                  rows={3}
+                />
+                <div className="profile-page__bio-actions">
+                  <span className="profile-page__bio-count">{bioInput.length}/160</span>
+                  <button
+                    className="profile-page__icon-btn profile-page__icon-btn--save"
+                    onClick={handleSaveBio}
+                    disabled={savingBio}
+                  >
+                    {savingBio ? <span className="profile-page__mini-spinner" /> : <HiOutlineCheck />}
+                  </button>
+                  <button
+                    className="profile-page__icon-btn profile-page__icon-btn--cancel"
+                    onClick={() => { setEditingBio(false); setBioInput(bio); }}
+                  >
+                    <HiOutlineXMark />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="profile-page__field-value">
+                <span className="profile-page__bio-text">{bio || <em>Not set</em>}</span>
+                <button className="profile-page__edit-btn" onClick={() => setEditingBio(true)}>
                   <HiOutlinePencilSquare /> Edit
                 </button>
               </div>
@@ -394,7 +458,13 @@ export default function ProfilePage() {
                 </button>
                 <button
                   className="profile-page__pw-cancel"
-                  onClick={() => { setShowPasswordForm(false); setPasswordError(""); setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); }}
+                  onClick={() => {
+                    setShowPasswordForm(false);
+                    setPasswordError("");
+                    setCurrentPassword("");
+                    setNewPassword("");
+                    setConfirmPassword("");
+                  }}
                 >
                   Cancel
                 </button>
@@ -421,15 +491,33 @@ export default function ProfilePage() {
                 </div>
               </a>
             )}
+            {userRole === "student" && (
+              <>
+                <a href="/roommates" className="profile-page__link profile-page__link--roommates">
+                  <HiOutlineUserGroup />
+                  <div>
+                    <strong>Roommate Board</strong>
+                    <span>Find someone to split the rent with</span>
+                  </div>
+                </a>
+                <a href="/roommates/post" className="profile-page__link profile-page__link--post">
+                  <HiOutlineChatBubbleBottomCenterText />
+                  <div>
+                    <strong>Post a Roommate Request</strong>
+                    <span>Share a listing and find a roommate</span>
+                  </div>
+                </a>
+              </>
+            )}
             <a href="/saved-listings" className="profile-page__link">
-              <HiOutlineUser />
+              <HiOutlineBookmark />
               <div>
                 <strong>Saved Listings</strong>
                 <span>Properties you have bookmarked</span>
               </div>
             </a>
             <a href="/listings" className="profile-page__link">
-              <HiOutlineUser />
+              <HiOutlineHome />
               <div>
                 <strong>Browse Properties</strong>
                 <span>Find your next home</span>

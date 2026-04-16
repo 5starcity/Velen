@@ -529,3 +529,91 @@
       justify-content: center;
     }
   }
+  /* ── append to styles/profile.css ── */
+
+/* Bio display in hero */
+.profile-page__hero-bio {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 4px 0 8px;
+  line-height: 1.5;
+  max-width: 340px;
+}
+
+/* Bio field — textarea edit mode */
+.profile-page__field-edit--bio {
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  gap: 8px;
+}
+
+.profile-page__field-edit--bio textarea {
+  width: 100%;
+  padding: 10px 12px;
+  background: #1e293b;
+  border: 1.5px solid rgba(79, 110, 247, 0.4);
+  border-radius: 10px;
+  color: #f8fafc;
+  font-size: 0.9rem;
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  line-height: 1.5;
+  transition: border-color 0.2s;
+}
+
+.profile-page__field-edit--bio textarea:focus {
+  border-color: #4f6ef7;
+}
+
+.profile-page__bio-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.profile-page__bio-count {
+  font-size: 0.75rem;
+  color: #475569;
+  margin-right: auto;
+}
+
+/* Bio display value */
+.profile-page__bio-text {
+  color: #94a3b8 !important;
+  font-size: 0.88rem !important;
+  line-height: 1.5;
+  max-width: 320px;
+}
+
+/* Student quick links */
+.profile-page__link--roommates {
+  background: rgba(52, 211, 153, 0.05);
+  border-color: rgba(52, 211, 153, 0.15);
+}
+
+.profile-page__link--roommates:hover {
+  background: rgba(52, 211, 153, 0.09);
+  border-color: rgba(52, 211, 153, 0.26);
+}
+
+.profile-page__link--roommates svg {
+  color: #6ee7b7;
+}
+
+.profile-page__link--post {
+  background: rgba(251, 191, 36, 0.05);
+  border-color: rgba(251, 191, 36, 0.13);
+}
+
+.profile-page__link--post:hover {
+  background: rgba(251, 191, 36, 0.09);
+  border-color: rgba(251, 191, 36, 0.24);
+}
+
+.profile-page__link--post svg {
+  color: #fcd34d;
+}
