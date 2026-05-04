@@ -1244,3 +1244,38 @@
   background: rgba(34, 197, 94, 0.14);
   border-color: rgba(34, 197, 94, 0.35);
 }
+.details-page__reserve-btn.reserved {
+  background: rgba(100, 116, 139, 0.08);
+  border-color: rgba(100, 116, 139, 0.2);
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.details-page__reserve-btn.mine {
+  background: rgba(79, 110, 247, 0.08);
+  border-color: rgba(79, 110, 247, 0.2);
+  color: #818cf8;
+  cursor: default;
+}
+.details-page__pay-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px;
+  background: #4f6ef7;
+  border: none;
+  color: #fff;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(79,110,247,0.25);
+}
+.details-page__pay-btn:hover {
+  background: #3a58e0;
+  transform: translateY(-1px);
+}

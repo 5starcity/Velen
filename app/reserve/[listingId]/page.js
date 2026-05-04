@@ -18,7 +18,11 @@ import {
 } from "react-icons/hi2";
 import { useAuth } from "@/context/AuthContext";
 import { fetchListingById } from "@/lib/firestoreListings";
-import { createReservation } from "@/lib/firestoreReservations";
+import {
+  createReservation,
+  fetchActiveReservationForListing,
+  fetchStudentReservationForListing,
+} from "@/lib/firestoreReservations";
 import { createNotification } from "@/lib/firestoreNotifications";
 import { trackEvent } from "@/lib/posthog";
 import { doc, getDoc } from "firebase/firestore";
@@ -30,15 +34,20 @@ export default function ReservePage() {
   const router        = useRouter();
   const { user, userRole } = useAuth();
 
-  const [listing, setListing]   = useState(null);
-  const [loading, setLoading]   = useState(true);
-  const [phone, setPhone]       = useState("");
-  const [moveInDate, setMoveInDate] = useState("");
-  const [note, setNote]         = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted]   = useState(false);
+  const [listing, setListing]         = useState(null);
+  const [loading, setLoading]         = useState(true);
+  const [checking, setChecking]       = useState(true);
+  const [phone, setPhone]             = useState("");
+  const [moveInDate, setMoveInDate]   = useState("");
+  const [note, setNote]               = useState("");
+  const [submitting, setSubmitting]   = useState(false);
+  const [submitted, setSubmitted]     = useState(false);
   const [reservationId, setReservationId] = useState(null);
-  const [error, setError]       = useState("");
+  const [error, setError]             = useState("");
+
+  // Guard states
+  const [alreadyReserved, setAlreadyReserved]         = useState(false);
+  const [myExistingReservation, setMyExistingReservation] = useState(null);
 
   useEffect(() => {
     if (!user) { router.push("/login"); return; }
@@ -60,6 +69,27 @@ export default function ReservePage() {
     load();
   }, [listingId]);
 
+  // Check reservation status once listing + user are ready
+  useEffect(() => {
+    if (!listing || !user) return;
+    async function checkReservations() {
+      setChecking(true);
+      try {
+        const [listingReserved, studentReserved] = await Promise.all([
+          fetchActiveReservationForListing(listingId),
+          fetchStudentReservationForListing(listingId, user.uid),
+        ]);
+        if (listingReserved) setAlreadyReserved(true);
+        if (studentReserved) setMyExistingReservation(studentReserved);
+      } catch (e) {
+        console.error("Reservation check error:", e);
+      } finally {
+        setChecking(false);
+      }
+    }
+    checkReservations();
+  }, [listing, user]);
+
   useEffect(() => {
     if (!user) return;
     async function loadPhone() {
@@ -73,11 +103,30 @@ export default function ReservePage() {
 
   async function handleSubmit() {
     setError("");
-    if (!moveInDate) { setError("Please select a preferred move-in date."); return; }
+    if (!moveInDate)   { setError("Please select a preferred move-in date."); return; }
     if (!phone.trim()) { setError("Please enter your phone number."); return; }
+    if (submitting)    return; // prevent double click
 
     setSubmitting(true);
     try {
+      // Final guard — re-check right before writing to catch race conditions
+      const [listingReserved, studentReserved] = await Promise.all([
+        fetchActiveReservationForListing(listingId),
+        fetchStudentReservationForListing(listingId, user.uid),
+      ]);
+
+      if (listingReserved) {
+        setAlreadyReserved(true);
+        setError("Sorry, this room has already been reserved by someone else.");
+        return;
+      }
+
+      if (studentReserved) {
+        setMyExistingReservation(studentReserved);
+        setError("You already have an active reservation for this listing.");
+        return;
+      }
+
       const id = await createReservation({
         listingId,
         listingTitle:  listing.title,
@@ -88,7 +137,7 @@ export default function ReservePage() {
         studentName:   user.displayName || "Anonymous",
         studentPhone:  phone.trim(),
         moveInDate,
-        note: note.trim(),
+        note:          note.trim(),
       });
 
       setReservationId(id);
@@ -126,6 +175,7 @@ export default function ReservePage() {
   minDate.setDate(minDate.getDate() + 1);
   const minDateStr = minDate.toISOString().split("T")[0];
 
+  // Loading listing
   if (loading) {
     return (
       <main className="reserve-page">
@@ -141,6 +191,64 @@ export default function ReservePage() {
           <p>Listing not found.</p>
           <Link href="/listings">Back to listings</Link>
         </div>
+      </main>
+    );
+  }
+
+  // Checking reservation status
+  if (checking) {
+    return (
+      <main className="reserve-page">
+        <div className="reserve-page__loading"><span className="reserve-page__spinner" /></div>
+      </main>
+    );
+  }
+
+  // Listing already confirmed to someone else
+  if (alreadyReserved) {
+    return (
+      <main className="reserve-page">
+        <motion.div
+          className="reserve-page__blocked"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <div className="reserve-page__blocked-icon">🔒</div>
+          <h2>This room is already reserved</h2>
+          <p>Someone else has already secured this property. Check out other available listings.</p>
+          <Link href="/listings" className="reserve-page__btn">Browse Other Listings</Link>
+        </motion.div>
+      </main>
+    );
+  }
+
+  // Student already has an active reservation for this listing
+  if (myExistingReservation) {
+    return (
+      <main className="reserve-page">
+        <motion.div
+          className="reserve-page__blocked"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <div className="reserve-page__blocked-icon">📋</div>
+          <h2>You already reserved this room</h2>
+          <p>
+            Your reservation is currently{" "}
+            <strong>{myExistingReservation.status}</strong>.
+            Track it in your reservations page.
+          </p>
+          <div className="reserve-page__success-actions">
+            <Link href="/my-reservations" className="reserve-page__btn">
+              View My Reservations
+            </Link>
+            <Link href="/listings" className="reserve-page__btn reserve-page__btn--ghost">
+              Browse Listings
+            </Link>
+          </div>
+        </motion.div>
       </main>
     );
   }
@@ -164,7 +272,6 @@ export default function ReservePage() {
             The landlord has been notified and will confirm shortly.
           </p>
 
-          {/* Receipt */}
           <div className="reserve-page__receipt">
             <div className="reserve-page__receipt-header">
               <HiOutlineShieldCheck />
@@ -239,7 +346,6 @@ export default function ReservePage() {
         </p>
       </motion.div>
 
-      {/* Listing preview */}
       <motion.div
         className="reserve-page__listing-preview"
         initial={{ opacity: 0, y: 10 }}
@@ -262,7 +368,6 @@ export default function ReservePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.12 }}
       >
-        {/* Move-in date */}
         <div className="reserve-page__section">
           <div className="reserve-page__section-label">
             <HiOutlineCalendarDays /> Preferred move-in date
@@ -279,7 +384,6 @@ export default function ReservePage() {
           </div>
         </div>
 
-        {/* Phone */}
         <div className="reserve-page__section">
           <div className="reserve-page__section-label">
             <HiOutlinePhone /> Your phone number
@@ -296,7 +400,6 @@ export default function ReservePage() {
           </div>
         </div>
 
-        {/* Note */}
         <div className="reserve-page__section">
           <div className="reserve-page__section-label">
             <HiOutlineChatBubbleBottomCenterText /> Note <em>(optional)</em>
@@ -312,7 +415,6 @@ export default function ReservePage() {
           <p className="reserve-page__char-count">{note.length}/200</p>
         </div>
 
-        {/* Fee notice */}
         <div className="reserve-page__fee-notice">
           <HiOutlineBanknotes />
           <div>

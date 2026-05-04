@@ -47,6 +47,10 @@ import { getFavorites, toggleFavorite } from "@/lib/favorites";
 import { useAuth } from "@/context/AuthContext";
 import { isLandlordVerified } from "@/lib/verification";
 import { trackEvent } from "@/lib/posthog";
+import {
+  fetchActiveReservationForListing,
+  fetchStudentReservationForListing,
+} from "@/lib/firestoreReservations";
 import "@/styles/details-page.css";
 
 export default function ListingDetailsPage() {
@@ -71,6 +75,10 @@ export default function ListingDetailsPage() {
   const [interestSent, setInterestSent]       = useState(false);
   const [sendingInterest, setSendingInterest] = useState(false);
   const [roommatePost, setRoommatePost]       = useState(null);
+
+  // Reservation status
+  const [listingReserved, setListingReserved]           = useState(false);
+  const [studentHasReservation, setStudentHasReservation] = useState(false);
 
   useEffect(() => {
     setFavorites(getFavorites());
@@ -115,6 +123,22 @@ export default function ListingDetailsPage() {
     }
     checkRoommate();
   }, [listingId]);
+
+  // Check reservation status
+  useEffect(() => {
+    if (!listing) return;
+    async function checkReservationStatus() {
+      try {
+        const [active, mine] = await Promise.all([
+          fetchActiveReservationForListing(listingId),
+          user ? fetchStudentReservationForListing(listingId, user.uid) : Promise.resolve(null),
+        ]);
+        if (active) setListingReserved(true);
+        if (mine)   setStudentHasReservation(true);
+      } catch (e) {}
+    }
+    checkReservationStatus();
+  }, [listing, user]);
 
   if (loading) {
     return (
@@ -270,6 +294,13 @@ export default function ListingDetailsPage() {
     router.push("/inspect/" + listingId);
   }
 
+  function handleReserve() {
+    if (listingReserved || studentHasReservation) return;
+    if (!user) { router.push("/login"); return; }
+    trackEvent("reserve_click", { listingId, listingTitle: listing.title });
+    router.push("/reserve/" + listingId);
+  }
+
   function formatDate(ts) {
     if (!ts) return null;
     const date = ts.toDate ? ts.toDate() : new Date(ts);
@@ -359,12 +390,8 @@ export default function ListingDetailsPage() {
                   <p className="details-page__tag">Property Details</p>
                   <h1>{listing.title}</h1>
 
-                  {/* Agent link */}
                   {listing.landlordId && (listing.landlordName || listing.agentName) && (
-                    <Link
-                      href={"/agent/" + listing.landlordId}
-                      className="details-page__agent-link"
-                    >
+                    <Link href={"/agent/" + listing.landlordId} className="details-page__agent-link">
                       <HiOutlineUserCircle />
                       Listed by {listing.landlordName || listing.agentName}
                     </Link>
@@ -499,17 +526,37 @@ export default function ListingDetailsPage() {
                     <HiOutlineClipboardDocumentCheck /> Book Inspection
                   </button>
                 )}
+
                 {/* Reserve button */}
-{!isOwner && (
+                {!isOwner && (
+                  <button
+                    className={
+                      "details-page__reserve-btn" +
+                      (listingReserved ? " reserved" : "") +
+                      (studentHasReservation ? " mine" : "")
+                    }
+                    onClick={handleReserve}
+                    disabled={listingReserved || studentHasReservation}
+                  >
+                    <HiOutlineShieldCheck />
+                    {listingReserved
+                      ? "Room Already Reserved"
+                      : studentHasReservation
+                      ? "You Reserved This Room"
+                      : "Reserve this Room"
+                    }
+                  </button>
+                )}
+                {!isOwner && (
   <button
-    className="details-page__reserve-btn"
+    className="details-page__pay-btn"
     onClick={() => {
       if (!user) { router.push("/login"); return; }
-      trackEvent("reserve_click", { listingId, listingTitle: listing.title });
-      router.push("/reserve/" + listingId);
+      trackEvent("pay_click", { listingId, listingTitle: listing.title });
+      router.push("/pay/" + listingId);
     }}
   >
-    <HiOutlineShieldCheck /> Reserve this Room
+    <HiOutlineBanknotes /> Pay Rent Now
   </button>
 )}
 

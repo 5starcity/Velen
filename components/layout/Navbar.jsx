@@ -1,4 +1,3 @@
-// components/layout/Navbar.jsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -18,6 +17,7 @@ import {
   HiOutlineUserGroup,
   HiOutlineBuildingOffice2,
   HiOutlineShieldCheck,
+  HiOutlineBanknotes,
   HiXMark,
   HiBars3,
 } from "react-icons/hi2";
@@ -25,17 +25,27 @@ import NotificationBell from "@/components/notifications/NotificationBell";
 import "@/styles/navbar.css";
 
 export default function Navbar() {
-  const { user, userRole } = useAuth();
-  const router   = useRouter();
+  const { user, userRole, loading } = useAuth();
+  const router = useRouter();
   const pathname = usePathname();
+
   const [menuOpen, setMenuOpen] = useState(false);
-  const [mounted, setMounted]   = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  if (!mounted || loading) return null;
+
+  const firstName = user?.displayName?.split(" ")[0] || "User";
+
+  const isActive = (href) => pathname.startsWith(href);
+
   async function handleLogout() {
+    if (loggingOut) return;
+    setLoggingOut(true);
     await logOut();
     setMenuOpen(false);
     router.push("/");
@@ -45,7 +55,23 @@ export default function Navbar() {
     setMenuOpen(false);
   }
 
-  const isActive = (href) => mounted && pathname === href;
+  // 🔥 Centralized navigation config
+  const navLinks = [
+    { href: "/", label: "Home", icon: <HiOutlineHome />, roles: ["all"] },
+    { href: "/listings", label: "Browse", icon: <HiOutlineBuildingOffice2 />, roles: ["all"] },
+    { href: "/roommates", label: "Roommates", icon: <HiOutlineUserGroup />, roles: ["student"] },
+    { href: "/my-reservations", label: "Reservations", icon: <HiOutlineShieldCheck />, roles: ["student"] },
+    { href: "/add-listing", label: "Add Listing", icon: <HiOutlinePlus />, roles: ["landlord"] },
+    { href: "/dashboard", label: "Dashboard", icon: <HiOutlineChartBarSquare />, roles: ["landlord"] },
+    { href: "/saved-listings", label: "Saved", icon: <HiOutlineBookmark />, roles: ["all"] },
+    { href: "/transactions", label: "Transactions", icon: <HiOutlineBanknotes />, roles: ["all"], auth: true },
+  ];
+
+  const filteredLinks = navLinks.filter(link => {
+    if (link.auth && !user) return false;
+    if (link.roles.includes("all")) return true;
+    return link.roles.includes(userRole);
+  });
 
   return (
     <>
@@ -57,32 +83,15 @@ export default function Navbar() {
 
           {/* Desktop Nav */}
           <div className="navbar__links">
-            <Link href="/listings" className={isActive("/listings") ? "active" : ""}>
-              Browse
-            </Link>
-            {userRole === "student" && (
-              <>
-                <Link href="/roommates" className={isActive("/roommates") ? "active" : ""}>
-                  Roommates
-                </Link>
-                <Link href="/my-reservations" className={isActive("/my-reservations") ? "active" : ""}>
-                  Reservations
-                </Link>
-              </>
-            )}
-            {userRole === "landlord" && (
-              <>
-                <Link href="/add-listing" className={isActive("/add-listing") ? "active" : ""}>
-                  Add Listing
-                </Link>
-                <Link href="/dashboard" className={isActive("/dashboard") ? "active" : ""}>
-                  Dashboard
-                </Link>
-              </>
-            )}
-            <Link href="/saved-listings" className={isActive("/saved-listings") ? "active" : ""}>
-              Saved
-            </Link>
+            {filteredLinks.map(link => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={isActive(link.href) ? "active" : ""}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
 
           {/* Desktop Auth */}
@@ -93,12 +102,15 @@ export default function Navbar() {
                 <Link
                   href="/profile"
                   className={"navbar__username" + (isActive("/profile") ? " active" : "")}
-                  onClick={closeMenu}
                 >
-                  👋 {user.displayName?.split(" ")[0]}
+                  👋 {firstName}
                 </Link>
-                <button onClick={handleLogout} className="navbar__logout">
-                  Log Out
+                <button
+                  onClick={handleLogout}
+                  className="navbar__logout"
+                  disabled={loggingOut}
+                >
+                  {loggingOut ? "Logging out..." : "Log Out"}
                 </button>
               </div>
             ) : (
@@ -114,6 +126,8 @@ export default function Navbar() {
             className="navbar__hamburger"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
           >
             {menuOpen ? <HiXMark /> : <HiBars3 />}
           </button>
@@ -122,64 +136,63 @@ export default function Navbar() {
 
       {menuOpen && <div className="navbar__overlay" onClick={closeMenu} />}
 
-      <div className={"navbar__drawer" + (menuOpen ? " open" : "")}>
+      {/* Mobile Drawer */}
+      <div
+        id="mobile-menu"
+        className={"navbar__drawer" + (menuOpen ? " open" : "")}
+      >
         <div className="navbar__drawer-header">
           <p className="navbar__drawer-logo">Vel<span>en</span></p>
           <div className="navbar__drawer-header-right">
             {user && <NotificationBell />}
-            {user && <p className="navbar__drawer-user">👋 {user.displayName?.split(" ")[0]}</p>}
+            {user && <p className="navbar__drawer-user">👋 {firstName}</p>}
           </div>
         </div>
 
         <div className="navbar__drawer-links">
-          <Link href="/" className={"navbar__drawer-link" + (isActive("/") ? " active" : "")} onClick={closeMenu}>
-            <HiOutlineHome /><span>Home</span>
-          </Link>
-          <Link href="/listings" className={"navbar__drawer-link" + (isActive("/listings") ? " active" : "")} onClick={closeMenu}>
-            <HiOutlineBuildingOffice2 /><span>Browse Listings</span>
-          </Link>
-          {userRole === "student" && (
-            <>
-              <Link href="/roommates" className={"navbar__drawer-link" + (isActive("/roommates") ? " active" : "")} onClick={closeMenu}>
-                <HiOutlineUserGroup /><span>Roommates</span>
-              </Link>
-              <Link href="/my-reservations" className={"navbar__drawer-link" + (isActive("/my-reservations") ? " active" : "")} onClick={closeMenu}>
-                <HiOutlineShieldCheck /><span>My Reservations</span>
-              </Link>
-            </>
-          )}
-          {userRole === "landlord" && (
-            <>
-              <Link href="/add-listing" className={"navbar__drawer-link" + (isActive("/add-listing") ? " active" : "")} onClick={closeMenu}>
-                <HiOutlinePlus /><span>Add Listing</span>
-              </Link>
-              <Link href="/dashboard" className={"navbar__drawer-link" + (isActive("/dashboard") ? " active" : "")} onClick={closeMenu}>
-                <HiOutlineChartBarSquare /><span>Dashboard</span>
-              </Link>
-            </>
-          )}
-          <Link href="/saved-listings" className={"navbar__drawer-link" + (isActive("/saved-listings") ? " active" : "")} onClick={closeMenu}>
-            <HiOutlineBookmark /><span>Saved Listings</span>
-          </Link>
+          {filteredLinks.map(link => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={"navbar__drawer-link" + (isActive(link.href) ? " active" : "")}
+              onClick={closeMenu}
+            >
+              {link.icon}
+              <span>{link.label}</span>
+            </Link>
+          ))}
+
           {user && (
-            <Link href="/profile" className={"navbar__drawer-link" + (isActive("/profile") ? " active" : "")} onClick={closeMenu}>
-              <HiOutlineUser /><span>My Profile</span>
+            <Link
+              href="/profile"
+              className={"navbar__drawer-link" + (isActive("/profile") ? " active" : "")}
+              onClick={closeMenu}
+            >
+              <HiOutlineUser />
+              <span>My Profile</span>
             </Link>
           )}
         </div>
 
         <div className="navbar__drawer-auth">
           {user ? (
-            <button className="navbar__drawer-logout" onClick={handleLogout}>
-              <HiOutlineArrowRightOnRectangle /><span>Log Out</span>
+            <button
+              className="navbar__drawer-logout"
+              onClick={handleLogout}
+              disabled={loggingOut}
+            >
+              <HiOutlineArrowRightOnRectangle />
+              <span>{loggingOut ? "Logging out..." : "Log Out"}</span>
             </button>
           ) : (
             <>
               <Link href="/login" className="navbar__drawer-login" onClick={closeMenu}>
-                <HiOutlineArrowLeftOnRectangle /><span>Log In</span>
+                <HiOutlineArrowLeftOnRectangle />
+                <span>Log In</span>
               </Link>
               <Link href="/signup" className="navbar__drawer-signup" onClick={closeMenu}>
-                <HiOutlineUserPlus /><span>Sign Up</span>
+                <HiOutlineUserPlus />
+                <span>Sign Up</span>
               </Link>
             </>
           )}
