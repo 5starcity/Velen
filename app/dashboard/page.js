@@ -45,6 +45,7 @@ import {
   fetchReservationsByLandlord,
   updateReservationStatus,
 } from "@/lib/firestoreReservations";
+import { createNotification } from "@/lib/firestoreNotifications";
 import "@/styles/dashboard.css";
 
 const AVAILABILITY_OPTIONS = ["Available Now", "Available Soon", "Not Available"];
@@ -75,9 +76,9 @@ function getConversionRate(listing) {
 }
 function getConversionLabel(rate, views) {
   if (rate === null || views < 5) return { text: "Not enough data", tier: "neutral" };
-  if (rate >= 15) return { text: "High demand", tier: "hot" };
-  if (rate >= 5)  return { text: "Good",        tier: "good" };
-  if (views >= 10) return { text: "Low conversion", tier: "low" };
+  if (rate >= 15) return { text: "High demand",      tier: "hot"     };
+  if (rate >= 5)  return { text: "Good",             tier: "good"    };
+  if (views >= 10) return { text: "Low conversion",  tier: "low"     };
   return { text: "Not enough data", tier: "neutral" };
 }
 
@@ -85,13 +86,13 @@ export default function DashboardPage() {
   const router = useRouter();
   const { user, userRole, loading: authLoading } = useAuth();
 
-  const [listings, setListings]             = useState([]);
-  const [loading, setLoading]               = useState(true);
-  const [deletingId, setDeletingId]         = useState(null);
-  const [updatingId, setUpdatingId]         = useState(null);
-  const [renewingId, setRenewingId]         = useState(null);
-  const [filter, setFilter]                 = useState("All");
-  const [sortBy, setSortBy]                 = useState("newest");
+  const [listings, setListings]               = useState([]);
+  const [loading, setLoading]                 = useState(true);
+  const [deletingId, setDeletingId]           = useState(null);
+  const [updatingId, setUpdatingId]           = useState(null);
+  const [renewingId, setRenewingId]           = useState(null);
+  const [filter, setFilter]                   = useState("All");
+  const [sortBy, setSortBy]                   = useState("newest");
   const [dismissedBanner, setDismissedBanner] = useState(false);
 
   // Inspections
@@ -102,10 +103,10 @@ export default function DashboardPage() {
   const [inspectToast, setInspectToast]             = useState(null);
 
   // Reservations
-  const [reservations, setReservations]                 = useState([]);
-  const [reservationsLoading, setReservationsLoading]   = useState(true);
-  const [reserveFilter, setReserveFilter]               = useState("pending");
-  const [updatingReserveId, setUpdatingReserveId]       = useState(null);
+  const [reservations, setReservations]               = useState([]);
+  const [reservationsLoading, setReservationsLoading] = useState(true);
+  const [reserveFilter, setReserveFilter]             = useState("pending");
+  const [updatingReserveId, setUpdatingReserveId]     = useState(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -179,11 +180,43 @@ export default function DashboardPage() {
     }
   }
 
+  // ── Reservation confirm/decline with student notification ──
   async function handleReservationStatus(id, status) {
     setUpdatingReserveId(id);
     try {
       await updateReservationStatus(id, status);
       setReservations((prev) => prev.map((r) => r.id === id ? { ...r, status } : r));
+
+      // Find the reservation to get student details
+      const res = reservations.find((r) => r.id === id);
+      if (res) {
+        try {
+          if (status === "confirmed") {
+            await createNotification({
+              userId:     res.studentId,
+              type:       "reservation_confirmed",
+              title:      "Your reservation was confirmed! 🎉",
+              message:    `Your reservation for "${res.listingTitle}" has been confirmed. Contact the landlord to arrange your move-in.`,
+              listingId:  res.listingId,
+              senderId:   user.uid,
+              senderName: user.displayName || "Landlord",
+            });
+          } else if (status === "declined") {
+            await createNotification({
+              userId:     res.studentId,
+              type:       "reservation_declined",
+              title:      "Reservation update",
+              message:    `Your reservation for "${res.listingTitle}" was not confirmed this time. You can browse other available listings.`,
+              listingId:  res.listingId,
+              senderId:   user.uid,
+              senderName: user.displayName || "Landlord",
+            });
+          }
+        } catch (e) {
+          console.warn("Notification failed silently:", e);
+        }
+      }
+
       showInspectToast(status === "confirmed" ? "Reservation confirmed." : "Reservation declined.");
     } catch (e) {
       console.error(e);
@@ -224,13 +257,8 @@ export default function DashboardPage() {
   const confirmedInspCount = inspections.filter((i) => i.status === "confirmed").length;
   const pendingResCount    = reservations.filter((r) => r.status === "pending").length;
 
-  const filteredInspections = inspections.filter((i) =>
-    inspectFilter === "all" || i.status === inspectFilter
-  );
-
-  const filteredReservations = reservations.filter((r) =>
-    reserveFilter === "all" || r.status === reserveFilter
-  );
+  const filteredInspections  = inspections.filter((i) => inspectFilter === "all" || i.status === inspectFilter);
+  const filteredReservations = reservations.filter((r) => reserveFilter === "all" || r.status === reserveFilter);
 
   const filtered = listings
     .filter((l) => {
@@ -278,12 +306,12 @@ export default function DashboardPage() {
   }
 
   const stats = [
-    { label: "Total Listings",          value: listings.length,                 icon: <HiOutlineHomeModern />,            accent: "blue"   },
-    { label: "Total Views",             value: totalViews.toLocaleString(),      icon: <HiOutlineEye />,                   accent: "purple", onClick: () => setSortBy("views"),         tip: "Sort by most viewed" },
-    { label: "Expressions of Interest", value: totalInterests.toLocaleString(), icon: <HiOutlineBolt />,                  accent: "amber",  onClick: () => setSortBy("interests"),     tip: "Sort by most interest" },
-    { label: "Available Now",           value: availableCount,                  icon: <HiOutlineCheckCircle />,           accent: "green",  onClick: () => setFilter("Available Now"), tip: "Filter available listings" },
+    { label: "Total Listings",          value: listings.length,                 icon: <HiOutlineHomeModern />,             accent: "blue"   },
+    { label: "Total Views",             value: totalViews.toLocaleString(),      icon: <HiOutlineEye />,                    accent: "purple", onClick: () => setSortBy("views"),         tip: "Sort by most viewed" },
+    { label: "Expressions of Interest", value: totalInterests.toLocaleString(), icon: <HiOutlineBolt />,                   accent: "amber",  onClick: () => setSortBy("interests"),     tip: "Sort by most interest" },
+    { label: "Available Now",           value: availableCount,                  icon: <HiOutlineCheckCircle />,            accent: "green",  onClick: () => setFilter("Available Now"), tip: "Filter available listings" },
     { label: "Pending Inspections",     value: pendingInspCount,                icon: <HiOutlineClipboardDocumentCheck />, accent: pendingInspCount > 0 ? "amber" : "gray", onClick: () => setInspectFilter("pending"), tip: "View pending inspections" },
-    { label: "Pending Reservations",    value: pendingResCount,                 icon: <HiOutlineShieldCheck />,           accent: pendingResCount > 0 ? "teal" : "gray",   onClick: () => setReserveFilter("pending"),  tip: "View pending reservations" },
+    { label: "Pending Reservations",    value: pendingResCount,                 icon: <HiOutlineShieldCheck />,            accent: pendingResCount > 0 ? "teal" : "gray",  onClick: () => setReserveFilter("pending"),  tip: "View pending reservations" },
     {
       label:    "Avg Conversion",
       value:    avgConversion !== null ? avgConversion + "%" : "—",
@@ -402,10 +430,7 @@ export default function DashboardPage() {
         </div>
 
         {inspectionsLoading ? (
-          <div className="dashboard__inspections-loading">
-            <span className="dashboard__mini-spinner" />
-            <span>Loading inspections...</span>
-          </div>
+          <div className="dashboard__inspections-loading"><span className="dashboard__mini-spinner" /><span>Loading inspections...</span></div>
         ) : filteredInspections.length === 0 ? (
           <div className="dashboard__inspections-empty">
             <HiOutlineClipboardDocumentCheck />
@@ -421,15 +446,11 @@ export default function DashboardPage() {
                   initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.22 }}
                 >
                   <div className="dashboard__inspect-card-left">
-                    <div className="dashboard__inspect-card-avatar">
-                      {(insp.tenantName || "?")[0].toUpperCase()}
-                    </div>
+                    <div className="dashboard__inspect-card-avatar">{(insp.tenantName || "?")[0].toUpperCase()}</div>
                     <div className="dashboard__inspect-card-info">
                       <p className="dashboard__inspect-card-name">
                         {insp.tenantName}
-                        <span className={"dashboard__inspect-status dashboard__inspect-status--" + insp.status}>
-                          {insp.status}
-                        </span>
+                        <span className={"dashboard__inspect-status dashboard__inspect-status--" + insp.status}>{insp.status}</span>
                       </p>
                       <p className="dashboard__inspect-card-listing">{insp.listingTitle}</p>
                       <div className="dashboard__inspect-card-meta">
@@ -439,21 +460,12 @@ export default function DashboardPage() {
                       {insp.note && <p className="dashboard__inspect-card-note">"{insp.note}"</p>}
                     </div>
                   </div>
-
                   {insp.status === "pending" && (
                     <div className="dashboard__inspect-card-actions">
-                      <button
-                        className="dashboard__inspect-confirm"
-                        onClick={() => handleInspectionStatus(insp.id, "confirmed")}
-                        disabled={updatingInspectId === insp.id}
-                      >
+                      <button className="dashboard__inspect-confirm" onClick={() => handleInspectionStatus(insp.id, "confirmed")} disabled={updatingInspectId === insp.id}>
                         <HiOutlineCheck /><span>Confirm</span>
                       </button>
-                      <button
-                        className="dashboard__inspect-cancel"
-                        onClick={() => handleInspectionStatus(insp.id, "cancelled")}
-                        disabled={updatingInspectId === insp.id}
-                      >
+                      <button className="dashboard__inspect-cancel" onClick={() => handleInspectionStatus(insp.id, "cancelled")} disabled={updatingInspectId === insp.id}>
                         <HiOutlineXCircle /><span>Decline</span>
                       </button>
                     </div>
@@ -493,10 +505,7 @@ export default function DashboardPage() {
         </div>
 
         {reservationsLoading ? (
-          <div className="dashboard__inspections-loading">
-            <span className="dashboard__mini-spinner" />
-            <span>Loading reservations...</span>
-          </div>
+          <div className="dashboard__inspections-loading"><span className="dashboard__mini-spinner" /><span>Loading reservations...</span></div>
         ) : filteredReservations.length === 0 ? (
           <div className="dashboard__inspections-empty">
             <HiOutlineShieldCheck />
@@ -512,15 +521,11 @@ export default function DashboardPage() {
                   initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.22 }}
                 >
                   <div className="dashboard__inspect-card-left">
-                    <div className="dashboard__inspect-card-avatar">
-                      {(res.studentName || "?")[0].toUpperCase()}
-                    </div>
+                    <div className="dashboard__inspect-card-avatar">{(res.studentName || "?")[0].toUpperCase()}</div>
                     <div className="dashboard__inspect-card-info">
                       <p className="dashboard__inspect-card-name">
                         {res.studentName}
-                        <span className={"dashboard__inspect-status dashboard__inspect-status--" + res.status}>
-                          {res.status}
-                        </span>
+                        <span className={"dashboard__inspect-status dashboard__inspect-status--" + res.status}>{res.status}</span>
                       </p>
                       <p className="dashboard__inspect-card-listing">{res.listingTitle}</p>
                       <div className="dashboard__inspect-card-meta">
@@ -533,21 +538,12 @@ export default function DashboardPage() {
                       {res.note && <p className="dashboard__inspect-card-note">"{res.note}"</p>}
                     </div>
                   </div>
-
                   {res.status === "pending" && (
                     <div className="dashboard__inspect-card-actions">
-                      <button
-                        className="dashboard__inspect-confirm"
-                        onClick={() => handleReservationStatus(res.id, "confirmed")}
-                        disabled={updatingReserveId === res.id}
-                      >
+                      <button className="dashboard__inspect-confirm" onClick={() => handleReservationStatus(res.id, "confirmed")} disabled={updatingReserveId === res.id}>
                         <HiOutlineCheck /><span>Confirm</span>
                       </button>
-                      <button
-                        className="dashboard__inspect-cancel"
-                        onClick={() => handleReservationStatus(res.id, "declined")}
-                        disabled={updatingReserveId === res.id}
-                      >
+                      <button className="dashboard__inspect-cancel" onClick={() => handleReservationStatus(res.id, "declined")} disabled={updatingReserveId === res.id}>
                         <HiOutlineXCircle /><span>Decline</span>
                       </button>
                     </div>

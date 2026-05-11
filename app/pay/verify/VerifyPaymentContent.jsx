@@ -111,16 +111,13 @@ export default function VerifyPaymentContent() {
           </div>
 
           <div className="pay-page__result-actions">
-            <Link href="/transactions" className="pay-page__btn">
-              View Transaction History
-            </Link>
-            <Link
-              href={"/listings/" + (txData?.metadata?.listingId || "")}
-              className="pay-page__btn pay-page__btn--ghost"
-            >
-              Back to Listing
-            </Link>
-          </div>
+  <Link href={"/transactions/" + reference} className="pay-page__btn">
+    View Receipt
+  </Link>
+  <Link href="/transactions" className="pay-page__btn pay-page__btn--ghost">
+    All Transactions
+  </Link>
+</div>
         </motion.div>
       </main>
     );

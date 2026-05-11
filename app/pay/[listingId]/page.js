@@ -235,7 +235,47 @@ export default function PayPage() {
       )}
 
       {error && <p className="pay-page__error">{error}</p>}
+      {/* Trust signals */}
+<motion.div
+  className="pay-page__trust-signals"
+  initial={{ opacity: 0, y: 10 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 0.22 }}
+>
+  <div className="pay-page__trust-item">
+    <HiOutlineShieldCheck />
+    <div>
+      <p className="pay-page__trust-title">Your money is protected</p>
+      <p className="pay-page__trust-sub">
+        Funds are held in escrow — not sent directly to the landlord until you've moved in safely.
+      </p>
+    </div>
+  </div>
 
+  <div className="pay-page__trust-item">
+    <HiOutlineClock />
+    <div>
+      <p className="pay-page__trust-title">48-hour dispute window</p>
+      <p className="pay-page__trust-sub">
+        If anything goes wrong, raise a dispute before the timer expires and your money is frozen.
+      </p>
+    </div>
+  </div>
+
+  <div className="pay-page__trust-item">
+    <HiOutlineExclamationTriangle />
+    <div>
+      <p className="pay-page__trust-title">Human support available</p>
+      <p className="pay-page__trust-sub">
+        Real people on WhatsApp and phone. We hold both parties accountable.
+      </p>
+    </div>
+  </div>
+</motion.div>
+
+<p className="pay-page__final-note">
+  You will receive a digital receipt immediately after payment.
+</p>
       <button
         className="pay-page__submit"
         onClick={handlePay}

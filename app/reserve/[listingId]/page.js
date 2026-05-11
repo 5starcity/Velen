@@ -31,22 +31,21 @@ import "@/styles/reserve.css";
 
 export default function ReservePage() {
   const { listingId } = useParams();
-  const router        = useRouter();
+  const router = useRouter();
   const { user, userRole } = useAuth();
 
-  const [listing, setListing]         = useState(null);
-  const [loading, setLoading]         = useState(true);
-  const [checking, setChecking]       = useState(true);
-  const [phone, setPhone]             = useState("");
-  const [moveInDate, setMoveInDate]   = useState("");
-  const [note, setNote]               = useState("");
-  const [submitting, setSubmitting]   = useState(false);
-  const [submitted, setSubmitted]     = useState(false);
+  const [listing, setListing] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [checking, setChecking] = useState(true);
+  const [phone, setPhone] = useState("");
+  const [moveInDate, setMoveInDate] = useState("");
+  const [note, setNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [reservationId, setReservationId] = useState(null);
-  const [error, setError]             = useState("");
+  const [error, setError] = useState("");
 
-  // Guard states
-  const [alreadyReserved, setAlreadyReserved]         = useState(false);
+  const [alreadyReserved, setAlreadyReserved] = useState(false);
   const [myExistingReservation, setMyExistingReservation] = useState(null);
 
   useEffect(() => {
@@ -69,7 +68,6 @@ export default function ReservePage() {
     load();
   }, [listingId]);
 
-  // Check reservation status once listing + user are ready
   useEffect(() => {
     if (!listing || !user) return;
     async function checkReservations() {
@@ -103,13 +101,12 @@ export default function ReservePage() {
 
   async function handleSubmit() {
     setError("");
-    if (!moveInDate)   { setError("Please select a preferred move-in date."); return; }
+    if (!moveInDate) { setError("Please select a preferred move-in date."); return; }
     if (!phone.trim()) { setError("Please enter your phone number."); return; }
-    if (submitting)    return; // prevent double click
+    if (submitting) return;
 
     setSubmitting(true);
     try {
-      // Final guard — re-check right before writing to catch race conditions
       const [listingReserved, studentReserved] = await Promise.all([
         fetchActiveReservationForListing(listingId),
         fetchStudentReservationForListing(listingId, user.uid),
@@ -175,7 +172,6 @@ export default function ReservePage() {
   minDate.setDate(minDate.getDate() + 1);
   const minDateStr = minDate.toISOString().split("T")[0];
 
-  // Loading listing
   if (loading) {
     return (
       <main className="reserve-page">
@@ -195,7 +191,6 @@ export default function ReservePage() {
     );
   }
 
-  // Checking reservation status
   if (checking) {
     return (
       <main className="reserve-page">
@@ -204,7 +199,6 @@ export default function ReservePage() {
     );
   }
 
-  // Listing already confirmed to someone else
   if (alreadyReserved) {
     return (
       <main className="reserve-page">
@@ -223,7 +217,6 @@ export default function ReservePage() {
     );
   }
 
-  // Student already has an active reservation for this listing
   if (myExistingReservation) {
     return (
       <main className="reserve-page">
@@ -241,12 +234,8 @@ export default function ReservePage() {
             Track it in your reservations page.
           </p>
           <div className="reserve-page__success-actions">
-            <Link href="/my-reservations" className="reserve-page__btn">
-              View My Reservations
-            </Link>
-            <Link href="/listings" className="reserve-page__btn reserve-page__btn--ghost">
-              Browse Listings
-            </Link>
+            <Link href="/my-reservations" className="reserve-page__btn">View My Reservations</Link>
+            <Link href="/listings" className="reserve-page__btn reserve-page__btn--ghost">Browse Listings</Link>
           </div>
         </motion.div>
       </main>
@@ -316,9 +305,7 @@ export default function ReservePage() {
           </div>
 
           <div className="reserve-page__success-actions">
-            <Link href="/my-reservations" className="reserve-page__btn">
-              View my reservations
-            </Link>
+            <Link href="/my-reservations" className="reserve-page__btn">View my reservations</Link>
             <Link href={"/listings/" + listingId} className="reserve-page__btn reserve-page__btn--ghost">
               Back to listing
             </Link>

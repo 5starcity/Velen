@@ -205,3 +205,79 @@
     }
   }
   .notif-item__icon--inspect { color: #34d399; }
+  .notif-dropdown__unread-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    background: #ef4444;
+    color: white;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    margin-left: 6px;
+  }
+   
+  /* Delete button on each item in dropdown */
+  .notif-item__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+   
+  .notif-item__delete-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: none;
+    border: none;
+    color: #334155;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.15s;
+    opacity: 0;
+  }
+   
+  .notif-item:hover .notif-item__delete-btn {
+    opacity: 1;
+  }
+   
+  .notif-item__delete-btn:hover {
+    background: rgba(239,68,68,0.1);
+    color: #f87171;
+  }
+   
+  /* Footer link to full page */
+  .notif-dropdown__footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #4f6ef7;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+   
+  .notif-dropdown__footer:hover {
+    background: rgba(79,110,247,0.06);
+    color: #818cf8;
+  }
+   
+  /* New icon colors for bell dropdown */
+  .notif-item__icon--reserve   { color: #818cf8; }
+  .notif-item__icon--confirmed { color: #34d399; }
+  .notif-item__icon--declined  { color: #f87171; }
+  .notif-item__icon--approved  { color: #34d399; }
+  .notif-item__icon--payment   { color: #fbbf24; }
+  .notif-item__icon--roommate  { color: #2dd4bf; }
+   

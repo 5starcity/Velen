@@ -1,4 +1,3 @@
-// app/transactions/page.js
 "use client";
 
 import { useEffect, useState } from "react";
@@ -13,7 +12,6 @@ import {
   HiOutlineExclamationTriangle,
   HiOutlineClock,
   HiOutlineCheckCircle,
-  HiOutlineXCircle,
 } from "react-icons/hi2";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -86,9 +84,13 @@ export default function TransactionsPage() {
         reason:        disputeReason,
         description:   disputeDesc,
       });
-      setTransactions((prev) => prev.map((t) =>
-        t.id === tx.id ? { ...t, escrowStatus: "disputed" } : t
-      ));
+
+      setTransactions((prev) =>
+        prev.map((t) =>
+          t.id === tx.id ? { ...t, escrowStatus: "disputed" } : t
+        )
+      );
+
       setDisputeSuccess(true);
       setDisputeId(null);
       setDisputeReason("");
@@ -127,7 +129,9 @@ export default function TransactionsPage() {
   if (authLoading || loading) {
     return (
       <main className="pay-page">
-        <div className="pay-page__loading"><span className="pay-page__spinner" /></div>
+        <div className="pay-page__loading">
+          <span className="pay-page__spinner" />
+        </div>
       </main>
     );
   }
@@ -138,17 +142,22 @@ export default function TransactionsPage() {
         className="transactions-page__header"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
       >
         <Link href="/" className="pay-page__back">
           <HiOutlineArrowLeft /> Back
         </Link>
-        <p className="pay-page__eyebrow"><HiOutlineBanknotes /> Transactions</p>
+
+        <p className="pay-page__eyebrow">
+          <HiOutlineBanknotes /> Transactions
+        </p>
+
         <h1>Payment History</h1>
-        <p className="pay-page__sub">Track your rent payments, escrow status and disputes.</p>
+        <p className="pay-page__sub">
+          Track your rent payments, escrow status and disputes.
+        </p>
       </motion.div>
 
-      {/* Filter tabs */}
+      {/* Filters */}
       <div className="transactions-page__tabs">
         {["all", "escrow", "released", "disputed", "refunded"].map((tab) => (
           <button
@@ -156,221 +165,61 @@ export default function TransactionsPage() {
             className={"transactions-page__tab" + (filter === tab ? " active" : "")}
             onClick={() => setFilter(tab)}
           >
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            <span className="transactions-page__tab-count">
-              {tab === "all" ? transactions.length : transactions.filter((t) => {
-                if (tab === "escrow")   return t.escrowStatus === "holding";
-                if (tab === "released") return t.escrowStatus === "released";
-                if (tab === "disputed") return t.escrowStatus === "disputed";
-                if (tab === "refunded") return t.status === "refunded";
-                return false;
-              }).length}
-            </span>
+            {tab}
           </button>
         ))}
       </div>
 
-      {disputeSuccess && (
-        <motion.div
-          className="transactions-page__dispute-success"
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          ✅ Dispute raised. Our team will review within 24 hours. Contact support on WhatsApp or call {PAYMENT_CONFIG.supportPhone}.
-        </motion.div>
-      )}
-
       {filtered.length === 0 ? (
         <div className="transactions-page__empty">
-          <HiOutlineBanknotes className="transactions-page__empty-icon" />
-          <h2>{filter === "all" ? "No transactions yet" : "No " + filter + " transactions"}</h2>
-          <p>{filter === "all" ? "Your rent payment history will appear here." : "Check another tab."}</p>
+          <h2>No transactions</h2>
         </div>
       ) : (
-        <motion.div
-          className="transactions-page__list"
-          variants={stagger}
-          initial="hidden"
-          animate="show"
-        >
-          <AnimatePresence>
-            {filtered.map((tx) => (
-              <motion.div
-                key={tx.id}
-                className="transaction-card"
-                variants={fadeUp}
-              >
-                <div className="transaction-card__header">
-                  <div className="transaction-card__icon">
-                    <HiOutlineBanknotes />
-                  </div>
-                  <div className="transaction-card__info">
-                    <p className="transaction-card__title">{tx.listingTitle}</p>
-                    <p className="transaction-card__date">{formatDate(tx.createdAt)}</p>
-                  </div>
-                  <div className="transaction-card__right">
-                    <p className="transaction-card__amount">
-                      ₦{Number(tx.totalCharged || tx.amount || 0).toLocaleString()}
-                    </p>
-                    <StatusBadge status={tx.status} escrowStatus={tx.escrowStatus} />
-                  </div>
-                  <Link
-                    href={"/listings/" + tx.listingId}
-                    className="transaction-card__link"
-                    target="_blank"
-                  >
-                    <HiOutlineArrowTopRightOnSquare />
-                  </Link>
+        <motion.div className="transactions-page__list" variants={stagger} initial="hidden" animate="show">
+          {filtered.map((tx) => (
+            <motion.div key={tx.id} className="transaction-card" variants={fadeUp}>
+              
+              {/* HEADER */}
+              <div className="transaction-card__header">
+                <div>
+                  <p>{tx.listingTitle}</p>
+                  <p>{formatDate(tx.createdAt)}</p>
                 </div>
 
-                <div className="transaction-card__details">
-                  <div className="transaction-card__detail">
-                    <span>Rent</span>
-                    <strong>₦{Number(tx.amount || 0).toLocaleString()}</strong>
-                  </div>
-                  <div className="transaction-card__detail">
-                    <span>Service Fee</span>
-                    <strong>₦{Number(tx.serviceFee || 0).toLocaleString()}</strong>
-                  </div>
-                  <div className="transaction-card__detail">
-                    <span>Reference</span>
-                    <strong className="transaction-card__ref">{tx.reference?.slice(0, 16)}...</strong>
-                  </div>
+                <div>
+                  <p>₦{Number(tx.totalCharged || tx.amount || 0).toLocaleString()}</p>
+                  <StatusBadge status={tx.status} escrowStatus={tx.escrowStatus} />
                 </div>
 
-                {tx.escrowStatus === "holding" && tx.escrowReleaseAt && (
-                  <div className="transaction-card__escrow-bar">
-                    <HiOutlineClock />
-                    <span>{formatEscrowRelease(tx.escrowReleaseAt)}</span>
-                  </div>
-                )}
+                {/* ✅ RECEIPT LINK */}
+                <Link
+                  href={"/transactions/" + (tx.reference || tx.id)}
+                  className="transaction-card__link"
+                  title="View receipt"
+                >
+                  <HiOutlineArrowTopRightOnSquare />
+                </Link>
+              </div>
 
-                {/* Actions */}
-                <div className="transaction-card__actions">
-                  {/* Student can raise dispute while in escrow */}
-                  {userRole === "student" &&
-                   tx.escrowStatus === "holding" &&
-                   tx.status === "success" &&
-                   disputeId !== tx.id && (
-                    <button
-                      className="transaction-card__dispute-btn"
-                      onClick={() => setDisputeId(tx.id)}
-                    >
-                      <HiOutlineExclamationTriangle /> Raise Dispute
-                    </button>
-                  )}
+              {/* DETAILS */}
+              <div className="transaction-card__details">
+                <p>Rent: ₦{Number(tx.amount || 0).toLocaleString()}</p>
+                <p>Fee: ₦{Number(tx.serviceFee || 0).toLocaleString()}</p>
+                <p>Ref: {tx.reference?.slice(0, 12)}...</p>
+              </div>
 
-                  {/* Landlord can also raise dispute */}
-                  {userRole === "landlord" &&
-                   tx.escrowStatus === "holding" &&
-                   tx.status === "success" &&
-                   disputeId !== tx.id && (
-                    <button
-                      className="transaction-card__dispute-btn"
-                      onClick={() => setDisputeId(tx.id)}
-                    >
-                      <HiOutlineExclamationTriangle /> Raise Dispute
-                    </button>
-                  )}
-
-                  {tx.escrowStatus === "released" && (
-                    <span className="transaction-card__released-note">
-                      <HiOutlineCheckCircle /> Funds released to landlord
-                    </span>
-                  )}
-
-                  {tx.escrowStatus === "disputed" && (
-                    <div className="transaction-card__disputed-note">
-                      <HiOutlineExclamationTriangle />
-                      <span>
-                        Dispute under review. Contact support:{" "}
-                        <a href={`https://wa.me/${PAYMENT_CONFIG.supportWhatsApp}`} target="_blank" rel="noreferrer">
-                          WhatsApp
-                        </a>
-                        {" "}or call {PAYMENT_CONFIG.supportPhone}
-                      </span>
-                    </div>
-                  )}
+              {/* ESCROW */}
+              {tx.escrowStatus === "holding" && (
+                <div className="transaction-card__escrow-bar">
+                  <HiOutlineClock />
+                  <span>{formatEscrowRelease(tx.escrowReleaseAt)}</span>
                 </div>
+              )}
 
-                {/* Dispute form */}
-                <AnimatePresence>
-                  {disputeId === tx.id && (
-                    <motion.div
-                      className="transaction-card__dispute-form"
-                      initial={{ opacity: 0, y: -8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.25 }}
-                    >
-                      <p className="transaction-card__dispute-title">
-                        <HiOutlineExclamationTriangle /> Raise a dispute
-                      </p>
-                      <select
-                        value={disputeReason}
-                        onChange={(e) => setDisputeReason(e.target.value)}
-                        className="transaction-card__dispute-select"
-                      >
-                        <option value="">Select reason</option>
-                        <option value="property_not_as_described">Property not as described</option>
-                        <option value="landlord_unresponsive">Landlord unresponsive</option>
-                        <option value="access_denied">Access to property denied</option>
-                        <option value="payment_not_received">Payment not received</option>
-                        <option value="double_charge">Double charged</option>
-                        <option value="other">Other</option>
-                      </select>
-                      <textarea
-                        value={disputeDesc}
-                        onChange={(e) => setDisputeDesc(e.target.value)}
-                        placeholder="Describe the issue in detail..."
-                        rows={3}
-                        maxLength={500}
-                        className="transaction-card__dispute-textarea"
-                      />
-                      <div className="transaction-card__dispute-actions">
-                        <button
-                          className="transaction-card__dispute-cancel"
-                          onClick={() => { setDisputeId(null); setDisputeReason(""); setDisputeDesc(""); }}
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          className="transaction-card__dispute-submit"
-                          onClick={() => handleRaiseDispute(tx)}
-                          disabled={submittingDispute || !disputeReason || !disputeDesc.trim()}
-                        >
-                          {submittingDispute ? "Submitting..." : "Submit Dispute"}
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+            </motion.div>
+          ))}
         </motion.div>
       )}
-
-      {/* Support footer */}
-      <div className="transactions-page__support">
-        <p>Need help with a payment?</p>
-        <div className="pay-page__support-links">
-          
-            <a href={`https://wa.me/${PAYMENT_CONFIG.supportWhatsApp}`}
-            target="_blank"
-            rel="noreferrer"
-            className="pay-page__support-btn"
-          >
-            WhatsApp Support
-          </a>
-          
-           <a href={`tel:${PAYMENT_CONFIG.supportPhone}`}
-            className="pay-page__support-btn pay-page__support-btn--ghost"
-          >
-            Call {PAYMENT_CONFIG.supportPhone}
-          </a>
-        </div>
-      </div>
     </main>
   );
 }

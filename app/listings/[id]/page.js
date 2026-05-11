@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import "@/styles/inspect.css";
 import {
@@ -32,6 +32,9 @@ import {
   HiOutlineClipboardDocumentCheck,
   HiOutlineUserGroup,
   HiOutlineUserCircle,
+  HiOutlineXMark,
+  HiOutlineExclamationTriangle,
+  HiOutlineCheckCircle,
 } from "react-icons/hi2";
 import {
   fetchListingById,
@@ -53,6 +56,16 @@ import {
 } from "@/lib/firestoreReservations";
 import "@/styles/details-page.css";
 
+const REPORT_CATEGORIES = [
+  { value: "fake_listing",   label: "🚫 Fake listing",         desc: "This property doesn't exist or is misleading" },
+  { value: "scam",           label: "⚠️ Scam / Fraud",         desc: "Suspicious activity or fraudulent intent" },
+  { value: "wrong_price",    label: "💰 Wrong price",           desc: "Price is significantly different from reality" },
+  { value: "already_rented", label: "🔒 Already rented",       desc: "This property is no longer available" },
+  { value: "bad_photos",     label: "📷 Misleading photos",    desc: "Photos don't match the actual property" },
+  { value: "inappropriate",  label: "🔞 Inappropriate content", desc: "Content violates community guidelines" },
+  { value: "other",          label: "📝 Other",                 desc: "Something else is wrong" },
+];
+
 export default function ListingDetailsPage() {
   const params    = useParams();
   const router    = useRouter();
@@ -66,9 +79,6 @@ export default function ListingDetailsPage() {
   const [editForm, setEditForm]               = useState({});
   const [saving, setSaving]                   = useState(false);
   const [deleting, setDeleting]               = useState(false);
-  const [reportSent, setReportSent]           = useState(false);
-  const [showReportBox, setShowReportBox]     = useState(false);
-  const [reportReason, setReportReason]       = useState("");
   const [copied, setCopied]                   = useState(false);
   const [activeMedia, setActiveMedia]         = useState(0);
   const [showVideo, setShowVideo]             = useState(false);
@@ -77,8 +87,16 @@ export default function ListingDetailsPage() {
   const [roommatePost, setRoommatePost]       = useState(null);
 
   // Reservation status
-  const [listingReserved, setListingReserved]           = useState(false);
+  const [listingReserved, setListingReserved]             = useState(false);
   const [studentHasReservation, setStudentHasReservation] = useState(false);
+
+  // Report state
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportCategory, setReportCategory]   = useState("");
+  const [reportDetail, setReportDetail]       = useState("");
+  const [reportSent, setReportSent]           = useState(false);
+  const [reportError, setReportError]         = useState("");
+  const [submittingReport, setSubmittingReport] = useState(false);
 
   useEffect(() => {
     setFavorites(getFavorites());
@@ -124,7 +142,6 @@ export default function ListingDetailsPage() {
     checkRoommate();
   }, [listingId]);
 
-  // Check reservation status
   useEffect(() => {
     if (!listing) return;
     async function checkReservationStatus() {
@@ -140,10 +157,17 @@ export default function ListingDetailsPage() {
     checkReservationStatus();
   }, [listing, user]);
 
+  // Close report modal on Escape
+  useEffect(() => {
+    function handleKey(e) { if (e.key === "Escape") setShowReportModal(false); }
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, []);
+
   if (loading) {
     return (
       <main className="details-page">
-        <motion.div className="details-page__not-found" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+        <motion.div className="details-page__not-found" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <p className="details-page__tag">Loading</p>
           <h1>Loading property...</h1>
           <p>Please wait a moment.</p>
@@ -155,7 +179,7 @@ export default function ListingDetailsPage() {
   if (!listing) {
     return (
       <main className="details-page">
-        <motion.div className="details-page__not-found" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+        <motion.div className="details-page__not-found" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <p className="details-page__tag">Listing Not Found</p>
           <h1>Property not found</h1>
           <p>This property may have been removed or the link is invalid.</p>
@@ -171,7 +195,6 @@ export default function ListingDetailsPage() {
   const whatsappNumber = typeof listing.contact === "string" && listing.contact.startsWith("0")
     ? "234" + listing.contact.slice(1)
     : listing.contact;
-
   const whatsappHref = "https://wa.me/" + whatsappNumber;
   const telHref      = "tel:" + listing.contact;
 
@@ -212,8 +235,7 @@ export default function ListingDetailsPage() {
   }
 
   async function handleDelete() {
-    const confirmed = window.confirm("Are you sure you want to delete this listing?");
-    if (!confirmed) return;
+    if (!window.confirm("Are you sure you want to delete this listing?")) return;
     setDeleting(true);
     try {
       await deleteListing(listingId);
@@ -236,19 +258,26 @@ export default function ListingDetailsPage() {
   }
 
   async function handleReport() {
-    if (!reportReason.trim()) return;
+    if (!reportCategory) {
+      setReportError("Please select a reason for reporting.");
+      return;
+    }
+    setReportError("");
+    setSubmittingReport(true);
     try {
-      await reportListing(listingId, user?.uid, reportReason);
+      await reportListing(listingId, user?.uid, reportCategory, reportDetail);
       setReportSent(true);
-      setShowReportBox(false);
-      setReportReason("");
-      trackEvent("listing_reported", {
-        listingId,
-        listingTitle: listing.title,
-        reason:       reportReason,
-      });
+      setShowReportModal(false);
+      trackEvent("listing_reported", { listingId, listingTitle: listing.title, category: reportCategory });
     } catch (error) {
+      if (error.message === "already_reported") {
+        setReportError("You have already reported this listing.");
+      } else {
+        setReportError("Something went wrong. Please try again.");
+      }
       console.error("Error reporting listing:", error);
+    } finally {
+      setSubmittingReport(false);
     }
   }
 
@@ -267,16 +296,9 @@ export default function ListingDetailsPage() {
           senderId:   user.uid,
           senderName: user.displayName || "Someone",
         });
-      } catch (e) {
-        console.warn("Notification failed silently:", e);
-      }
+      } catch (e) { console.warn("Notification failed silently:", e); }
       setInterestSent(true);
-      trackEvent("express_interest", {
-        listingId,
-        listingTitle: listing.title,
-        location:     listing.location,
-        price:        listing.price,
-      });
+      trackEvent("express_interest", { listingId, listingTitle: listing.title, location: listing.location, price: listing.price });
     } catch (error) {
       console.error("Error expressing interest:", error);
     } finally {
@@ -286,11 +308,7 @@ export default function ListingDetailsPage() {
 
   function handleBookInspection() {
     if (!user) { router.push("/login"); return; }
-    trackEvent("inspection_click", {
-      listingId,
-      listingTitle: listing.title,
-      location:     listing.location,
-    });
+    trackEvent("inspection_click", { listingId, listingTitle: listing.title, location: listing.location });
     router.push("/inspect/" + listingId);
   }
 
@@ -317,6 +335,92 @@ export default function ListingDetailsPage() {
 
   return (
     <main className="details-page">
+
+      {/* ── Report Modal ── */}
+      <AnimatePresence>
+        {showReportModal && (
+          <motion.div
+            className="report-modal__overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowReportModal(false)}
+          >
+            <motion.div
+              className="report-modal"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.22 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="report-modal__header">
+                <div className="report-modal__header-left">
+                  <HiOutlineFlag className="report-modal__header-icon" />
+                  <div>
+                    <h2>Report this listing</h2>
+                    <p>Help us keep Velen safe for everyone.</p>
+                  </div>
+                </div>
+                <button className="report-modal__close" onClick={() => setShowReportModal(false)}>
+                  <HiOutlineXMark />
+                </button>
+              </div>
+
+              <div className="report-modal__body">
+                <p className="report-modal__label">What&apos;s wrong with this listing?</p>
+                <div className="report-modal__categories">
+                  {REPORT_CATEGORIES.map((cat) => (
+                    <button
+                      key={cat.value}
+                      className={"report-modal__cat" + (reportCategory === cat.value ? " active" : "")}
+                      onClick={() => setReportCategory(cat.value)}
+                    >
+                      <span className="report-modal__cat-label">{cat.label}</span>
+                      <span className="report-modal__cat-desc">{cat.desc}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="report-modal__detail-wrap">
+                  <label className="report-modal__detail-label">
+                    Additional details <span>(optional)</span>
+                  </label>
+                  <textarea
+                    className="report-modal__detail"
+                    placeholder="Tell us more about the issue..."
+                    value={reportDetail}
+                    onChange={(e) => setReportDetail(e.target.value)}
+                    maxLength={400}
+                    rows={3}
+                  />
+                  <span className="report-modal__char-count">{reportDetail.length}/400</span>
+                </div>
+
+                {reportError && (
+                  <div className="report-modal__error">
+                    <HiOutlineExclamationTriangle /> {reportError}
+                  </div>
+                )}
+              </div>
+
+              <div className="report-modal__footer">
+                <button className="report-modal__cancel" onClick={() => setShowReportModal(false)}>
+                  Cancel
+                </button>
+                <button
+                  className="report-modal__submit"
+                  onClick={handleReport}
+                  disabled={submittingReport || !reportCategory}
+                >
+                  {submittingReport ? "Submitting..." : "Submit Report"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <section className="details-page__grid">
 
         {/* Left — Media */}
@@ -389,14 +493,12 @@ export default function ListingDetailsPage() {
                 <div>
                   <p className="details-page__tag">Property Details</p>
                   <h1>{listing.title}</h1>
-
                   {listing.landlordId && (listing.landlordName || listing.agentName) && (
                     <Link href={"/agent/" + listing.landlordId} className="details-page__agent-link">
                       <HiOutlineUserCircle />
                       Listed by {listing.landlordName || listing.agentName}
                     </Link>
                   )}
-
                   <p className="details-page__location"><HiOutlineMapPin /><span>{listing.location}</span></p>
                   {listing.address && <p className="details-page__address-text">{listing.address}</p>}
                   <div className="details-page__meta">
@@ -527,38 +629,29 @@ export default function ListingDetailsPage() {
                   </button>
                 )}
 
-                {/* Reserve button */}
                 {!isOwner && (
                   <button
-                    className={
-                      "details-page__reserve-btn" +
-                      (listingReserved ? " reserved" : "") +
-                      (studentHasReservation ? " mine" : "")
-                    }
+                    className={"details-page__reserve-btn" + (listingReserved ? " reserved" : "") + (studentHasReservation ? " mine" : "")}
                     onClick={handleReserve}
                     disabled={listingReserved || studentHasReservation}
                   >
                     <HiOutlineShieldCheck />
-                    {listingReserved
-                      ? "Room Already Reserved"
-                      : studentHasReservation
-                      ? "You Reserved This Room"
-                      : "Reserve this Room"
-                    }
+                    {listingReserved ? "Room Already Reserved" : studentHasReservation ? "You Reserved This Room" : "Reserve this Room"}
                   </button>
                 )}
+
                 {!isOwner && (
-  <button
-    className="details-page__pay-btn"
-    onClick={() => {
-      if (!user) { router.push("/login"); return; }
-      trackEvent("pay_click", { listingId, listingTitle: listing.title });
-      router.push("/pay/" + listingId);
-    }}
-  >
-    <HiOutlineBanknotes /> Pay Rent Now
-  </button>
-)}
+                  <button
+                    className="details-page__pay-btn"
+                    onClick={() => {
+                      if (!user) { router.push("/login"); return; }
+                      trackEvent("pay_click", { listingId, listingTitle: listing.title });
+                      router.push("/pay/" + listingId);
+                    }}
+                  >
+                    <HiOutlineBanknotes /> Pay Rent Now
+                  </button>
+                )}
 
                 {roommatePost && !isOwner && (
                   <div className="details-page__roommate-cta">
@@ -601,26 +694,25 @@ export default function ListingDetailsPage() {
                 <p className="details-page__phone">{listing.contact}</p>
               </div>
 
+              {/* ── Report section ── */}
               <div className="details-page__section">
                 {!reportSent ? (
                   <div className="details-page__report">
-                    {!showReportBox ? (
-                      <button className="details-page__report-btn" onClick={() => setShowReportBox(true)}><HiOutlineFlag /> Report this listing</button>
-                    ) : (
-                      <div className="details-page__report-box">
-                        <p>What is wrong with this listing?</p>
-                        <input type="text" placeholder="e.g. Fake listing, wrong price, scam..." value={reportReason} onChange={(e) => setReportReason(e.target.value)} />
-                        <div className="details-page__report-actions">
-                          <button onClick={handleReport}>Submit Report</button>
-                          <button onClick={() => { setShowReportBox(false); setReportReason(""); }}>Cancel</button>
-                        </div>
-                      </div>
-                    )}
+                    <button className="details-page__report-btn" onClick={() => { if (!user) { router.push("/login"); return; } setShowReportModal(true); }}>
+                      <HiOutlineFlag /> Report this listing
+                    </button>
                   </div>
                 ) : (
-                  <p className="details-page__report-sent">✅ Report submitted. We will review this listing.</p>
+                  <div className="details-page__report-sent-card">
+                    <HiOutlineCheckCircle className="details-page__report-sent-icon" />
+                    <div>
+                      <p className="details-page__report-sent-title">Report submitted</p>
+                      <p className="details-page__report-sent-sub">Thank you — our team will review this listing shortly.</p>
+                    </div>
+                  </div>
                 )}
               </div>
+
             </motion.div>
           )}
         </motion.div>

@@ -1,98 +1,189 @@
 // app/api/paystack/webhook/route.js
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { db } from "@/lib/firebase-admin"; // we need admin SDK here
-import { PAYMENT_CONFIG } from "@/lib/paymentConfig";
+import { adminDb } from "@/lib/firebase-admin";
+
+export const runtime = "nodejs";
+
+const ESCROW_RELEASE_HOURS = Number(process.env.ESCROW_RELEASE_HOURS || 48);
+const SERVICE_FEE_PERCENT  = Number(process.env.PAYMENT_SERVICE_FEE_PERCENT || 5);
 
 export async function POST(req) {
+  const body      = await req.text();
+  const signature = req.headers.get("x-paystack-signature");
+
+  // ── 1. Verify webhook signature ──
+  const hash = crypto
+    .createHmac("sha512", process.env.PAYSTACK_SECRET_KEY)
+    .update(body)
+    .digest("hex");
+
+  if (hash !== signature) {
+    await logWebhookEvent({ event: "invalid_signature", body, error: "Signature mismatch" });
+    return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+  }
+
+  let event;
   try {
-    const body      = await req.text();
-    const signature = req.headers.get("x-paystack-signature");
+    event = JSON.parse(body);
+  } catch (e) {
+    await logWebhookEvent({ event: "parse_error", body, error: e.message });
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
 
-    // Verify webhook signature
-    const hash = crypto
-      .createHmac("sha512", process.env.PAYSTACK_SECRET_KEY)
-      .update(body)
-      .digest("hex");
-
-    if (hash !== signature) {
-      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
-    }
-
-    const event = JSON.parse(body);
-
+  try {
     if (event.event === "charge.success") {
-      const { reference, metadata, amount } = event.data;
-
-      // Calculate escrow release time
-      const releaseAt = new Date();
-      releaseAt.setHours(releaseAt.getHours() + PAYMENT_CONFIG.escrowReleaseHours);
-
-      // Save transaction to Firestore via Admin SDK
-      await db.collection("transactions").add({
-        studentId:      metadata.studentId,
-        studentName:    metadata.studentName    || "",
-        landlordId:     metadata.landlordId,
-        listingId:      metadata.listingId,
-        listingTitle:   metadata.listingTitle   || "",
-        amount:         metadata.rentAmount,
-        serviceFee:     metadata.serviceFee,
-        totalCharged:   metadata.totalCharged,
-        landlordPayout: metadata.landlordPayout,
-        reference,
-        idempotencyKey: metadata.idempotencyKey,
-        status:         "success",
-        escrowStatus:   "holding",
-        escrowReleaseAt: releaseAt.toISOString(),
-        type:           metadata.type || "rent",
-        createdAt:      new Date(),
-        updatedAt:      new Date(),
-      });
-
-      // Notify both parties
-      const batch = db.batch();
-
-      // Notify student
-      batch.set(db.collection("notifications").doc(), {
-        userId:   metadata.studentId,
-        type:     "payment_success",
-        title:    "Payment successful",
-        message:  `Your rent payment of ₦${Number(metadata.rentAmount).toLocaleString()} for "${metadata.listingTitle}" was received. Funds will be released to the landlord in 48 hours.`,
-        listingId: metadata.listingId,
-        createdAt: new Date(),
-      });
-
-      // Notify landlord
-      batch.set(db.collection("notifications").doc(), {
-        userId:   metadata.landlordId,
-        type:     "payment_received",
-        title:    "Rent payment received",
-        message:  `${metadata.studentName} has paid ₦${Number(metadata.rentAmount).toLocaleString()} for "${metadata.listingTitle}". Funds will be released to you in 48 hours if no dispute is raised.`,
-        listingId: metadata.listingId,
-        createdAt: new Date(),
-      });
-
-      await batch.commit();
+      await handleChargeSuccess(event.data);
     }
-
     if (event.event === "refund.processed") {
-      const { reference } = event.data;
-      // Update transaction status
-      const snap = await db.collection("transactions")
-        .where("reference", "==", reference)
-        .get();
-      if (!snap.empty) {
-        await snap.docs[0].ref.update({
-          status:      "refunded",
-          escrowStatus: "refunded",
-          updatedAt:   new Date(),
-        });
-      }
+      await handleRefundProcessed(event.data);
     }
-
     return NextResponse.json({ received: true });
   } catch (e) {
-    console.error("Webhook error:", e);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    console.error("Webhook handler error:", e);
+    await logWebhookEvent({ event: event.event, error: e.message, data: event.data });
+    return NextResponse.json({ error: "Handler error" }, { status: 500 });
+  }
+}
+
+async function handleChargeSuccess(data) {
+  const { reference, amount, metadata } = data;
+
+  // ── 2. Idempotency — use reference as document ID ──
+  const txRef = adminDb.collection("transactions").doc(reference);
+  const existing = await txRef.get();
+  if (existing.exists) {
+    console.log("Duplicate webhook ignored:", reference);
+    return;
+  }
+
+  // ── 3. Server-side validation ──
+  const { studentId, landlordId, listingId, listingTitle, studentName } = metadata;
+
+  if (!studentId || !landlordId || !listingId) {
+    throw new Error("Missing required metadata fields");
+  }
+
+  // Prevent self-payment
+  if (studentId === landlordId) {
+    throw new Error("Student and landlord cannot be the same user");
+  }
+
+  // Verify listing exists and price matches
+  const listingSnap = await adminDb.collection("listings").doc(listingId).get();
+  if (!listingSnap.exists) {
+    throw new Error("Listing not found: " + listingId);
+  }
+
+  const listing      = listingSnap.data();
+  const listingPrice = Number(listing.price);
+  const paidAmount   = amount / 100; // convert from kobo
+
+  // Calculate expected total server-side — never trust frontend fee
+  const expectedFee   = Math.round(listingPrice * (SERVICE_FEE_PERCENT / 100));
+  const expectedTotal = listingPrice + expectedFee;
+
+  if (paidAmount !== expectedTotal) {
+    throw new Error(`Amount mismatch. Expected: ${expectedTotal}, Got: ${paidAmount}`);
+  }
+
+  // Verify landlord exists
+  const landlordSnap = await adminDb.collection("users").doc(landlordId).get();
+  if (!landlordSnap.exists) {
+    throw new Error("Landlord not found: " + landlordId);
+  }
+
+  // ── 4. Create transaction with reference as doc ID ──
+  const releaseAt = new Date();
+  releaseAt.setHours(releaseAt.getHours() + ESCROW_RELEASE_HOURS);
+
+  await txRef.set({
+    // Parties
+    studentId,
+    studentName:    studentName || "",
+    landlordId,
+    landlordName:   landlordSnap.data().name || landlordSnap.data().displayName || "",
+
+    // Property
+    listingId,
+    listingTitle:   listingTitle || listing.title || "",
+
+    // Amounts — all server-calculated
+    amount:         listingPrice,
+    serviceFee:     expectedFee,
+    totalCharged:   expectedTotal,
+    landlordPayout: listingPrice,
+
+    // Paystack
+    reference,
+    paystackSubaccount: listing.paystackSubaccount || "",
+
+    // State machine
+    status:         "paid",      // pending | paid | completed | refunded | on_hold
+    escrowStatus:   "holding",   // holding | released | disputed | refunded
+    escrowReleaseAt: releaseAt.toISOString(),
+    releasedAt:     null,
+    disputedAt:     null,
+    refundedAt:     null,
+
+    type:           metadata.type || "rent",
+    createdAt:      new Date(),
+    updatedAt:      new Date(),
+  });
+
+  // ── 5. Notify both parties ──
+  const batch = adminDb.batch();
+
+  batch.set(adminDb.collection("notifications").doc(), {
+    userId:    studentId,
+    type:      "payment_success",
+    title:     "Payment successful",
+    message:   `Your rent payment of ₦${listingPrice.toLocaleString()} for "${listing.title}" was received. Funds held in escrow for 48 hours.`,
+    listingId,
+    reference,
+    createdAt: new Date(),
+  });
+
+  batch.set(adminDb.collection("notifications").doc(), {
+    userId:    landlordId,
+    type:      "payment_received",
+    title:     "Rent payment received",
+    message:   `${studentName || "A student"} paid ₦${listingPrice.toLocaleString()} for "${listing.title}". Funds release in 48 hours if no dispute.`,
+    listingId,
+    reference,
+    createdAt: new Date(),
+  });
+
+  await batch.commit();
+
+  console.log("Transaction created:", reference);
+}
+
+async function handleRefundProcessed(data) {
+  const { reference } = data;
+  const txRef = adminDb.collection("transactions").doc(reference);
+  const snap  = await txRef.get();
+
+  if (!snap.exists) return;
+
+  await txRef.update({
+    status:       "refunded",
+    escrowStatus: "refunded",
+    refundedAt:   new Date(),
+    updatedAt:    new Date(),
+  });
+}
+
+async function logWebhookEvent({ event, error, data, body }) {
+  try {
+    await adminDb.collection("webhook_logs").add({
+      event:     event || "unknown",
+      error:     error || null,
+      data:      data  || null,
+      rawBody:   body  || null,
+      createdAt: new Date(),
+    });
+  } catch (e) {
+    console.error("Failed to log webhook event:", e);
   }
 }

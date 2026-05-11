@@ -11,12 +11,20 @@ import {
   HiOutlineBolt,
   HiOutlineHomeModern,
   HiOutlineXMark,
+  HiOutlineClipboardDocumentCheck,
+  HiOutlineShieldCheck,
+  HiOutlineBanknotes,
+  HiOutlineUserGroup,
+  HiOutlineTrash,
+  HiOutlineArrowRight,
 } from "react-icons/hi2";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import {
   subscribeToNotifications,
   markNotificationRead,
   markAllNotificationsRead,
+  deleteNotification,
 } from "@/lib/firestoreNotifications";
 import "@/styles/notifications.css";
 
@@ -31,10 +39,31 @@ function timeAgo(ts) {
 }
 
 function notifIcon(type) {
-  if (type === "roommate_interest") return <HiOutlineBolt className="notif-item__icon notif-item__icon--bolt" />;
-  if (type === "listing_interest")  return <HiOutlineHomeModern className="notif-item__icon notif-item__icon--home" />;
-  if (type === "inspection_booked") return <HiOutlineClipboardDocumentCheck className="notif-item__icon notif-item__icon--inspect" />;
+  if (type === "roommate_interest")     return <HiOutlineUserGroup className="notif-item__icon notif-item__icon--roommate" />;
+  if (type === "listing_interest")      return <HiOutlineHomeModern className="notif-item__icon notif-item__icon--home" />;
+  if (type === "inspection_booked")     return <HiOutlineClipboardDocumentCheck className="notif-item__icon notif-item__icon--inspect" />;
+  if (type === "reservation_request")   return <HiOutlineShieldCheck className="notif-item__icon notif-item__icon--reserve" />;
+  if (type === "reservation_confirmed") return <HiOutlineCheckCircle className="notif-item__icon notif-item__icon--confirmed" />;
+  if (type === "reservation_declined")  return <HiOutlineXMark className="notif-item__icon notif-item__icon--declined" />;
+  if (type === "listing_approved")      return <HiOutlineShieldCheck className="notif-item__icon notif-item__icon--approved" />;
+  if (type === "payment_received")      return <HiOutlineBanknotes className="notif-item__icon notif-item__icon--payment" />;
   return <HiOutlineBell className="notif-item__icon" />;
+}
+
+// Where to link on click
+function notifHref(n) {
+  if (n.listingId && (n.type === "listing_interest" || n.type === "reservation_request" || n.type === "listing_approved")) {
+    return `/listings/${n.listingId}`;
+  }
+  if (n.listingId && (n.type === "reservation_confirmed" || n.type === "reservation_declined")) {
+    return `/my-reservations`;
+  }
+  if (n.listingId && n.type === "inspection_booked") {
+    return `/my-inspections`;
+  }
+  if (n.postId) return `/roommates`;
+  if (n.type === "payment_received") return `/my-reservations`;
+  return null;
 }
 
 export default function NotificationBell() {
@@ -43,14 +72,12 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
-  // Real-time listener
   useEffect(() => {
     if (!user) return;
     const unsub = subscribeToNotifications(user.uid, setNotifications);
     return () => unsub();
   }, [user]);
 
-  // Close on outside click
   useEffect(() => {
     function handleClick(e) {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false);
@@ -62,13 +89,17 @@ export default function NotificationBell() {
   if (!user) return null;
 
   const unread = notifications.filter((n) => !n.read).length;
+  // Show max 8 in dropdown
+  const preview = notifications.slice(0, 8);
 
-  async function handleOpen() {
-    setOpen((v) => !v);
+  async function handleItemClick(n) {
+    if (!n.read) await markNotificationRead(n.id);
+    setOpen(false);
   }
 
-  async function handleMarkRead(id) {
-    await markNotificationRead(id);
+  async function handleDelete(e, id) {
+    e.stopPropagation();
+    await deleteNotification(id);
   }
 
   async function handleMarkAll() {
@@ -79,7 +110,7 @@ export default function NotificationBell() {
     <div className="notif-bell" ref={ref}>
       <button
         className={"notif-bell__btn" + (unread > 0 ? " has-unread" : "")}
-        onClick={handleOpen}
+        onClick={() => setOpen((v) => !v)}
         aria-label="Notifications"
       >
         {unread > 0 ? <HiBell /> : <HiOutlineBell />}
@@ -98,7 +129,7 @@ export default function NotificationBell() {
             transition={{ duration: 0.18 }}
           >
             <div className="notif-dropdown__header">
-              <span>Notifications</span>
+              <span>Notifications {unread > 0 && <span className="notif-dropdown__unread-count">{unread}</span>}</span>
               <div className="notif-dropdown__header-actions">
                 {unread > 0 && (
                   <button className="notif-dropdown__mark-all" onClick={handleMarkAll}>
@@ -112,33 +143,52 @@ export default function NotificationBell() {
             </div>
 
             <div className="notif-dropdown__list">
-              {notifications.length === 0 ? (
+              {preview.length === 0 ? (
                 <div className="notif-dropdown__empty">
                   <HiOutlineBell className="notif-dropdown__empty-icon" />
                   <p>No notifications yet</p>
                 </div>
               ) : (
-                notifications.map((n) => (
-                  <div
-                    key={n.id}
-                    className={"notif-item" + (!n.read ? " unread" : "")}
-                    onClick={() => !n.read && handleMarkRead(n.id)}
-                  >
-                    <div className="notif-item__left">
-                      {notifIcon(n.type)}
+                preview.map((n) => {
+                  const href = notifHref(n);
+                  const inner = (
+                    <div
+                      key={n.id}
+                      className={"notif-item" + (!n.read ? " unread" : "")}
+                      onClick={() => handleItemClick(n)}
+                    >
+                      <div className="notif-item__left">{notifIcon(n.type)}</div>
+                      <div className="notif-item__body">
+                        <p className="notif-item__title">{n.title}</p>
+                        <p className="notif-item__message">{n.message}</p>
+                        <p className="notif-item__time">{timeAgo(n.createdAt)}</p>
+                      </div>
+                      <div className="notif-item__actions">
+                        {!n.read && <div className="notif-item__unread-dot" />}
+                        <button
+                          className="notif-item__delete-btn"
+                          onClick={(e) => handleDelete(e, n.id)}
+                          title="Dismiss"
+                        >
+                          <HiOutlineXMark />
+                        </button>
+                      </div>
                     </div>
-                    <div className="notif-item__body">
-                      <p className="notif-item__title">{n.title}</p>
-                      <p className="notif-item__message">{n.message}</p>
-                      <p className="notif-item__time">{timeAgo(n.createdAt)}</p>
-                    </div>
-                    {!n.read && (
-                      <div className="notif-item__unread-dot" />
-                    )}
-                  </div>
-                ))
+                  );
+                  return href ? (
+                    <Link href={href} key={n.id} style={{ textDecoration: "none" }}>{inner}</Link>
+                  ) : (
+                    <div key={n.id}>{inner}</div>
+                  );
+                })
               )}
             </div>
+
+            {notifications.length > 0 && (
+              <Link href="/notifications" className="notif-dropdown__footer" onClick={() => setOpen(false)}>
+                View all notifications <HiOutlineArrowRight />
+              </Link>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

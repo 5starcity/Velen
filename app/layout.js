@@ -3,9 +3,12 @@ import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import PageTransition from "@/components/layout/PageTransition";
+import SupportWidget from "@/components/support/SupportWidget";
 import PostHogProvider from "@/components/layout/PostHogProvider";
 import { Suspense } from "react";
 import "./global.css";
+
+
 
 export const metadata = {
   title: "Velen",
@@ -21,6 +24,7 @@ export default function RootLayout({ children }) {
             <PostHogProvider />
           </Suspense>
           <Navbar />
+          <SupportWidget />
           <PageTransition>
             {children}
           </PageTransition>
@@ -30,3 +34,5 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+
+
