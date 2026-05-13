@@ -88,3 +88,209 @@
       font-size: 2rem;
     }
   }
+  /* ════════════════════════════════════════════
+   LISTINGS PAGE ADDITIONS
+   Append to styles/listings-page.css
+   ════════════════════════════════════════════ */
+
+/* ── Results row ── */
+.listings-page__results-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.listings-page__results-count {
+  font-size: 0.88rem;
+  color: #64748b;
+}
+
+.listings-page__filter-count {
+  color: #4f6ef7;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+/* Sort select in results row */
+.listings-page__sort-select {
+  padding: 7px 12px;
+  background: rgba(17, 24, 39, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.18s;
+  appearance: none;
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+.listings-page__sort-select:focus {
+  border-color: rgba(79, 110, 247, 0.35);
+  color: #e2e8f0;
+}
+
+/* ── Active filter pills ── */
+.listings-page__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.listings-page__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(79, 110, 247, 0.1);
+  border: 1px solid rgba(79, 110, 247, 0.25);
+  border-radius: 999px;
+  color: #a5b4fc;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+}
+
+.listings-page__pill span {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+.listings-page__pill:hover {
+  background: rgba(79, 110, 247, 0.18);
+  border-color: rgba(79, 110, 247, 0.4);
+}
+
+.listings-page__pill--clear {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #64748b;
+}
+
+.listings-page__pill--clear:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* ── Pagination ── */
+.listings-page__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+
+.listings-page__page-btn {
+  padding: 8px 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+}
+
+.listings-page__page-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.listings-page__page-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.listings-page__page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.listings-page__page-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+  display: grid;
+  place-items: center;
+}
+
+.listings-page__page-num:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+}
+
+.listings-page__page-num.active {
+  background: rgba(79, 110, 247, 0.2);
+  border-color: rgba(79, 110, 247, 0.4);
+  color: #a5b4fc;
+}
+
+.listings-page__page-ellipsis {
+  color: #334155;
+  font-size: 0.85rem;
+  padding: 0 4px;
+}
+
+.listings-page__page-info {
+  font-size: 0.78rem;
+  color: #475569;
+  margin-left: 4px;
+}
+
+/* ── FilterBar sort select ── */
+.filter-bar__select--sort {
+  min-width: 150px;
+}
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .listings-page__results-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .listings-page__sort-select {
+    width: 100%;
+  }
+
+  .listings-page__pagination {
+    gap: 6px;
+  }
+
+  .listings-page__page-info {
+    width: 100%;
+    text-align: center;
+  }
+
+  .listings-page__page-btn {
+    padding: 7px 14px;
+    font-size: 0.8rem;
+  }
+}
