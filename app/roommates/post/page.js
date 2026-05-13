@@ -17,37 +17,55 @@ import {
   HiOutlineCalendarDays,
   HiOutlineChatBubbleBottomCenterText,
   HiOutlineSparkles,
+  HiOutlineInformationCircle,
 } from "react-icons/hi2";
 import { useAuth } from "@/context/AuthContext";
 import { fetchListings } from "@/lib/firestoreListings";
 import { createRoommatePost } from "@/lib/firestoreRoommates";
 import { UNIVERSITIES } from "@/lib/locations";
 import { trackEvent } from "@/lib/posthog";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import "@/styles/roommate-post.css";
+
+// Map profile sleep schedule → lifestyle option
+function sleepToLifestyle(sleep) {
+  if (sleep === "early")    return "Early riser";
+  if (sleep === "late")     return "Night owl";
+  return "No preference";
+}
+
+// Map profile genderPref → post form gender
+function mapGenderPref(pref) {
+  if (pref === "Male")   return "Male";
+  if (pref === "Female") return "Female";
+  return "No preference";
+}
 
 export default function PostRoommatePage() {
   const { user, userRole } = useAuth();
   const router = useRouter();
 
-  const [query, setQuery] = useState("");
-  const [allListings, setAllListings] = useState([]);
-  const [suggestions, setSuggestions] = useState([]);
+  const [query, setQuery]                   = useState("");
+  const [allListings, setAllListings]       = useState([]);
+  const [suggestions, setSuggestions]       = useState([]);
   const [selectedListing, setSelectedListing] = useState(null);
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [showDropdown, setShowDropdown]     = useState(false);
   const dropdownRef = useRef(null);
 
-  const [message, setMessage] = useState("");
-  const [contact, setContact] = useState("");
-  const [school, setSchool] = useState("");
-  const [prefGender, setPrefGender] = useState("No preference");
+  const [message, setMessage]           = useState("");
+  const [contact, setContact]           = useState("");
+  const [school, setSchool]             = useState("");
+  const [prefGender, setPrefGender]     = useState("No preference");
   const [prefOccupation, setPrefOccupation] = useState("Any");
-  const [prefLifestyle, setPrefLifestyle] = useState("No preference");
-  const [moveInDate, setMoveInDate] = useState("");
+  const [prefLifestyle, setPrefLifestyle]   = useState("No preference");
+  const [moveInDate, setMoveInDate]     = useState("");
 
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState("");
-  const [authChecked, setAuthChecked] = useState(false);
+  const [profilePrefsLoaded, setProfilePrefsLoaded] = useState(false);
+  const [submitting, setSubmitting]     = useState(false);
+  const [submitted, setSubmitted]       = useState(false);
+  const [error, setError]               = useState("");
+  const [authChecked, setAuthChecked]   = useState(false);
 
   useEffect(() => {
     if (userRole === undefined || user === undefined) return;
@@ -56,8 +74,35 @@ export default function PostRoommatePage() {
     if (userRole && userRole !== "student") router.push("/roommates");
   }, [user, userRole]);
 
+  // ── Load profile prefs and pre-fill form ──
   useEffect(() => {
-    if (user?.phoneNumber) setContact(user.phoneNumber);
+    if (!user) return;
+    async function loadProfilePrefs() {
+      try {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        if (!snap.exists()) return;
+        const data = snap.data();
+
+        // Pre-fill contact from phone
+        if (data.phone) setContact(data.phone);
+
+        // Pre-fill university
+        if (data.university) setSchool(data.university);
+
+        // Pre-fill from roommatePrefs
+        const prefs = data.roommatePrefs;
+        if (prefs) {
+          if (prefs.genderPref)    setPrefGender(mapGenderPref(prefs.genderPref));
+          if (prefs.sleepSchedule) setPrefLifestyle(sleepToLifestyle(prefs.sleepSchedule));
+          if (prefs.extraNotes)    setMessage(prefs.extraNotes);
+        }
+
+        setProfilePrefsLoaded(true);
+      } catch (e) {
+        console.error("Failed to load profile prefs:", e);
+      }
+    }
+    loadProfilePrefs();
   }, [user]);
 
   useEffect(() => {
@@ -80,10 +125,7 @@ export default function PostRoommatePage() {
     }
     const q = query.toLowerCase();
     const matches = allListings
-      .filter((l) =>
-        l.title?.toLowerCase().includes(q) ||
-        l.location?.toLowerCase().includes(q)
-      )
+      .filter((l) => l.title?.toLowerCase().includes(q) || l.location?.toLowerCase().includes(q))
       .slice(0, 6);
     setSuggestions(matches);
     setShowDropdown(matches.length > 0);
@@ -91,9 +133,7 @@ export default function PostRoommatePage() {
 
   useEffect(() => {
     function handleClick(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setShowDropdown(false);
-      }
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setShowDropdown(false);
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
@@ -120,7 +160,7 @@ export default function PostRoommatePage() {
       await createRoommatePost({
         listingId:       selectedListing.id,
         listingTitle:    selectedListing.title    || "Untitled Listing",
-        listingLocation: selectedListing.location || selectedListing.area || selectedListing.neighbourhood || "Port Harcourt",
+        listingLocation: selectedListing.location || "Port Harcourt",
         listingPrice:    selectedListing.price    || 0,
         listingType:     selectedListing.type     || "",
         postedBy:        user.uid,
@@ -170,9 +210,7 @@ export default function PostRoommatePage() {
   if (!authChecked) {
     return (
       <main className="roommate-post-page">
-        <div className="roommate-post-page__auth-loading">
-          <p>Checking access...</p>
-        </div>
+        <div className="roommate-post-page__auth-loading"><p>Checking access...</p></div>
       </main>
     );
   }
@@ -186,18 +224,12 @@ export default function PostRoommatePage() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4 }}
         >
-          <div className="roommate-post-page__success-icon">
-            <HiOutlineCheckCircle />
-          </div>
+          <div className="roommate-post-page__success-icon"><HiOutlineCheckCircle /></div>
           <h1>Post published!</h1>
           <p>Your roommate request is now live on the board. Interested students will reach out via WhatsApp.</p>
           <div className="roommate-post-page__success-actions">
-            <Link href="/roommates" className="roommate-post-page__back-btn">
-              View the board
-            </Link>
-            <button className="roommate-post-page__another-btn" onClick={resetForm}>
-              Post another
-            </button>
+            <Link href="/roommates" className="roommate-post-page__back-btn">View the board</Link>
+            <button className="roommate-post-page__another-btn" onClick={resetForm}>Post another</button>
           </div>
         </motion.div>
       </main>
@@ -206,7 +238,6 @@ export default function PostRoommatePage() {
 
   return (
     <main className="roommate-post-page">
-
       <motion.div
         className="roommate-post-page__header"
         initial={{ opacity: 0, y: 16 }}
@@ -216,9 +247,7 @@ export default function PostRoommatePage() {
         <Link href="/roommates" className="roommate-post-page__back">
           <HiOutlineArrowLeft /> Back to board
         </Link>
-        <p className="roommate-post-page__eyebrow">
-          <HiOutlineUserGroup /> New Roommate Request
-        </p>
+        <p className="roommate-post-page__eyebrow"><HiOutlineUserGroup /> New Roommate Request</p>
         <h1>Post a roommate request</h1>
         <p className="roommate-post-page__sub">
           Found a listing you love? Post here to find someone to split the rent with.
@@ -231,6 +260,19 @@ export default function PostRoommatePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, delay: 0.1 }}
       >
+
+        {/* Profile prefs banner */}
+        {profilePrefsLoaded && (
+          <motion.div
+            className="roommate-post-page__prefs-banner"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+          >
+            <HiOutlineInformationCircle />
+            <p>Some fields were pre-filled from your <Link href="/profile">profile preferences</Link>. You can edit them below.</p>
+          </motion.div>
+        )}
 
         {/* Section 1 — Listing */}
         <div className="roommate-post-page__section">
@@ -246,10 +288,7 @@ export default function PostRoommatePage() {
                 type="text"
                 placeholder="Search by listing name or area..."
                 value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  if (selectedListing) setSelectedListing(null);
-                }}
+                onChange={(e) => { setQuery(e.target.value); if (selectedListing) setSelectedListing(null); }}
                 onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
                 className="roommate-post-page__search-input"
               />
@@ -266,11 +305,7 @@ export default function PostRoommatePage() {
                 transition={{ duration: 0.18 }}
               >
                 {suggestions.map((l) => (
-                  <button
-                    key={l.id}
-                    className="roommate-post-page__dropdown-item"
-                    onClick={() => handleSelect(l)}
-                  >
+                  <button key={l.id} className="roommate-post-page__dropdown-item" onClick={() => handleSelect(l)}>
                     <div className="roommate-post-page__dropdown-title">{l.title}</div>
                     <div className="roommate-post-page__dropdown-meta">
                       <span><HiOutlineMapPin />{l.location || "Port Harcourt"}</span>
@@ -325,9 +360,7 @@ export default function PostRoommatePage() {
             value={contact}
             onChange={(e) => setContact(e.target.value)}
           />
-          <p className="roommate-post-page__hint">
-            Interested students will contact you directly via WhatsApp.
-          </p>
+          <p className="roommate-post-page__hint">Interested students will contact you directly via WhatsApp.</p>
         </div>
 
         {/* Section 3 — Message */}
@@ -410,20 +443,12 @@ export default function PostRoommatePage() {
         </div>
 
         {error && (
-          <motion.p
-            className="roommate-post-page__error"
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
+          <motion.p className="roommate-post-page__error" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}>
             {error}
           </motion.p>
         )}
 
-        <button
-          className="roommate-post-page__submit"
-          onClick={handleSubmit}
-          disabled={submitting}
-        >
+        <button className="roommate-post-page__submit" onClick={handleSubmit} disabled={submitting}>
           {submitting ? "Publishing..." : "Publish Roommate Request"}
         </button>
 

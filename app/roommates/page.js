@@ -20,6 +20,7 @@ import {
   HiOutlineTrash,
   HiOutlineCheckCircle,
   HiOutlineExclamationTriangle,
+  HiOutlinePencilSquare,
 } from "react-icons/hi2";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -28,6 +29,7 @@ import {
   expressRoommateInterest,
   deleteRoommatePost,
   markRoommatePostFilled,
+  updateRoommatePost,
 } from "@/lib/firestoreRoommates";
 import { createNotification } from "@/lib/firestoreNotifications";
 import { LOCATION_FILTER_OPTIONS, UNIVERSITIES } from "@/lib/locations";
@@ -39,8 +41,8 @@ const fadeUp  = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, trans
 export default function RoommatesPage() {
   const { user, userRole } = useAuth();
 
-  const [posts, setPosts]                   = useState([]);
-  const [loading, setLoading]               = useState(true);
+  const [posts, setPosts]                     = useState([]);
+  const [loading, setLoading]                 = useState(true);
   const [interestSentIds, setInterestSentIds] = useState(new Set());
 
   const [myPosts, setMyPosts]               = useState([]);
@@ -48,6 +50,16 @@ export default function RoommatesPage() {
   const [deletingId, setDeletingId]         = useState(null);
   const [fillingId, setFillingId]           = useState(null);
   const [toast, setToast]                   = useState(null);
+
+  // Inline edit state
+  const [editingId, setEditingId]       = useState(null);
+  const [editMessage, setEditMessage]   = useState("");
+  const [editContact, setEditContact]   = useState("");
+  const [editGender, setEditGender]     = useState("No preference");
+  const [editOccupation, setEditOccupation] = useState("Any");
+  const [editLifestyle, setEditLifestyle]   = useState("No preference");
+  const [editMoveIn, setEditMoveIn]     = useState("");
+  const [savingEdit, setSavingEdit]     = useState(false);
 
   const [search, setSearch]         = useState("");
   const [location, setLocation]     = useState("All");
@@ -88,6 +100,59 @@ export default function RoommatesPage() {
   function showToast(msg, type = "success") {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
+  }
+
+  // ── Start inline edit ──
+  function startEdit(post) {
+    setEditingId(post.id);
+    setEditMessage(post.message     || "");
+    setEditContact(post.posterContact || "");
+    setEditGender(post.preferences?.gender     || "No preference");
+    setEditOccupation(post.preferences?.occupation || "Any");
+    setEditLifestyle(post.preferences?.lifestyle   || "No preference");
+    setEditMoveIn(post.preferences?.moveInDate   || "");
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+  }
+
+  async function handleSaveEdit(postId) {
+    setSavingEdit(true);
+    try {
+      await updateRoommatePost(postId, {
+        message:       editMessage,
+        posterContact: editContact,
+        preferences: {
+          gender:     editGender,
+          occupation: editOccupation,
+          lifestyle:  editLifestyle,
+          moveInDate: editMoveIn,
+        },
+      });
+
+      // Update local state
+      const updater = (p) => p.id !== postId ? p : {
+        ...p,
+        message:       editMessage,
+        posterContact: editContact,
+        preferences: {
+          gender:     editGender,
+          occupation: editOccupation,
+          lifestyle:  editLifestyle,
+          moveInDate: editMoveIn,
+        },
+      };
+      setMyPosts((prev) => prev.map(updater));
+      setPosts((prev) => prev.map(updater));
+      setEditingId(null);
+      showToast("Post updated.");
+    } catch (e) {
+      console.error(e);
+      showToast("Failed to save changes.", "error");
+    } finally {
+      setSavingEdit(false);
+    }
   }
 
   async function handleDelete(postId) {
@@ -142,8 +207,6 @@ export default function RoommatesPage() {
       await expressRoommateInterest(post.id, user.uid, user.displayName || "Someone");
       setInterestSentIds((prev) => new Set([...prev, post.id]));
       setPosts((prev) => prev.map((p) => p.id === post.id ? { ...p, interests: (p.interests || 0) + 1 } : p));
-
-      // ── Fire notification to post owner ──
       try {
         await createNotification({
           userId:     post.postedBy,
@@ -154,9 +217,7 @@ export default function RoommatesPage() {
           senderId:   user.uid,
           senderName: user.displayName || "Someone",
         });
-      } catch (e) {
-        console.warn("Notification failed silently:", e);
-      }
+      } catch (e) { console.warn("Notification failed silently:", e); }
 
       const waNum = post.posterContact?.startsWith("0") ? "234" + post.posterContact.slice(1) : post.posterContact;
       const msg   = encodeURIComponent(`Hi ${post.posterName}, I saw your roommate post on Velen for "${post.listingTitle}" and I'm interested in splitting the rent. My name is ${user.displayName || "a prospective tenant"}.`);
@@ -201,6 +262,7 @@ export default function RoommatesPage() {
         </div>
       </motion.div>
 
+      {/* ── My Posts with inline edit ── */}
       {user && userRole === "student" && (
         <motion.div className="roommates-page__my-posts" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.08 }}>
           <div className="roommates-page__my-posts-header">
@@ -229,32 +291,129 @@ export default function RoommatesPage() {
                     className={"roommates-page__my-post-row" + (post.status === "filled" ? " filled" : "")}
                     initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}
                   >
-                    <div className="roommates-page__my-post-info">
-                      <div className="roommates-page__my-post-title">
-                        {post.listingTitle}
-                        <span className={"roommates-page__my-post-status " + post.status}>
-                          {post.status === "filled" ? "Filled" : "Open"}
-                        </span>
-                      </div>
-                      <div className="roommates-page__my-post-meta">
-                        <span><HiOutlineMapPin />{post.listingLocation}</span>
-                        <span><HiOutlineBanknotes />₦{(post.splitCost || 0).toLocaleString()}/yr each</span>
-                        {post.interests > 0 && <span><HiOutlineBolt />{post.interests} interested</span>}
-                        <span>{formatDate(post.createdAt)}</span>
-                      </div>
-                    </div>
-                    <div className="roommates-page__my-post-actions">
-                      {post.status === "open" && (
-                        <button className="roommates-page__my-post-fill" onClick={() => handleMarkFilled(post.id)} disabled={fillingId === post.id}>
-                          <HiOutlineCheckCircle />
-                          <span>{fillingId === post.id ? "Saving..." : "Mark filled"}</span>
-                        </button>
-                      )}
-                      <button className="roommates-page__my-post-delete" onClick={() => handleDelete(post.id)} disabled={deletingId === post.id}>
-                        <HiOutlineTrash />
-                        <span>{deletingId === post.id ? "Deleting..." : "Delete"}</span>
-                      </button>
-                    </div>
+                    {/* Normal view */}
+                    {editingId !== post.id ? (
+                      <>
+                        <div className="roommates-page__my-post-info">
+                          <div className="roommates-page__my-post-title">
+                            {post.listingTitle}
+                            <span className={"roommates-page__my-post-status " + post.status}>
+                              {post.status === "filled" ? "Filled" : "Open"}
+                            </span>
+                          </div>
+                          <div className="roommates-page__my-post-meta">
+                            <span><HiOutlineMapPin />{post.listingLocation}</span>
+                            <span><HiOutlineBanknotes />₦{(post.splitCost || 0).toLocaleString()}/yr each</span>
+                            {post.interests > 0 && <span><HiOutlineBolt />{post.interests} interested</span>}
+                            <span>{formatDate(post.createdAt)}</span>
+                          </div>
+                          {post.message && <p className="roommates-page__my-post-message">"{post.message}"</p>}
+                        </div>
+                        <div className="roommates-page__my-post-actions">
+                          {post.status === "open" && (
+                            <>
+                              <button className="roommates-page__my-post-edit" onClick={() => startEdit(post)}>
+                                <HiOutlinePencilSquare /><span>Edit</span>
+                              </button>
+                              <button className="roommates-page__my-post-fill" onClick={() => handleMarkFilled(post.id)} disabled={fillingId === post.id}>
+                                <HiOutlineCheckCircle /><span>{fillingId === post.id ? "Saving..." : "Mark filled"}</span>
+                              </button>
+                            </>
+                          )}
+                          <button className="roommates-page__my-post-delete" onClick={() => handleDelete(post.id)} disabled={deletingId === post.id}>
+                            <HiOutlineTrash /><span>{deletingId === post.id ? "Deleting..." : "Delete"}</span>
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      /* ── Inline edit form ── */
+                      <motion.div
+                        className="roommates-page__inline-edit"
+                        initial={{ opacity: 0, y: -6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <div className="roommates-page__inline-edit-header">
+                          <p>Edit: <strong>{post.listingTitle}</strong></p>
+                          <button className="roommates-page__inline-edit-cancel" onClick={cancelEdit}>
+                            <HiOutlineXMark /> Cancel
+                          </button>
+                        </div>
+
+                        <div className="roommates-page__inline-edit-grid">
+                          <div className="roommates-page__inline-field roommates-page__inline-field--full">
+                            <label>Message</label>
+                            <textarea
+                              value={editMessage}
+                              onChange={(e) => setEditMessage(e.target.value)}
+                              placeholder="Update your message..."
+                              maxLength={280}
+                              rows={2}
+                            />
+                            <span className="roommates-page__inline-char">{editMessage.length}/280</span>
+                          </div>
+
+                          <div className="roommates-page__inline-field">
+                            <label>WhatsApp number</label>
+                            <input
+                              type="tel"
+                              value={editContact}
+                              onChange={(e) => setEditContact(e.target.value)}
+                              placeholder="08012345678"
+                            />
+                          </div>
+
+                          <div className="roommates-page__inline-field">
+                            <label>Gender preference</label>
+                            <select value={editGender} onChange={(e) => setEditGender(e.target.value)}>
+                              <option value="No preference">No preference</option>
+                              <option value="Male">Male</option>
+                              <option value="Female">Female</option>
+                            </select>
+                          </div>
+
+                          <div className="roommates-page__inline-field">
+                            <label>Occupation</label>
+                            <select value={editOccupation} onChange={(e) => setEditOccupation(e.target.value)}>
+                              <option value="Any">Any</option>
+                              <option value="Student">Student</option>
+                              <option value="Working professional">Working professional</option>
+                            </select>
+                          </div>
+
+                          <div className="roommates-page__inline-field">
+                            <label>Lifestyle</label>
+                            <select value={editLifestyle} onChange={(e) => setEditLifestyle(e.target.value)}>
+                              <option value="No preference">No preference</option>
+                              <option value="Early riser">Early riser</option>
+                              <option value="Night owl">Night owl</option>
+                              <option value="Non-smoker">Non-smoker</option>
+                              <option value="Quiet/studious">Quiet/studious</option>
+                            </select>
+                          </div>
+
+                          <div className="roommates-page__inline-field">
+                            <label>Move-in date</label>
+                            <input
+                              type="date"
+                              value={editMoveIn}
+                              onChange={(e) => setEditMoveIn(e.target.value)}
+                              min={new Date().toISOString().split("T")[0]}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="roommates-page__inline-edit-footer">
+                          <button
+                            className="roommates-page__inline-save"
+                            onClick={() => handleSaveEdit(post.id)}
+                            disabled={savingEdit}
+                          >
+                            {savingEdit ? "Saving..." : "Save changes"}
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
                   </motion.div>
                 ))}
               </AnimatePresence>
@@ -263,6 +422,7 @@ export default function RoommatesPage() {
         </motion.div>
       )}
 
+      {/* Filters */}
       <motion.div className="roommates-filters" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
         <div className="roommates-filters__search-wrap">
           <HiOutlineMagnifyingGlass className="roommates-filters__search-icon" />
@@ -303,6 +463,7 @@ export default function RoommatesPage() {
         )}
       </div>
 
+      {/* Board grid */}
       {loading ? (
         <div className="roommates-page__skeleton-grid">
           {[1, 2, 3, 4].map((n) => <div key={n} className="roommates-page__skeleton" />)}

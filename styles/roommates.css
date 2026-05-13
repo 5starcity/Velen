@@ -1559,3 +1559,158 @@
   border-color: rgba(96, 165, 250, 0.3);
   color: #60a5fa;
 }
+ 
+/* ── Edit button on my post row ── */
+.roommates-page__my-post-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(79, 110, 247, 0.25);
+  background: rgba(79, 110, 247, 0.08);
+  color: #818cf8;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+}
+ 
+.roommates-page__my-post-edit:hover {
+  background: rgba(79, 110, 247, 0.15);
+  border-color: rgba(79, 110, 247, 0.4);
+}
+ 
+/* ── My post message preview ── */
+.roommates-page__my-post-message {
+  font-size: 0.78rem;
+  color: #475569;
+  font-style: italic;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+ 
+/* ── Inline edit form ── */
+.roommates-page__inline-edit {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 0;
+}
+ 
+.roommates-page__inline-edit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+ 
+.roommates-page__inline-edit-header p {
+  font-size: 0.82rem;
+  color: #64748b;
+}
+ 
+.roommates-page__inline-edit-header strong {
+  color: #e2e8f0;
+}
+ 
+.roommates-page__inline-edit-cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: none;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+ 
+.roommates-page__inline-edit-cancel:hover {
+  color: #e2e8f0;
+  border-color: rgba(255, 255, 255, 0.14);
+}
+ 
+.roommates-page__inline-edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+ 
+.roommates-page__inline-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+ 
+.roommates-page__inline-field--full {
+  grid-column: 1 / -1;
+}
+ 
+.roommates-page__inline-field label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+ 
+.roommates-page__inline-field input,
+.roommates-page__inline-field select,
+.roommates-page__inline-field textarea {
+  padding: 8px 10px;
+  background: #1e293b;
+  border: 1.5px solid rgba(255, 255, 255, 0.07);
+  border-radius: 9px;
+  color: #f8fafc;
+  font-size: 0.82rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+  resize: vertical;
+}
+ 
+.roommates-page__inline-field input:focus,
+.roommates-page__inline-field select:focus,
+.roommates-page__inline-field textarea:focus {
+  border-color: rgba(79, 110, 247, 0.4);
+}
+ 
+.roommates-page__inline-char {
+  font-size: 0.68rem;
+  color: #334155;
+  text-align: right;
+}
+ 
+.roommates-page__inline-edit-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+ 
+.roommates-page__inline-save {
+  padding: 9px 22px;
+  background: #4f6ef7;
+  border: none;
+  border-radius: 9px;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s;
+  font-family: inherit;
+}
+ 
+.roommates-page__inline-save:hover:not(:disabled) {
+  background: #3a58e0;
+}
+ 
+.roommates-page__inline-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
