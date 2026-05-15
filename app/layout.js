@@ -8,16 +8,22 @@ import PostHogProvider from "@/components/layout/PostHogProvider";
 import { Suspense } from "react";
 import "./global.css";
 
-
-
 export const metadata = {
-  title: "Velen",
-  description: "Find verified housing across Nigeria — no agents, no stress",
+  title: "Velen — Student Housing in Port Harcourt",
+  description: "Find verified rooms near RSU, UniPort and more. No agents, no hidden fees, no stress.",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body>
         <AuthProvider>
           <Suspense fallback={null}>

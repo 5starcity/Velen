@@ -1,4 +1,4 @@
- // components/home/FeaturedListings.jsx
+// components/home/FeaturedListings.jsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -12,55 +12,68 @@ import {
   HiOutlineChatBubbleLeftRight,
   HiOutlineUserGroup,
   HiOutlineClipboardDocumentCheck,
-  HiOutlineBolt,
+  HiOutlineExclamationTriangle,
   HiOutlineArrowRight,
   HiOutlineMapPin,
-  HiOutlineExclamationTriangle,
   HiOutlineAcademicCap,
+  HiOutlineBolt,
 } from "react-icons/hi2";
 import "@/styles/featured.css";
 
 const FEATURES = [
   {
-    icon:  <HiOutlineShieldCheck />,
-    title: "Verified listings",
-    desc:  "Every property is checked before going live. No fake listings, no ghost apartments asking for upfront payment.",
-    color: "blue",
+    icon:   <HiOutlineShieldCheck />,
+    title:  "Verified listings",
+    desc:   "Every property is checked before it goes live. No ghost apartments, no upfront scams.",
+    color:  "blue",
+    number: "01",
   },
   {
-    icon:  <HiOutlineBanknotes />,
-    title: "Full cost upfront",
-    desc:  "See rent, caution fee, legal fee and move-in total before you even contact a landlord. No surprises.",
-    color: "green",
+    icon:   <HiOutlineBanknotes />,
+    title:  "Full cost upfront",
+    desc:   "Rent, caution fee, legal fee — all visible before you call a single landlord.",
+    color:  "amber",
+    number: "02",
   },
   {
-    icon:  <HiOutlineUserGroup />,
-    title: "Split rent with a roommate",
-    desc:  "Found a place you love but can't afford alone? Post on the roommate board and split the cost.",
-    color: "purple",
+    icon:   <HiOutlineUserGroup />,
+    title:  "Split rent",
+    desc:   "Can't cover it alone? Post on the roommate board and split the cost with someone.",
+    color:  "purple",
+    number: "03",
   },
   {
-    icon:  <HiOutlineMapPin />,
-    title: "Near your campus",
-    desc:  "Filter by school — RSU, UniPort, IAUE and more. Find housing close to your campus, not across town.",
-    color: "teal",
+    icon:   <HiOutlineMapPin />,
+    title:  "Near your campus",
+    desc:   "Filter by school — RSU, UniPort, IAUE and more. Find housing close to where you actually study.",
+    color:  "teal",
+    number: "04",
   },
   {
-    icon:  <HiOutlineChatBubbleLeftRight />,
-    title: "Direct WhatsApp contact",
-    desc:  "Chat straight with landlords on WhatsApp. No agents taking a cut, no middlemen slowing things down.",
-    color: "amber",
+    icon:   <HiOutlineChatBubbleLeftRight />,
+    title:  "Direct contact",
+    desc:   "WhatsApp landlords directly. No agents taking cuts, no middlemen delaying responses.",
+    color:  "green",
+    number: "05",
   },
   {
-    icon:  <HiOutlineExclamationTriangle />,
-    title: "Scam protection",
-    desc:  "Suspicious prices get flagged automatically. Report dodgy listings and keep the platform safe for everyone.",
-    color: "red",
+    icon:   <HiOutlineExclamationTriangle />,
+    title:  "Scam protection",
+    desc:   "Suspicious prices get flagged. Report bad listings and keep the platform clean for everyone.",
+    color:  "red",
+    number: "06",
   },
 ];
 
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
-const fadeUp  = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } } };
+const inView = {
+  hidden: { opacity: 0, y: 28 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+};
+
+const stagger = {
+  hidden: {},
+  show:   { transition: { staggerChildren: 0.09 } },
+};
 
 export default function FeaturedListings() {
   const [listings, setListings] = useState([]);
@@ -77,7 +90,6 @@ export default function FeaturedListings() {
         });
         setListings(sorted.slice(0, 6));
       } catch (error) {
-        console.error("Error fetching featured listings:", error);
         setListings([]);
       } finally {
         setLoading(false);
@@ -88,133 +100,204 @@ export default function FeaturedListings() {
 
   return (
     <>
-      {/* Features Section */}
-      <section className="features">
-        <motion.div
-          className="features__header"
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <p className="features__eyebrow">Why students choose Velen</p>
-          <h2>Everything a student renter needs</h2>
-          <p className="features__sub">
-            No agents. No hidden fees. No stress.
-            Just verified housing close to your school.
-          </p>
-        </motion.div>
 
-        <motion.div
-          className="features__grid"
-          variants={stagger}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-60px" }}
-        >
-          {FEATURES.map((f) => (
-            <motion.div
-              key={f.title}
-              className={"features__card features__card--" + f.color}
-              variants={fadeUp}
-            >
-              <div className={"features__card-icon features__card-icon--" + f.color}>
-                {f.icon}
-              </div>
-              <h3>{f.title}</h3>
-              <p>{f.desc}</p>
-            </motion.div>
-          ))}
-        </motion.div>
+      {/* ══════════════════════════════════════
+          WHY VELEN — Features section
+      ══════════════════════════════════════ */}
+      <section className="why">
+        <div className="why__inner">
+
+          <motion.div
+            className="why__header"
+            variants={inView}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+          >
+            <span className="why__eyebrow">Why students choose Velen</span>
+            <h2 className="why__heading">
+              Housing search,
+              <br />
+              <em>the way it should be.</em>
+            </h2>
+            <p className="why__sub">
+              Built specifically for students in Port Harcourt —
+              not a generic listing site with a student filter.
+            </p>
+          </motion.div>
+
+          <motion.div
+            className="why__grid"
+            variants={stagger}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-60px" }}
+          >
+            {FEATURES.map((f) => (
+              <motion.div
+                key={f.title}
+                className={"why__card why__card--" + f.color}
+                variants={inView}
+              >
+                <div className="why__card-top">
+                  <div className={"why__card-icon why__card-icon--" + f.color}>
+                    {f.icon}
+                  </div>
+                  <span className="why__card-number">{f.number}</span>
+                </div>
+                <h3 className="why__card-title">{f.title}</h3>
+                <p className="why__card-desc">{f.desc}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+
+        </div>
       </section>
 
-      {/* Featured Listings */}
+      {/* ══════════════════════════════════════
+          FEATURED LISTINGS
+      ══════════════════════════════════════ */}
       <section className="featured">
-        <motion.div
-          className="featured__header"
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <p className="featured__tag">Available Now</p>
-          <h2>Rooms near your campus</h2>
-          <p>
-            Verified properties with transparent pricing, real photos,
-            and direct contact to owners.
-          </p>
-        </motion.div>
+        <div className="featured__inner">
 
-        {loading ? (
-          <div className="featured__loading">
+          <motion.div
+            className="featured__header"
+            variants={inView}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+          >
+            <div className="featured__header-left">
+              <span className="featured__eyebrow">
+                <span className="featured__eyebrow-dot" />
+                Available Now
+              </span>
+              <h2>Rooms near your campus</h2>
+              <p>
+                Verified properties with transparent pricing,
+                real photos and direct contact to owners.
+              </p>
+            </div>
+            <Link href="/listings" className="featured__header-link">
+              View all listings <HiOutlineArrowRight />
+            </Link>
+          </motion.div>
+
+          {loading ? (
             <div className="featured__skeleton-grid">
               {[1, 2, 3].map((n) => <div key={n} className="featured__skeleton" />)}
             </div>
-          </div>
-        ) : listings.length === 0 ? (
-          <div className="featured__empty">
-            <p>No listings available yet.</p>
-            <Link href="/listings" className="featured__empty-btn">Browse Listings</Link>
-          </div>
-        ) : (
-          <>
-            <motion.div
-              className="featured__grid"
-              variants={stagger}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: "-40px" }}
-            >
-              {listings.map((listing) => (
-                <motion.div key={listing.id} variants={fadeUp}>
-                  <ListingCard listing={listing} />
-                </motion.div>
-              ))}
-            </motion.div>
+          ) : listings.length === 0 ? (
+            <div className="featured__empty">
+              <p>No listings available yet.</p>
+              <Link href="/listings" className="featured__empty-btn">Browse Listings</Link>
+            </div>
+          ) : (
+            <>
+              <motion.div
+                className="featured__grid"
+                variants={stagger}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, margin: "-40px" }}
+              >
+                {listings.map((listing) => (
+                  <motion.div key={listing.id} variants={inView}>
+                    <ListingCard listing={listing} />
+                  </motion.div>
+                ))}
+              </motion.div>
 
-            <motion.div
-              className="featured__footer"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-            >
-              <Link href="/listings" className="featured__view-all">
-                Browse all listings <HiOutlineArrowRight />
+              <motion.div
+                className="featured__footer"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+              >
+                <Link href="/listings" className="featured__view-all">
+                  See all available rooms <HiOutlineArrowRight />
+                </Link>
+              </motion.div>
+            </>
+          )}
+
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          ROOMMATE CTA
+      ══════════════════════════════════════ */}
+      <section className="split-cta">
+        <div className="split-cta__inner">
+
+          <motion.div
+            className="split-cta__content"
+            variants={inView}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+          >
+            <div className="split-cta__label">
+              <HiOutlineBolt />
+              <span>For students</span>
+            </div>
+            <h2 className="split-cta__heading">
+              Can't afford it alone?
+              <br />
+              <em>Split it.</em>
+            </h2>
+            <p className="split-cta__body">
+              Post on the roommate board, find someone in the same situation,
+              and share the rent. Half the cost, double the company.
+            </p>
+            <div className="split-cta__actions">
+              <Link href="/roommates" className="split-cta__btn split-cta__btn--primary">
+                Find a Roommate <HiOutlineArrowRight />
               </Link>
-            </motion.div>
-          </>
-        )}
+              <Link href="/listings" className="split-cta__btn split-cta__btn--ghost">
+                Browse Listings
+              </Link>
+            </div>
+          </motion.div>
+
+          {/* Decorative right side */}
+          <motion.div
+            className="split-cta__visual"
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="split-cta__room split-cta__room--a">
+              <div className="split-cta__room-avatar">A</div>
+              <div>
+                <p>Adaeze O.</p>
+                <span>300L · UNIPORT</span>
+              </div>
+              <div className="split-cta__room-cost">₦90k<em>/yr</em></div>
+            </div>
+
+            <div className="split-cta__plus">+</div>
+
+            <div className="split-cta__room split-cta__room--b">
+              <div className="split-cta__room-avatar">C</div>
+              <div>
+                <p>Chukwuma B.</p>
+                <span>200L · RSU</span>
+              </div>
+              <div className="split-cta__room-cost">₦90k<em>/yr</em></div>
+            </div>
+
+            <div className="split-cta__result">
+              <HiOutlineShieldCheck />
+              <span>One verified flat · ₦180k/yr total</span>
+            </div>
+          </motion.div>
+
+        </div>
       </section>
 
-      {/* Student CTA — replaces landlord banner */}
-      <section className="home-cta">
-        <motion.div
-          className="home-cta__inner"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="home-cta__icon">
-            <HiOutlineAcademicCap />
-          </div>
-          <p className="home-cta__eyebrow">For students</p>
-          <h2>Can't afford a place alone?</h2>
-          <p>
-            Use the roommate board to find someone in the same situation.
-            Split the rent, share the space, halve the stress.
-          </p>
-          <div className="home-cta__actions">
-            <Link href="/roommates" className="home-cta__btn">
-              Find a Roommate
-            </Link>
-            <Link href="/listings" className="home-cta__btn home-cta__btn--ghost">
-              Browse Listings
-            </Link>
-          </div>
-        </motion.div>
-      </section>
     </>
   );
 }
