@@ -1,4 +1,4 @@
-/* filter-bar.css */
+/* filter-bar.css — light mode */
 
 .filter-bar {
   max-width: 1200px;
@@ -31,7 +31,7 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.85rem;
   cursor: pointer;
   padding: 4px;
@@ -39,7 +39,7 @@
 }
 
 .filter-bar__clear:hover {
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 /* Inputs and selects */
@@ -48,29 +48,32 @@
   width: 100%;
   padding: 13px 16px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: #111827;
-  color: #f8fafc;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-primary);
   outline: none;
   font-size: 0.9rem;
-  transition: border-color 0.2s;
+  font-family: var(--font-body);
+  transition: border-color 0.2s, box-shadow 0.2s;
   appearance: none;
   -webkit-appearance: none;
+  box-shadow: var(--shadow-sm);
 }
 
 .filter-bar__input::placeholder {
-  color: #475569;
+  color: var(--text-muted);
 }
 
 .filter-bar__input:focus,
 .filter-bar__select:focus {
-  border-color: rgba(96, 165, 250, 0.5);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
 }
 
 .filter-bar__select option,
 .filter-bar__select optgroup {
-  background: #111827;
-  color: #f8fafc;
+  background: var(--bg-card);
+  color: var(--text-primary);
 }
 
 /* Row 1 selects — equal flex */
@@ -83,6 +86,11 @@
 .filter-bar__select--university {
   flex: 1.5;
   min-width: 200px;
+}
+
+/* Sort select */
+.filter-bar__select--sort {
+  min-width: 150px;
 }
 
 /* Price range */
@@ -101,7 +109,7 @@
 }
 
 .filter-bar__price-sep {
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: 0.85rem;
   flex-shrink: 0;
 }
@@ -120,26 +128,26 @@
   gap: 6px;
   font-size: 0.85rem;
   cursor: pointer;
-  color: #9ca3af;
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 
 .filter-bar__toggle input {
-  accent-color: #4f6ef7;
+  accent-color: var(--accent);
   width: 15px;
   height: 15px;
   cursor: pointer;
 }
 
 .filter-bar__toggle:hover {
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 /* Reset button */
 .filter-bar__reset {
   background: none;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #64748b;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
   padding: 10px 16px;
   border-radius: 8px;
   font-size: 0.82rem;
@@ -148,11 +156,13 @@
   transition: all 0.2s;
   white-space: nowrap;
   flex-shrink: 0;
+  font-family: var(--font-body);
 }
 
 .filter-bar__reset:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-  color: #94a3b8;
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+  background: var(--bg-hover);
 }
 
 /* Responsive */

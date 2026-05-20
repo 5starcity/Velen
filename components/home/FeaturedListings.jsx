@@ -52,7 +52,7 @@ const FEATURES = [
   {
     icon:   <HiOutlineChatBubbleLeftRight />,
     title:  "Direct contact",
-    desc:   "WhatsApp landlords directly. No agents taking cuts, no middlemen delaying responses.",
+    desc:   "WhatsApp landlords directly. No over-charge by agents, no middlemen delaying responses.",
     color:  "green",
     number: "05",
   },
@@ -275,7 +275,7 @@ export default function FeaturedListings() {
                 <p>Adaeze O.</p>
                 <span>300L · UNIPORT</span>
               </div>
-              <div className="split-cta__room-cost">₦90k<em>/yr</em></div>
+              <div className="split-cta__room-cost">₦100k<em>/yr</em></div>
             </div>
 
             <div className="split-cta__plus">+</div>
@@ -286,12 +286,12 @@ export default function FeaturedListings() {
                 <p>Chukwuma B.</p>
                 <span>200L · RSU</span>
               </div>
-              <div className="split-cta__room-cost">₦90k<em>/yr</em></div>
+              <div className="split-cta__room-cost">₦100k<em>/yr</em></div>
             </div>
 
             <div className="split-cta__result">
               <HiOutlineShieldCheck />
-              <span>One verified flat · ₦180k/yr total</span>
+              <span>One verified flat · ₦200k/yr total</span>
             </div>
           </motion.div>
 

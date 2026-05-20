@@ -1,416 +1,341 @@
-/* styles/agent-profile.css */
+/* styles/agent-profile.css — light mode */
 
 .agent-page {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 100px 24px 80px;
-  }
-  
-  /* Back button */
-  .agent-page__back {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: none;
-    border: none;
-    color: #64748b;
-    font-size: 0.88rem;
-    cursor: pointer;
-    margin-bottom: 28px;
-    transition: color 0.2s;
-    padding: 0;
-  }
-  .agent-page__back:hover { color: #f8fafc; }
-  
-  /* Profile header */
-  .agent-page__profile {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 24px;
-  }
-  
-  .agent-page__avatar {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: rgba(79, 110, 247, 0.1);
-    border: 2px solid rgba(79, 110, 247, 0.2);
-    display: grid;
-    place-items: center;
-    font-size: 3rem;
-    color: #4f6ef7;
-    flex-shrink: 0;
-    overflow: hidden;
-  }
-  .agent-page__avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .agent-page__name-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 8px;
-  }
-  .agent-page__name-row h1 {
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: #f8fafc;
-    margin: 0;
-  }
-  
-  .agent-page__verified {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: rgba(34, 197, 94, 0.1);
-    border: 1px solid rgba(34, 197, 94, 0.2);
-    color: #86efac;
-    font-size: 0.78rem;
-    font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 999px;
-  }
-  
-  .agent-page__profile-meta {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-    font-size: 0.82rem;
-    color: #64748b;
-  }
-  .agent-page__profile-meta span {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .agent-page__rating-pill {
-    background: rgba(251, 191, 36, 0.1);
-    border: 1px solid rgba(251, 191, 36, 0.2);
-    color: #fcd34d;
-    padding: 3px 10px;
-    border-radius: 999px;
-    font-weight: 600;
-  }
-  
-  /* Stats bar */
-  .agent-page__stats {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    padding: 1.1rem 2rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 16px;
-    margin-bottom: 40px;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1.5rem;
-  }
-  
-  .agent-page__stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-  }
-  .agent-page__stat strong {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #f1f5f9;
-  }
-  .agent-page__stat span {
-    font-size: 0.72rem;
-    color: #475569;
-  }
-  .agent-page__stat-divider {
-    width: 1px;
-    height: 32px;
-    background: rgba(255, 255, 255, 0.07);
-  }
-  
-  /* Section */
-  .agent-page__section {
-    margin-bottom: 48px;
-  }
-  
-  .agent-page__section-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: #f1f5f9;
-    margin: 0 0 20px;
-  }
-  
-  /* Listings grid */
-  .agent-page__listings-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.25rem;
-  }
-  
-  /* Empty state */
-  .agent-page__empty {
-    padding: 2rem;
-    text-align: center;
-    color: #475569;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px dashed rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
-  }
-  
-  /* Reviews header */
-  .agent-page__reviews-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .agent-page__reviews-header .agent-page__section-title { margin: 0; }
-  
-  .agent-page__avg-badge {
-    background: rgba(251, 191, 36, 0.12);
-    color: #fcd34d;
-    font-size: 0.82rem;
-    padding: 2px 10px;
-    border-radius: 999px;
-    font-weight: 600;
-    margin-left: 6px;
-  }
-  
-  .agent-page__review-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    background: rgba(79, 110, 247, 0.1);
-    border: 1px solid rgba(79, 110, 247, 0.25);
-    color: #818cf8;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .agent-page__review-btn:hover {
-    background: rgba(79, 110, 247, 0.18);
-  }
-  
-  .agent-page__review-success,
-  .agent-page__review-done {
-    font-size: 0.82rem;
-    color: #86efac;
-  }
-  .agent-page__review-done { color: #64748b; }
-  
-  /* Review form */
-  .agent-page__review-form {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  
-  .agent-page__review-textarea {
-    width: 100%;
-    background: #111827;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
-    color: #f8fafc;
-    font-size: 0.9rem;
-    padding: 12px 14px;
-    resize: vertical;
-    outline: none;
-    transition: border-color 0.2s;
-    font-family: inherit;
-  }
-  .agent-page__review-textarea:focus {
-    border-color: rgba(96, 165, 250, 0.4);
-  }
-  .agent-page__review-textarea::placeholder { color: #475569; }
-  
-  .agent-page__review-form-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  
-  .agent-page__review-char {
-    font-size: 0.78rem;
-    color: #475569;
-  }
-  
-  .agent-page__review-error {
-    font-size: 0.82rem;
-    color: #f87171;
-    margin: 0;
-  }
-  
-  .agent-page__review-submit {
-    background: #4f6ef7;
-    border: none;
-    color: #fff;
-    padding: 9px 20px;
-    border-radius: 8px;
-    font-size: 0.88rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s;
-  }
-  .agent-page__review-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-  
-  /* Star picker */
-  .star-picker {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .star-picker__star {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #475569;
-    font-size: 1.4rem;
-    padding: 2px;
-    transition: color 0.15s, transform 0.15s;
-    display: flex;
-    align-items: center;
-  }
-  .star-picker__star.active { color: #fbbf24; }
-  .star-picker__star:hover { transform: scale(1.15); }
-  .star-picker__label {
-    font-size: 0.82rem;
-    color: #64748b;
-    margin-left: 8px;
-  }
-  
-  /* Review cards */
-  .agent-page__reviews-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .agent-review-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 14px;
-    padding: 16px 20px;
-    transition: border-color 0.2s;
-  }
-  .agent-review-card:hover {
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-  
-  .agent-review-card__header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 10px;
-  }
-  
-  .agent-review-card__avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: rgba(79, 110, 247, 0.12);
-    color: #818cf8;
-    display: grid;
-    place-items: center;
-    font-size: 0.9rem;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-  
-  .agent-review-card__meta { flex: 1; }
-  .agent-review-card__name {
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: #e2e8f0;
-    margin: 0 0 2px;
-  }
-  .agent-review-card__date {
-    font-size: 0.75rem;
-    color: #475569;
-    margin: 0;
-  }
-  
-  .agent-review-card__stars {
-    display: flex;
-    gap: 2px;
-    font-size: 0.9rem;
-  }
-  .star-filled { color: #fbbf24; display: flex; }
-  .star-empty  { color: #334155; display: flex; }
-  
-  .agent-review-card__comment {
-    font-size: 0.88rem;
-    color: #94a3b8;
-    line-height: 1.6;
-    margin: 0;
-    font-style: italic;
-  }
-  
-  /* Login prompt */
-  .agent-page__login-prompt {
-    font-size: 0.85rem;
-    color: #475569;
-    margin-top: 16px;
-  }
-  .agent-page__login-prompt a {
-    color: #818cf8;
-    text-decoration: none;
-  }
-  
-  /* Loading */
-  .agent-page__loading {
-    display: flex;
-    justify-content: center;
-    padding: 120px 0;
-  }
-  .agent-page__spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid rgba(255, 255, 255, 0.08);
-    border-top-color: #4f6ef7;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  
-  .agent-page__not-found {
-    text-align: center;
-    padding: 80px 0;
-    color: #64748b;
-  }
-  .agent-page__not-found a {
-    color: #818cf8;
-    text-decoration: none;
-  }
-  
-  /* Responsive */
-  @media (max-width: 900px) {
-    .agent-page__listings-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (max-width: 560px) {
-    .agent-page__listings-grid { grid-template-columns: 1fr; }
-    .agent-page__profile { flex-direction: column; align-items: flex-start; }
-    .agent-page__stats { padding: 1rem; gap: 1rem; }
-    .agent-page__stat-divider { display: none; }
-  }
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 100px 24px 80px;
+}
+
+.agent-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  cursor: pointer;
+  margin-bottom: 28px;
+  transition: color 0.2s;
+  padding: 0;
+  font-family: var(--font-body);
+}
+
+.agent-page__back:hover { color: var(--text-primary); }
+
+.agent-page__profile {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.agent-page__avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  border: 2px solid var(--border-warm);
+  display: grid;
+  place-items: center;
+  font-size: 3rem;
+  color: var(--accent);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.agent-page__avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.agent-page__name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.agent-page__name-row h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+  font-family: var(--font-display);
+}
+
+.agent-page__verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.agent-page__profile-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.agent-page__profile-meta span { display: flex; align-items: center; gap: 5px; }
+
+.agent-page__rating-pill {
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  color: var(--amber);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.agent-page__stats {
+  display: flex;
+  align-items: center;
+  padding: 1.1rem 2rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.agent-page__stat { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.agent-page__stat strong { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }
+.agent-page__stat span { font-size: 0.72rem; color: var(--text-muted); }
+.agent-page__stat-divider { width: 1px; height: 32px; background: var(--border); }
+
+.agent-page__section { margin-bottom: 48px; }
+
+.agent-page__section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 20px;
+  font-family: var(--font-display);
+}
+
+.agent-page__listings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.agent-page__empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  border: 1px dashed var(--border-strong);
+  border-radius: 12px;
+}
+
+.agent-page__reviews-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.agent-page__reviews-header .agent-page__section-title { margin: 0; }
+
+.agent-page__avg-badge {
+  background: var(--amber-bg);
+  color: var(--amber);
+  font-size: 0.82rem;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.agent-page__review-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--accent-dim);
+  border: 1px solid var(--border-warm);
+  color: var(--accent);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-body);
+}
+
+.agent-page__review-btn:hover { background: rgba(184, 110, 26, 0.15); }
+
+.agent-page__review-success { font-size: 0.82rem; color: var(--green); }
+.agent-page__review-done    { font-size: 0.82rem; color: var(--text-muted); }
+
+.agent-page__review-form {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.agent-page__review-textarea {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  padding: 12px 14px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+}
+
+.agent-page__review-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.agent-page__review-textarea::placeholder { color: var(--text-muted); }
+
+.agent-page__review-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.agent-page__review-char  { font-size: 0.78rem; color: var(--text-muted); }
+.agent-page__review-error { font-size: 0.82rem; color: var(--red); margin: 0; }
+
+.agent-page__review-submit {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-body);
+}
+
+.agent-page__review-submit:hover:not(:disabled) { background: var(--accent-light); }
+.agent-page__review-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.star-picker { display: flex; align-items: center; gap: 4px; }
+
+.star-picker__star {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--border-strong);
+  font-size: 1.4rem;
+  padding: 2px;
+  transition: color 0.15s, transform 0.15s;
+  display: flex;
+  align-items: center;
+}
+
+.star-picker__star.active { color: var(--amber); }
+.star-picker__star:hover  { transform: scale(1.15); }
+.star-picker__label { font-size: 0.82rem; color: var(--text-muted); margin-left: 8px; }
+
+.agent-page__reviews-list { display: flex; flex-direction: column; gap: 12px; }
+
+.agent-review-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 20px;
+  transition: border-color 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+
+.agent-review-card:hover { border-color: var(--border-strong); }
+
+.agent-review-card__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.agent-review-card__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.agent-review-card__name  { font-size: 0.88rem; font-weight: 600; color: var(--text-primary); margin: 0 0 2px; }
+.agent-review-card__date  { font-size: 0.75rem; color: var(--text-muted); margin: 0; }
+.agent-review-card__stars { display: flex; gap: 2px; font-size: 0.9rem; }
+
+.star-filled { color: var(--amber); display: flex; }
+.star-empty  { color: var(--border-strong); display: flex; }
+
+.agent-review-card__comment {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+  font-style: italic;
+}
+
+.agent-page__login-prompt { font-size: 0.85rem; color: var(--text-muted); margin-top: 16px; }
+.agent-page__login-prompt a { color: var(--accent); text-decoration: none; }
+
+.agent-page__loading { display: flex; justify-content: center; padding: 120px 0; }
+
+.agent-page__spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.agent-page__not-found { text-align: center; padding: 80px 0; color: var(--text-muted); }
+.agent-page__not-found a { color: var(--accent); text-decoration: none; }
+
+@media (max-width: 900px) {
+  .agent-page__listings-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .agent-page__listings-grid { grid-template-columns: 1fr; }
+  .agent-page__profile { flex-direction: column; align-items: flex-start; }
+  .agent-page__stats { padding: 1rem; gap: 1rem; }
+  .agent-page__stat-divider { display: none; }
+}

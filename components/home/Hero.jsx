@@ -59,7 +59,7 @@ export default function Hero() {
           <motion.p className="hero__body" {...rise(0.28)}>
             Verified rooms near RSU, UniPort, IAUE and more.
             See full costs upfront, contact landlords directly —
-            no agents, no nonsense.
+             agents, no nonsense.
           </motion.p>
 
           <motion.div className="hero__actions" {...rise(0.38)}>
@@ -92,7 +92,7 @@ export default function Hero() {
             <span className="hero__trust-sep">·</span>
             <div className="hero__trust-item">
               <HiOutlineBanknotes />
-              <span>Zero agent fees</span>
+              <span>Moderate agent fees</span>
             </div>
             <span className="hero__trust-sep">·</span>
             <div className="hero__trust-item">
