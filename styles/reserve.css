@@ -19,7 +19,7 @@
   width: 32px;
   height: 32px;
   border: 3px solid rgba(0, 0, 0, 0.06);
-  border-top-color: #4f6ef7;
+  border-top-color: #d97706;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -30,7 +30,7 @@
   padding: 80px 0;
   color: #94a3b8;
 }
-.reserve-page__not-found a { color: #4f6ef7; text-decoration: none; }
+.reserve-page__not-found a { color: #d97706; text-decoration: none; }
 
 /* Back + header */
 .reserve-page__back {
@@ -53,7 +53,7 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #4f6ef7;
+  color: #d97706;
   margin-bottom: 8px;
 }
 
@@ -89,8 +89,8 @@
   width: 42px;
   height: 42px;
   border-radius: 10px;
-  background: rgba(79, 110, 247, 0.08);
-  color: #4f6ef7;
+  background: rgba(217, 119, 6, 0.08);
+  color: #d97706;
   display: grid;
   place-items: center;
   font-size: 1.2rem;
@@ -168,7 +168,7 @@
   outline: none;
   transition: border-color 0.2s;
 }
-.reserve-page__input:focus { border-color: rgba(79, 110, 247, 0.4); }
+.reserve-page__input:focus { border-color: rgba(217, 119, 6, 0.4); }
 
 .reserve-page__textarea {
   width: 100%;
@@ -183,7 +183,7 @@
   font-family: inherit;
   transition: border-color 0.2s;
 }
-.reserve-page__textarea:focus { border-color: rgba(79, 110, 247, 0.4); }
+.reserve-page__textarea:focus { border-color: rgba(217, 119, 6, 0.4); }
 .reserve-page__textarea::placeholder { color: #94a3b8; }
 .reserve-page__char-count { font-size: 0.75rem; color: #94a3b8; text-align: right; margin: 0; }
 
@@ -229,7 +229,7 @@
 .reserve-page__submit {
   width: 100%;
   padding: 14px;
-  background: #4f6ef7;
+  background: linear-gradient(135deg, #d97706, #b45309);
   border: none;
   color: #fff;
   border-radius: 12px;
@@ -237,9 +237,9 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 20px rgba(79, 110, 247, 0.2);
+  box-shadow: 0 4px 20px rgba(217, 119, 6, 0.2);
 }
-.reserve-page__submit:hover { background: #3a58e0; transform: translateY(-1px); }
+.reserve-page__submit:hover { opacity: 0.9; transform: translateY(-1px); }
 .reserve-page__submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
 .reserve-page__disclaimer {
@@ -296,11 +296,11 @@
   align-items: center;
   gap: 8px;
   padding: 14px 20px;
-  background: rgba(79, 110, 247, 0.05);
+  background: rgba(217, 119, 6, 0.05);
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   font-size: 0.85rem;
   font-weight: 600;
-  color: #4f6ef7;
+  color: #d97706;
 }
 .reserve-page__receipt-rows { padding: 8px 0; }
 .reserve-page__receipt-row {
@@ -316,7 +316,7 @@
 .reserve-page__receipt-row strong { color: #0f172a; font-weight: 600; }
 .reserve-page__tracking-id {
   font-family: monospace;
-  color: #4f6ef7 !important;
+  color: #d97706 !important;
   font-size: 0.92rem !important;
 }
 .reserve-page__status-pending { color: #d97706 !important; }
@@ -332,7 +332,7 @@
 }
 .reserve-page__btn {
   padding: 11px 22px;
-  background: #4f6ef7;
+  background: linear-gradient(135deg, #d97706, #b45309);
   border: none;
   color: #fff;
   border-radius: 10px;
@@ -345,7 +345,7 @@
   align-items: center;
   gap: 6px;
 }
-.reserve-page__btn:hover { background: #3a58e0; }
+.reserve-page__btn:hover { opacity: 0.9; }
 .reserve-page__btn--ghost {
   background: rgba(0, 0, 0, 0.03);
   border: 1px solid rgba(0, 0, 0, 0.09);
@@ -377,9 +377,9 @@
   transition: all 0.2s;
 }
 .my-reservations-page__tab.active {
-  background: rgba(79, 110, 247, 0.08);
-  border-color: rgba(79, 110, 247, 0.22);
-  color: #4f6ef7;
+  background: rgba(217, 119, 6, 0.08);
+  border-color: rgba(217, 119, 6, 0.22);
+  color: #92400e;
 }
 .my-reservations-page__tab-count {
   background: rgba(0, 0, 0, 0.06);
@@ -418,8 +418,8 @@
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  background: rgba(79, 110, 247, 0.08);
-  color: #4f6ef7;
+  background: rgba(217, 119, 6, 0.08);
+  color: #d97706;
   display: grid;
   place-items: center;
   font-size: 1.1rem;
@@ -438,7 +438,7 @@
   display: flex;
   transition: color 0.2s;
 }
-.my-reservations-page__card-link:hover { color: #4f6ef7; }
+.my-reservations-page__card-link:hover { color: #d97706; }
 
 /* Status badge */
 .my-reservations__status {
@@ -478,7 +478,7 @@
   font-size: 0.78rem;
   color: #94a3b8;
 }
-.my-reservations-page__receipt-strip strong { color: #4f6ef7; font-family: monospace; }
+.my-reservations-page__receipt-strip strong { color: #d97706; font-family: monospace; }
 .my-reservations-page__fee-free { color: #059669; font-weight: 600; }
 
 .my-reservations-page__note {

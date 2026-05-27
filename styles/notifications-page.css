@@ -1,14 +1,11 @@
+/* styles/notif-page.css */
 
-Copy
-
-/* styles/notifications-page.css */
- 
 .notif-page {
   max-width: 680px;
   margin: 0 auto;
-  padding: 48px 20px 90px;
+  padding: 96px 20px 90px; /* 66px navbar + 30px breathing room */
 }
- 
+
 /* ── Loading ── */
 .notif-page__loading {
   display: flex;
@@ -16,39 +13,39 @@ Copy
   justify-content: center;
   min-height: 60vh;
 }
- 
+
 .notif-page__spinner {
   width: 30px;
   height: 30px;
-  border: 2.5px solid rgba(255,255,255,0.06);
-  border-top-color: #4f6ef7;
+  border: 2.5px solid rgba(0, 0, 0, 0.06);
+  border-top-color: #d97706;
   border-radius: 50%;
   animation: notif-spin 0.7s linear infinite;
 }
- 
+
 @keyframes notif-spin {
   to { transform: rotate(360deg); }
 }
- 
+
 /* ── Header ── */
 .notif-page__back {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #64748b;
+  color: #94a3b8;
   font-size: 0.85rem;
   font-weight: 500;
   text-decoration: none;
   margin-bottom: 20px;
   transition: color 0.18s;
 }
- 
-.notif-page__back:hover { color: #e2e8f0; }
- 
+
+.notif-page__back:hover { color: #0f172a; }
+
 .notif-page__header {
   margin-bottom: 24px;
 }
- 
+
 .notif-page__header-top {
   display: flex;
   align-items: flex-start;
@@ -56,18 +53,18 @@ Copy
   gap: 16px;
   flex-wrap: wrap;
 }
- 
+
 .notif-page__header h1 {
   font-size: 1.9rem;
   font-weight: 800;
-  color: #f8fafc;
+  color: #0f172a;
   letter-spacing: -0.4px;
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 6px;
 }
- 
+
 .notif-page__unread-badge {
   display: inline-flex;
   align-items: center;
@@ -81,19 +78,19 @@ Copy
   font-size: 0.75rem;
   font-weight: 700;
 }
- 
+
 .notif-page__sub {
   font-size: 0.88rem;
   color: #64748b;
 }
- 
+
 .notif-page__header-actions {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
 }
- 
+
 .notif-page__action-btn {
   display: inline-flex;
   align-items: center;
@@ -103,28 +100,29 @@ Copy
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.04);
-  color: #94a3b8;
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  background: #ffffff;
+  color: #64748b;
   transition: all 0.18s;
 }
- 
+
 .notif-page__action-btn:hover {
-  background: rgba(255,255,255,0.08);
-  color: #e2e8f0;
+  background: rgba(0, 0, 0, 0.03);
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.14);
 }
- 
+
 .notif-page__action-btn--danger {
-  color: #f87171;
-  border-color: rgba(239,68,68,0.2);
-  background: rgba(239,68,68,0.06);
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.2);
+  background: rgba(220, 38, 38, 0.04);
 }
- 
+
 .notif-page__action-btn--danger:hover {
-  background: rgba(239,68,68,0.12);
-  border-color: rgba(239,68,68,0.3);
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.3);
 }
- 
+
 /* ── Filters ── */
 .notif-page__filters {
   display: flex;
@@ -132,7 +130,7 @@ Copy
   margin-bottom: 24px;
   flex-wrap: wrap;
 }
- 
+
 .notif-page__filter {
   display: inline-flex;
   align-items: center;
@@ -142,64 +140,66 @@ Copy
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
-  border: 1px solid rgba(255,255,255,0.07);
-  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
   color: #64748b;
   transition: all 0.18s;
 }
- 
+
 .notif-page__filter:hover {
-  color: #e2e8f0;
-  border-color: rgba(255,255,255,0.14);
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.15);
 }
- 
+
 .notif-page__filter.active {
-  background: rgba(79,110,247,0.14);
-  border-color: rgba(79,110,247,0.35);
-  color: #a5b4fc;
+  background: rgba(217, 119, 6, 0.08);
+  border-color: rgba(217, 119, 6, 0.3);
+  color: #92400e;
 }
- 
+
 .notif-page__filter-count {
-  background: rgba(255,255,255,0.08);
+  background: rgba(0, 0, 0, 0.06);
   border-radius: 999px;
   padding: 1px 7px;
   font-size: 0.72rem;
 }
- 
+
 .notif-page__filter.active .notif-page__filter-count {
-  background: rgba(79,110,247,0.25);
+  background: rgba(217, 119, 6, 0.18);
+  color: #92400e;
 }
- 
+
 /* ── Groups ── */
 .notif-page__group {
   margin-bottom: 28px;
 }
- 
+
 .notif-page__group-label {
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #475569;
+  color: #94a3b8;
   margin-bottom: 10px;
   padding-left: 2px;
 }
- 
+
 /* ── Notification item ── */
 .notif-page-item {
   display: flex;
   align-items: flex-start;
   gap: 14px;
   padding: 16px 18px;
-  background: rgba(17,24,39,0.97);
-  border: 1px solid rgba(255,255,255,0.05);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
   border-radius: 16px;
   margin-bottom: 8px;
   transition: all 0.18s;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
- 
+
 .notif-page-item::before {
   content: "";
   position: absolute;
@@ -211,55 +211,55 @@ Copy
   opacity: 0;
   transition: opacity 0.18s;
 }
- 
+
 .notif-page-item.unread::before { opacity: 1; }
- 
-.notif-page-item--blue::before   { background: #4f6ef7; }
-.notif-page-item--green::before  { background: #34d399; }
-.notif-page-item--red::before    { background: #f87171; }
-.notif-page-item--yellow::before { background: #fbbf24; }
-.notif-page-item--teal::before   { background: #2dd4bf; }
- 
+
+.notif-page-item--blue::before   { background: #d97706; }
+.notif-page-item--green::before  { background: #059669; }
+.notif-page-item--red::before    { background: #dc2626; }
+.notif-page-item--yellow::before { background: #d97706; }
+.notif-page-item--teal::before   { background: #0891b2; }
+
 .notif-page-item.unread {
-  background: rgba(79,110,247,0.04);
-  border-color: rgba(79,110,247,0.1);
+  background: rgba(217, 119, 6, 0.03);
+  border-color: rgba(217, 119, 6, 0.12);
 }
- 
+
 .notif-page-item:hover {
-  background: rgba(255,255,255,0.03);
-  border-color: rgba(255,255,255,0.09);
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.1);
   transform: translateX(2px);
 }
- 
+
 /* Icon wrap */
 .notif-page-item__icon-wrap {
   width: 38px;
   height: 38px;
   border-radius: 11px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   display: grid;
   place-items: center;
   flex-shrink: 0;
   font-size: 1.1rem;
 }
- 
-.notif-page-item__icon       { color: #64748b; }
-.notif-page-item__icon--home     { color: #4f6ef7; }
-.notif-page-item__icon--inspect  { color: #34d399; }
-.notif-page-item__icon--reserve  { color: #818cf8; }
-.notif-page-item__icon--confirmed { color: #34d399; }
-.notif-page-item__icon--declined  { color: #f87171; }
-.notif-page-item__icon--approved  { color: #34d399; }
-.notif-page-item__icon--payment   { color: #fbbf24; }
-.notif-page-item__icon--roommate  { color: #2dd4bf; }
- 
+
+.notif-page-item__icon         { color: #94a3b8; }
+.notif-page-item__icon--home     { color: #d97706; }
+.notif-page-item__icon--inspect  { color: #059669; }
+.notif-page-item__icon--reserve  { color: #7c3aed; }
+.notif-page-item__icon--confirmed { color: #059669; }
+.notif-page-item__icon--declined  { color: #dc2626; }
+.notif-page-item__icon--approved  { color: #059669; }
+.notif-page-item__icon--payment   { color: #d97706; }
+.notif-page-item__icon--roommate  { color: #0891b2; }
+
 /* Body */
 .notif-page-item__body {
   flex: 1;
   min-width: 0;
 }
- 
+
 .notif-page-item__top {
   display: flex;
   align-items: flex-start;
@@ -267,33 +267,33 @@ Copy
   gap: 8px;
   margin-bottom: 4px;
 }
- 
+
 .notif-page-item__title {
   font-size: 0.88rem;
   font-weight: 700;
-  color: #e2e8f0;
+  color: #0f172a;
   line-height: 1.3;
 }
- 
+
 .notif-page-item__time {
   font-size: 0.72rem;
-  color: #334155;
+  color: #94a3b8;
   white-space: nowrap;
   flex-shrink: 0;
 }
- 
+
 .notif-page-item__message {
   font-size: 0.82rem;
   color: #64748b;
   line-height: 1.5;
 }
- 
+
 .notif-page-item__sender {
   font-size: 0.75rem;
-  color: #475569;
+  color: #94a3b8;
   margin-top: 4px;
 }
- 
+
 /* Right side */
 .notif-page-item__right {
   display: flex;
@@ -302,21 +302,21 @@ Copy
   gap: 8px;
   flex-shrink: 0;
 }
- 
+
 .notif-page-item__dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #4f6ef7;
+  background: #d97706;
 }
- 
+
 .notif-page-item__delete {
   width: 26px;
   height: 26px;
   border-radius: 7px;
   background: none;
   border: none;
-  color: #334155;
+  color: #cbd5e1;
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -324,16 +324,16 @@ Copy
   transition: all 0.15s;
   opacity: 0;
 }
- 
+
 .notif-page-item:hover .notif-page-item__delete {
   opacity: 1;
 }
- 
+
 .notif-page-item__delete:hover {
-  background: rgba(239,68,68,0.1);
-  color: #f87171;
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
 }
- 
+
 /* ── Empty ── */
 .notif-page__empty {
   display: flex;
@@ -343,97 +343,99 @@ Copy
   padding: 60px 20px;
   gap: 12px;
 }
- 
+
 .notif-page__empty-icon {
   font-size: 3rem;
-  color: #1e293b;
+  color: #cbd5e1;
 }
- 
+
 .notif-page__empty h2 {
   font-size: 1.1rem;
   font-weight: 700;
   color: #475569;
 }
- 
+
 .notif-page__empty p {
   font-size: 0.85rem;
-  color: #334155;
+  color: #94a3b8;
   max-width: 280px;
   line-height: 1.5;
 }
- 
+
 /* ── Confirm overlay ── */
 .notif-page__overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(4px);
   z-index: 500;
   display: grid;
   place-items: center;
   padding: 20px;
 }
- 
+
 .notif-page__confirm {
-  background: #111827;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 20px;
   padding: 32px 28px;
   max-width: 380px;
   width: 100%;
   text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
 }
- 
+
 .notif-page__confirm-icon {
   font-size: 2.5rem;
-  color: #f87171;
+  color: #dc2626;
   margin-bottom: 12px;
 }
- 
+
 .notif-page__confirm h3 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #f8fafc;
+  color: #0f172a;
   margin-bottom: 10px;
 }
- 
+
 .notif-page__confirm p {
   font-size: 0.85rem;
   color: #64748b;
   line-height: 1.5;
   margin-bottom: 24px;
 }
- 
+
 .notif-page__confirm-actions {
   display: flex;
   gap: 10px;
 }
- 
+
 .notif-page__confirm-cancel {
   flex: 1;
   padding: 11px;
   border-radius: 10px;
-  border: 1.5px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(0, 0, 0, 0.09);
   background: none;
-  color: #94a3b8;
+  color: #64748b;
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.18s;
 }
- 
+
 .notif-page__confirm-cancel:hover {
-  color: #e2e8f0;
-  border-color: rgba(255,255,255,0.16);
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.16);
+  background: rgba(0, 0, 0, 0.02);
 }
- 
+
 .notif-page__confirm-delete {
   flex: 1;
   padding: 11px;
   border-radius: 10px;
-  border: none;
-  background: rgba(239,68,68,0.15);
-  color: #f87171;
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
   font-size: 0.88rem;
   font-weight: 700;
   cursor: pointer;
@@ -442,32 +444,49 @@ Copy
   justify-content: center;
   gap: 6px;
   transition: all 0.18s;
-  border: 1px solid rgba(239,68,68,0.25);
 }
- 
+
 .notif-page__confirm-delete:hover {
-  background: rgba(239,68,68,0.22);
+  background: rgba(220, 38, 38, 0.14);
 }
- 
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   .notif-page {
-    padding: 32px 16px 70px;
+    padding: 86px 16px 70px; /* slightly less breathing room on mobile */
   }
- 
+
   .notif-page__header h1 {
     font-size: 1.5rem;
   }
- 
+
   .notif-page-item {
-    padding: 14px 14px;
+    padding: 14px;
   }
- 
+
   .notif-page-item__delete {
     opacity: 1;
   }
- 
+
   .notif-page__header-top {
     flex-direction: column;
   }
 }
+
+/* =========================================================
+   GLOBAL NAVBAR OFFSET — add to globals.css or layout.css
+   Apply .page-offset to any page wrapper that needs to 
+   clear the 66px fixed navbar.
+   ========================================================= */
+
+/*
+  .page-offset {
+    padding-top: 96px;
+  }
+
+  @media (max-width: 600px) {
+    .page-offset {
+      padding-top: 86px;
+    }
+  }
+*/
