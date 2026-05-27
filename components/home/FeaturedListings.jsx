@@ -11,68 +11,54 @@ import {
   HiOutlineBanknotes,
   HiOutlineChatBubbleLeftRight,
   HiOutlineUserGroup,
-  HiOutlineClipboardDocumentCheck,
   HiOutlineExclamationTriangle,
   HiOutlineArrowRight,
   HiOutlineMapPin,
-  HiOutlineAcademicCap,
   HiOutlineBolt,
 } from "react-icons/hi2";
 import "@/styles/featured.css";
 
 const FEATURES = [
   {
-    icon:   <HiOutlineShieldCheck />,
-    title:  "Verified listings",
-    desc:   "Every property is checked before it goes live. No ghost apartments, no upfront scams.",
-    color:  "blue",
-    number: "01",
+    icon:  <HiOutlineShieldCheck />,
+    title: "Verified listings",
+    desc:  "Every property is checked before it goes live. No ghost apartments, no upfront scams.",
   },
   {
-    icon:   <HiOutlineBanknotes />,
-    title:  "Full cost upfront",
-    desc:   "Rent, caution fee, legal fee — all visible before you call a single landlord.",
-    color:  "amber",
-    number: "02",
+    icon:  <HiOutlineBanknotes />,
+    title: "Full cost upfront",
+    desc:  "Rent, caution fee, legal fee — all visible before you call a single landlord.",
   },
   {
-    icon:   <HiOutlineUserGroup />,
-    title:  "Split rent",
-    desc:   "Can't cover it alone? Post on the roommate board and split the cost with someone.",
-    color:  "purple",
-    number: "03",
+    icon:  <HiOutlineUserGroup />,
+    title: "Split rent board",
+    desc:  "Can't cover it alone? Find a roommate and split the cost.",
   },
   {
-    icon:   <HiOutlineMapPin />,
-    title:  "Near your campus",
-    desc:   "Filter by school — RSU, UniPort, IAUE and more. Find housing close to where you actually study.",
-    color:  "teal",
-    number: "04",
+    icon:  <HiOutlineMapPin />,
+    title: "Near your campus",
+    desc:  "Filter by school — RSU, UniPort, IAUE and more.",
   },
   {
-    icon:   <HiOutlineChatBubbleLeftRight />,
-    title:  "Direct contact",
-    desc:   "WhatsApp landlords directly. No over-charge by agents, no middlemen delaying responses.",
-    color:  "green",
-    number: "05",
+    icon:  <HiOutlineChatBubbleLeftRight />,
+    title: "Direct contact",
+    desc:  "WhatsApp landlords directly. No middlemen, no agent delays.",
   },
   {
-    icon:   <HiOutlineExclamationTriangle />,
-    title:  "Scam protection",
-    desc:   "Suspicious prices get flagged. Report bad listings and keep the platform clean for everyone.",
-    color:  "red",
-    number: "06",
+    icon:  <HiOutlineExclamationTriangle />,
+    title: "Scam protection",
+    desc:  "Suspicious prices get flagged. Report bad listings instantly.",
   },
 ];
 
 const inView = {
-  hidden: { opacity: 0, y: 28 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+  hidden: { opacity: 0, y: 24 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } },
 };
 
 const stagger = {
   hidden: {},
-  show:   { transition: { staggerChildren: 0.09 } },
+  show:   { transition: { staggerChildren: 0.07 } },
 };
 
 export default function FeaturedListings() {
@@ -89,7 +75,7 @@ export default function FeaturedListings() {
           return 0;
         });
         setListings(sorted.slice(0, 6));
-      } catch (error) {
+      } catch {
         setListings([]);
       } finally {
         setLoading(false);
@@ -101,9 +87,7 @@ export default function FeaturedListings() {
   return (
     <>
 
-      {/* ══════════════════════════════════════
-          WHY VELEN — Features section
-      ══════════════════════════════════════ */}
+      {/* ══ WHY VELEN ══ */}
       <section className="why">
         <div className="why__inner">
 
@@ -116,37 +100,25 @@ export default function FeaturedListings() {
           >
             <span className="why__eyebrow">Why students choose Velen</span>
             <h2 className="why__heading">
-              Housing search,
-              <br />
+              Housing search,{" "}
               <em>the way it should be.</em>
             </h2>
-            <p className="why__sub">
-              Built specifically for students in Port Harcourt —
-              not a generic listing site with a student filter.
-            </p>
           </motion.div>
 
           <motion.div
-            className="why__grid"
+            className="why__list"
             variants={stagger}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true, margin: "-60px" }}
+            viewport={{ once: true, margin: "-40px" }}
           >
             {FEATURES.map((f) => (
-              <motion.div
-                key={f.title}
-                className={"why__card why__card--" + f.color}
-                variants={inView}
-              >
-                <div className="why__card-top">
-                  <div className={"why__card-icon why__card-icon--" + f.color}>
-                    {f.icon}
-                  </div>
-                  <span className="why__card-number">{f.number}</span>
+              <motion.div key={f.title} className="why__item" variants={inView}>
+                <div className="why__item-icon">{f.icon}</div>
+                <div className="why__item-body">
+                  <h3 className="why__item-title">{f.title}</h3>
+                  <p className="why__item-desc">{f.desc}</p>
                 </div>
-                <h3 className="why__card-title">{f.title}</h3>
-                <p className="why__card-desc">{f.desc}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -154,9 +126,7 @@ export default function FeaturedListings() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
-          FEATURED LISTINGS
-      ══════════════════════════════════════ */}
+      {/* ══ FEATURED LISTINGS ══ */}
       <section className="featured">
         <div className="featured__inner">
 
@@ -225,74 +195,58 @@ export default function FeaturedListings() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
-          ROOMMATE CTA
-      ══════════════════════════════════════ */}
+      {/* ══ ROOMMATE CTA ══ */}
       <section className="split-cta">
         <div className="split-cta__inner">
 
           <motion.div
-            className="split-cta__content"
+            className="split-cta__label"
             variants={inView}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true }}
           >
-            <div className="split-cta__label">
-              <HiOutlineBolt />
-              <span>For students</span>
-            </div>
-            <h2 className="split-cta__heading">
-              Can't afford it alone?
-              <br />
-              <em>Split it.</em>
-            </h2>
-            <p className="split-cta__body">
-              Post on the roommate board, find someone in the same situation,
-              and share the rent. Half the cost, double the company.
-            </p>
-            <div className="split-cta__actions">
-              <Link href="/roommates" className="split-cta__btn split-cta__btn--primary">
-                Find a Roommate <HiOutlineArrowRight />
-              </Link>
-              <Link href="/listings" className="split-cta__btn split-cta__btn--ghost">
-                Browse Listings
-              </Link>
-            </div>
+            <HiOutlineBolt />
+            <span>For students</span>
           </motion.div>
 
-          {/* Decorative right side */}
-          <motion.div
-            className="split-cta__visual"
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
+          <motion.h2
+            className="split-cta__heading"
+            variants={inView}
+            initial="hidden"
+            whileInView="show"
             viewport={{ once: true }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ delay: 0.08 }}
           >
-            <div className="split-cta__room split-cta__room--a">
-              <div className="split-cta__room-avatar">A</div>
-              <div>
-                <p>Adaeze O.</p>
-                <span>300L · UNIPORT</span>
-              </div>
-              <div className="split-cta__room-cost">₦100k<em>/yr</em></div>
-            </div>
+            Can't afford it alone?{" "}
+            <em>Split it.</em>
+          </motion.h2>
 
-            <div className="split-cta__plus">+</div>
+          <motion.p
+            className="split-cta__body"
+            variants={inView}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            transition={{ delay: 0.16 }}
+          >
+            Post on the roommate board, find someone in the same situation,
+            and share the rent. Half the cost, double the company.
+          </motion.p>
 
-            <div className="split-cta__room split-cta__room--b">
-              <div className="split-cta__room-avatar">C</div>
-              <div>
-                <p>Chukwuma B.</p>
-                <span>200L · RSU</span>
-              </div>
-              <div className="split-cta__room-cost">₦100k<em>/yr</em></div>
-            </div>
-
-            <div className="split-cta__result">
-              <HiOutlineShieldCheck />
-              <span>One verified flat · ₦200k/yr total</span>
-            </div>
+          <motion.div
+            className="split-cta__actions"
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.24, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Link href="/roommates" className="split-cta__btn split-cta__btn--primary">
+              Find a Roommate <HiOutlineArrowRight />
+            </Link>
+            <Link href="/listings" className="split-cta__btn split-cta__btn--ghost">
+              Browse Listings
+            </Link>
           </motion.div>
 
         </div>

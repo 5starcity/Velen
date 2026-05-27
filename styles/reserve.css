@@ -18,7 +18,7 @@
 .reserve-page__spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid rgba(255,255,255,0.08);
+  border: 3px solid rgba(0, 0, 0, 0.06);
   border-top-color: #4f6ef7;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -28,22 +28,22 @@
 .reserve-page__not-found {
   text-align: center;
   padding: 80px 0;
-  color: #64748b;
+  color: #94a3b8;
 }
-.reserve-page__not-found a { color: #818cf8; text-decoration: none; }
+.reserve-page__not-found a { color: #4f6ef7; text-decoration: none; }
 
 /* Back + header */
 .reserve-page__back {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #64748b;
+  color: #94a3b8;
   font-size: 0.88rem;
   text-decoration: none;
   margin-bottom: 24px;
   transition: color 0.2s;
 }
-.reserve-page__back:hover { color: #f8fafc; }
+.reserve-page__back:hover { color: #0f172a; }
 
 .reserve-page__eyebrow {
   display: inline-flex;
@@ -61,7 +61,7 @@
 .my-reservations-page__header h1 {
   font-size: 1.8rem;
   font-weight: 800;
-  color: #f8fafc;
+  color: #0f172a;
   margin: 0 0 8px;
 }
 
@@ -77,18 +77,19 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
   border-radius: 14px;
   padding: 16px;
   margin-bottom: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .reserve-page__listing-icon {
   width: 42px;
   height: 42px;
   border-radius: 10px;
-  background: rgba(79,110,247,0.1);
+  background: rgba(79, 110, 247, 0.08);
   color: #4f6ef7;
   display: grid;
   place-items: center;
@@ -100,7 +101,7 @@
 .reserve-page__listing-title {
   font-size: 0.92rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #0f172a;
   margin: 0 0 4px;
 }
 .reserve-page__listing-location {
@@ -108,19 +109,19 @@
   align-items: center;
   gap: 4px;
   font-size: 0.78rem;
-  color: #64748b;
+  color: #94a3b8;
   margin: 0;
 }
 
 .reserve-page__listing-price {
   font-size: 1rem;
   font-weight: 700;
-  color: #f8fafc;
+  color: #0f172a;
   white-space: nowrap;
 }
 .reserve-page__listing-price span {
   font-size: 0.75rem;
-  color: #64748b;
+  color: #94a3b8;
   font-weight: 400;
 }
 
@@ -139,9 +140,9 @@
   gap: 6px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #94a3b8;
+  color: #64748b;
 }
-.reserve-page__section-label em { font-weight: 400; color: #475569; }
+.reserve-page__section-label em { font-weight: 400; color: #94a3b8; }
 
 .reserve-page__input-wrap {
   position: relative;
@@ -151,7 +152,7 @@
 .reserve-page__input-icon {
   position: absolute;
   left: 14px;
-  color: #475569;
+  color: #94a3b8;
   font-size: 1rem;
   pointer-events: none;
 }
@@ -159,53 +160,53 @@
 .reserve-page__input {
   width: 100%;
   padding: 13px 14px 13px 40px;
-  background: #111827;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: #f8fafc;
+  border: 1px solid rgba(0, 0, 0, 0.09);
   border-radius: 12px;
-  color: #f8fafc;
+  color: #0f172a;
   font-size: 0.9rem;
   outline: none;
   transition: border-color 0.2s;
 }
-.reserve-page__input:focus { border-color: rgba(96,165,250,0.4); }
+.reserve-page__input:focus { border-color: rgba(79, 110, 247, 0.4); }
 
 .reserve-page__textarea {
   width: 100%;
   padding: 12px 14px;
-  background: #111827;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: #f8fafc;
+  border: 1px solid rgba(0, 0, 0, 0.09);
   border-radius: 12px;
-  color: #f8fafc;
+  color: #0f172a;
   font-size: 0.9rem;
   resize: vertical;
   outline: none;
   font-family: inherit;
   transition: border-color 0.2s;
 }
-.reserve-page__textarea:focus { border-color: rgba(96,165,250,0.4); }
-.reserve-page__textarea::placeholder { color: #475569; }
-.reserve-page__char-count { font-size: 0.75rem; color: #475569; text-align: right; margin: 0; }
+.reserve-page__textarea:focus { border-color: rgba(79, 110, 247, 0.4); }
+.reserve-page__textarea::placeholder { color: #94a3b8; }
+.reserve-page__char-count { font-size: 0.75rem; color: #94a3b8; text-align: right; margin: 0; }
 
 /* Fee notice */
 .reserve-page__fee-notice {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(34,197,94,0.06);
-  border: 1px solid rgba(34,197,94,0.15);
+  background: rgba(5, 150, 105, 0.05);
+  border: 1px solid rgba(5, 150, 105, 0.14);
   border-radius: 12px;
   padding: 14px 16px;
   font-size: 0.85rem;
   color: #64748b;
 }
-.reserve-page__fee-notice svg { color: #86efac; font-size: 1.2rem; flex-shrink: 0; }
-.reserve-page__fee-title { font-weight: 600; color: #e2e8f0; margin: 0 0 2px; font-size: 0.88rem; }
+.reserve-page__fee-notice svg { color: #059669; font-size: 1.2rem; flex-shrink: 0; }
+.reserve-page__fee-title { font-weight: 600; color: #0f172a; margin: 0 0 2px; font-size: 0.88rem; }
 .reserve-page__fee-sub { margin: 0; font-size: 0.78rem; }
 .reserve-page__fee-badge {
   margin-left: auto;
-  background: rgba(34,197,94,0.12);
-  border: 1px solid rgba(34,197,94,0.25);
-  color: #86efac;
+  background: rgba(5, 150, 105, 0.08);
+  border: 1px solid rgba(5, 150, 105, 0.2);
+  color: #065f46;
   font-size: 0.75rem;
   font-weight: 700;
   padding: 4px 10px;
@@ -215,10 +216,10 @@
 
 /* Error */
 .reserve-page__error {
-  color: #f87171;
+  color: #991b1b;
   font-size: 0.85rem;
-  background: rgba(239,68,68,0.08);
-  border: 1px solid rgba(239,68,68,0.2);
+  background: rgba(220, 38, 38, 0.06);
+  border: 1px solid rgba(220, 38, 38, 0.18);
   border-radius: 8px;
   padding: 10px 14px;
   margin: 0;
@@ -236,14 +237,14 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 20px rgba(79,110,247,0.3);
+  box-shadow: 0 4px 20px rgba(79, 110, 247, 0.2);
 }
 .reserve-page__submit:hover { background: #3a58e0; transform: translateY(-1px); }
 .reserve-page__submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
 .reserve-page__disclaimer {
   font-size: 0.78rem;
-  color: #475569;
+  color: #94a3b8;
   text-align: center;
   margin: 0;
   line-height: 1.5;
@@ -260,45 +261,46 @@
 }
 .reserve-page__success-icon {
   font-size: 3.5rem;
-  color: #86efac;
+  color: #059669;
   display: flex;
 }
 .reserve-page__success h1 {
   font-size: 1.8rem;
   font-weight: 800;
-  color: #f8fafc;
+  color: #0f172a;
   margin: 0;
 }
 .reserve-page__success p {
-  color: #94a3b8;
+  color: #64748b;
   font-size: 0.92rem;
   line-height: 1.6;
   margin: 0;
   max-width: 420px;
 }
 .reserve-page__success-note {
-  color: #64748b !important;
+  color: #94a3b8 !important;
   font-size: 0.82rem !important;
 }
 
 /* Receipt */
 .reserve-page__receipt {
   width: 100%;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
   border-radius: 16px;
   overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 .reserve-page__receipt-header {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 14px 20px;
-  background: rgba(79,110,247,0.08);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(79, 110, 247, 0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   font-size: 0.85rem;
   font-weight: 600;
-  color: #818cf8;
+  color: #4f6ef7;
 }
 .reserve-page__receipt-rows { padding: 8px 0; }
 .reserve-page__receipt-row {
@@ -307,18 +309,18 @@
   align-items: center;
   padding: 10px 20px;
   font-size: 0.85rem;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 .reserve-page__receipt-row:last-child { border-bottom: none; }
-.reserve-page__receipt-row span { color: #64748b; }
-.reserve-page__receipt-row strong { color: #e2e8f0; font-weight: 600; }
+.reserve-page__receipt-row span { color: #94a3b8; }
+.reserve-page__receipt-row strong { color: #0f172a; font-weight: 600; }
 .reserve-page__tracking-id {
   font-family: monospace;
-  color: #818cf8 !important;
+  color: #4f6ef7 !important;
   font-size: 0.92rem !important;
 }
-.reserve-page__status-pending { color: #fbbf24 !important; }
-.reserve-page__status-free { color: #86efac !important; }
+.reserve-page__status-pending { color: #d97706 !important; }
+.reserve-page__status-free { color: #059669 !important; }
 
 /* Action buttons */
 .reserve-page__success-actions {
@@ -345,11 +347,11 @@
 }
 .reserve-page__btn:hover { background: #3a58e0; }
 .reserve-page__btn--ghost {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #94a3b8;
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  color: #64748b;
 }
-.reserve-page__btn--ghost:hover { background: rgba(255,255,255,0.08); }
+.reserve-page__btn--ghost:hover { background: rgba(0, 0, 0, 0.06); }
 
 /* ── My Reservations page ── */
 .my-reservations-page__header { margin-bottom: 24px; }
@@ -366,8 +368,8 @@
   align-items: center;
   gap: 6px;
   padding: 7px 14px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 8px;
   color: #64748b;
   font-size: 0.82rem;
@@ -375,12 +377,12 @@
   transition: all 0.2s;
 }
 .my-reservations-page__tab.active {
-  background: rgba(79,110,247,0.1);
-  border-color: rgba(79,110,247,0.25);
-  color: #818cf8;
+  background: rgba(79, 110, 247, 0.08);
+  border-color: rgba(79, 110, 247, 0.22);
+  color: #4f6ef7;
 }
 .my-reservations-page__tab-count {
-  background: rgba(255,255,255,0.08);
+  background: rgba(0, 0, 0, 0.06);
   border-radius: 999px;
   padding: 1px 7px;
   font-size: 0.72rem;
@@ -393,17 +395,18 @@
 }
 
 .my-reservations-page__card {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
   border-radius: 14px;
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   transition: border-color 0.2s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
-.my-reservations-page__card--confirmed { border-color: rgba(34,197,94,0.2); }
-.my-reservations-page__card--declined  { border-color: rgba(239,68,68,0.15); opacity: 0.7; }
+.my-reservations-page__card--confirmed { border-color: rgba(5, 150, 105, 0.2); }
+.my-reservations-page__card--declined  { border-color: rgba(220, 38, 38, 0.15); opacity: 0.7; }
 .my-reservations-page__card--cancelled { opacity: 0.6; }
 
 .my-reservations-page__card-header {
@@ -415,7 +418,7 @@
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  background: rgba(79,110,247,0.1);
+  background: rgba(79, 110, 247, 0.08);
   color: #4f6ef7;
   display: grid;
   place-items: center;
@@ -426,16 +429,16 @@
 .my-reservations-page__card-title {
   font-size: 0.92rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #0f172a;
   margin: 0 0 4px;
 }
 .my-reservations-page__card-link {
-  color: #64748b;
+  color: #94a3b8;
   font-size: 1.1rem;
   display: flex;
   transition: color 0.2s;
 }
-.my-reservations-page__card-link:hover { color: #818cf8; }
+.my-reservations-page__card-link:hover { color: #4f6ef7; }
 
 /* Status badge */
 .my-reservations__status {
@@ -445,10 +448,10 @@
   padding: 2px 8px;
   border-radius: 999px;
 }
-.my-reservations__status--pending   { background: rgba(251,191,36,0.1);  color: #fbbf24; }
-.my-reservations__status--confirmed { background: rgba(34,197,94,0.1);   color: #86efac; }
-.my-reservations__status--declined  { background: rgba(239,68,68,0.1);   color: #f87171; }
-.my-reservations__status--cancelled { background: rgba(100,116,139,0.1); color: #64748b; }
+.my-reservations__status--pending   { background: rgba(217, 119, 6, 0.08);  color: #92400e; }
+.my-reservations__status--confirmed { background: rgba(5, 150, 105, 0.08);  color: #065f46; }
+.my-reservations__status--declined  { background: rgba(220, 38, 38, 0.07);  color: #991b1b; }
+.my-reservations__status--cancelled { background: rgba(100, 116, 139, 0.08); color: #64748b; }
 
 .my-reservations-page__card-details {
   display: flex;
@@ -460,7 +463,7 @@
   align-items: center;
   gap: 5px;
   font-size: 0.8rem;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 /* Receipt strip */
@@ -468,28 +471,28 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.05);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 8px;
   padding: 10px 14px;
   font-size: 0.78rem;
-  color: #475569;
+  color: #94a3b8;
 }
-.my-reservations-page__receipt-strip strong { color: #818cf8; font-family: monospace; }
-.my-reservations-page__fee-free { color: #86efac; font-weight: 600; }
+.my-reservations-page__receipt-strip strong { color: #4f6ef7; font-family: monospace; }
+.my-reservations-page__fee-free { color: #059669; font-weight: 600; }
 
 .my-reservations-page__note {
   font-size: 0.82rem;
-  color: #64748b;
+  color: #94a3b8;
   font-style: italic;
   margin: 0;
 }
 
 .my-reservations-page__confirmed-msg {
   font-size: 0.85rem;
-  color: #86efac;
-  background: rgba(34,197,94,0.06);
-  border: 1px solid rgba(34,197,94,0.15);
+  color: #065f46;
+  background: rgba(5, 150, 105, 0.06);
+  border: 1px solid rgba(5, 150, 105, 0.14);
   border-radius: 8px;
   padding: 10px 14px;
 }
@@ -503,7 +506,7 @@
 }
 .my-reservations-page__waiting {
   font-size: 0.82rem;
-  color: #64748b;
+  color: #94a3b8;
   margin: 0;
 }
 .my-reservations-page__cancel-btn {
@@ -511,21 +514,21 @@
   align-items: center;
   gap: 5px;
   background: none;
-  border: 1px solid rgba(239,68,68,0.2);
-  color: #f87171;
+  border: 1px solid rgba(220, 38, 38, 0.18);
+  color: #dc2626;
   padding: 7px 14px;
   border-radius: 8px;
   font-size: 0.82rem;
   cursor: pointer;
   transition: all 0.2s;
 }
-.my-reservations-page__cancel-btn:hover { background: rgba(239,68,68,0.08); }
+.my-reservations-page__cancel-btn:hover { background: rgba(220, 38, 38, 0.06); }
 .my-reservations-page__cancel-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .my-reservations-page__empty {
   text-align: center;
   padding: 60px 0;
-  color: #475569;
+  color: #94a3b8;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -533,7 +536,7 @@
 }
 .my-reservations-page__empty-icon {
   font-size: 2.5rem;
-  color: #1e293b;
+  color: #cbd5e1;
 }
 .my-reservations-page__empty h2 {
   font-size: 1.1rem;

@@ -40,7 +40,6 @@ export default function Hero() {
 
       <div className="hero__inner">
 
-        {/* Left column — content */}
         <div className="hero__left">
 
           <motion.div className="hero__location-tag" {...fade(0.1)}>
@@ -59,7 +58,7 @@ export default function Hero() {
           <motion.p className="hero__body" {...rise(0.28)}>
             Verified rooms near RSU, UniPort, IAUE and more.
             See full costs upfront, contact landlords directly —
-             agents, no nonsense.
+            no agents, no nonsense.
           </motion.p>
 
           <motion.div className="hero__actions" {...rise(0.38)}>
@@ -102,75 +101,6 @@ export default function Hero() {
           </motion.div>
 
         </div>
-
-        {/* Right column — visual card stack */}
-        <motion.div
-          className="hero__right"
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.9, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <div className="hero__card-stack">
-
-            {/* Background decorative card */}
-            <div className="hero__card hero__card--back" />
-
-            {/* Main feature card */}
-            <div className="hero__card hero__card--main">
-              <div className="hero__card-tag">
-                <span className="hero__card-dot" />
-                Available Now
-              </div>
-              <p className="hero__card-title">Self Contain · Choba</p>
-              <p className="hero__card-price">₦180,000 <span>/yr</span></p>
-              <div className="hero__card-divider" />
-              <div className="hero__card-row">
-                <span>Caution fee</span>
-                <span>₦0</span>
-              </div>
-              <div className="hero__card-row">
-                <span>Agency fee</span>
-                <span>₦0</span>
-              </div>
-              <div className="hero__card-row hero__card-row--total">
-                <span>Move-in total</span>
-                <strong>₦180,000</strong>
-              </div>
-              <div className="hero__card-verified">
-                <HiOutlineShieldCheck />
-                <span>Verified property</span>
-              </div>
-            </div>
-
-            {/* Floating stat chips */}
-            <motion.div
-              className="hero__chip hero__chip--tl"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.7, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <span className="hero__chip-icon">🏠</span>
-              <div>
-                <p>Near RSU Gate</p>
-                <span>5 min walk</span>
-              </div>
-            </motion.div>
-
-            <motion.div
-              className="hero__chip hero__chip--br"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.85, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <span className="hero__chip-icon">✅</span>
-              <div>
-                <p>No hidden fees</p>
-                <span>What you see is what you pay</span>
-              </div>
-            </motion.div>
-
-          </div>
-        </motion.div>
 
       </div>
 

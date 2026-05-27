@@ -34,35 +34,35 @@
   
   /* Green — Affordable, Available Now */
   .listing-tag--green {
-    background: rgba(34, 197, 94, 0.1);
-    border-color: rgba(34, 197, 94, 0.22);
-    color: #86efac;
+    background: rgba(5, 150, 105, 0.08);
+    border-color: rgba(5, 150, 105, 0.2);
+    color: #065f46;
   }
   
   /* Teal — Verified */
   .listing-tag--teal {
-    background: rgba(20, 184, 166, 0.1);
-    border-color: rgba(20, 184, 166, 0.22);
-    color: #5eead4;
+    background: rgba(13, 148, 136, 0.08);
+    border-color: rgba(13, 148, 136, 0.2);
+    color: #134e4a;
   }
   
   /* Blue — Student Friendly */
   .listing-tag--blue {
-    background: rgba(96, 165, 250, 0.08);
-    border-color: rgba(96, 165, 250, 0.2);
-    color: #93c5fd;
+    background: rgba(37, 99, 235, 0.07);
+    border-color: rgba(37, 99, 235, 0.16);
+    color: #1e40af;
   }
   
   /* Orange — High Demand */
   .listing-tag--orange {
-    background: rgba(251, 146, 60, 0.1);
-    border-color: rgba(251, 146, 60, 0.22);
-    color: #fdba74;
+    background: rgba(234, 88, 12, 0.08);
+    border-color: rgba(234, 88, 12, 0.18);
+    color: #9a3412;
   }
   
   /* Purple — Spacious */
   .listing-tag--purple {
-    background: rgba(167, 139, 250, 0.1);
-    border-color: rgba(167, 139, 250, 0.2);
-    color: #c4b5fd;
+    background: rgba(124, 58, 237, 0.08);
+    border-color: rgba(124, 58, 237, 0.16);
+    color: #4c1d95;
   }

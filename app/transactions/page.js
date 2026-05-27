@@ -3,35 +3,73 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   HiOutlineBanknotes,
   HiOutlineArrowLeft,
-  HiOutlineShieldCheck,
   HiOutlineArrowTopRightOnSquare,
-  HiOutlineExclamationTriangle,
   HiOutlineClock,
   HiOutlineCheckCircle,
+  HiOutlineExclamationTriangle,
+  HiOutlineArrowUturnLeft,
 } from "react-icons/hi2";
 import { useAuth } from "@/context/AuthContext";
 import {
-  fetchTransactionsByStudent,
-  fetchTransactionsByLandlord,
+  subscribeTransactionsByStudent,
+  subscribeTransactionsByLandlord,
 } from "@/lib/firestoreTransactions";
 import { createDispute } from "@/lib/firestoreDisputes";
-import { PAYMENT_CONFIG } from "@/lib/paymentConfig";
 import "@/styles/payment.css";
 
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
-const fadeUp  = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.32 } } };
+const stagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06 } },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 10 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.28 } },
+};
 
 function StatusBadge({ status, escrowStatus }) {
-  if (status === "refunded")  return <span className="tx-badge tx-badge--refunded">Refunded</span>;
-  if (status === "failed")    return <span className="tx-badge tx-badge--failed">Failed</span>;
+  if (status === "refunded")       return <span className="tx-badge tx-badge--refunded">Refunded</span>;
+  if (status === "failed")         return <span className="tx-badge tx-badge--failed">Failed</span>;
   if (escrowStatus === "disputed") return <span className="tx-badge tx-badge--disputed">Disputed</span>;
   if (escrowStatus === "released") return <span className="tx-badge tx-badge--released">Released</span>;
-  if (escrowStatus === "holding")  return <span className="tx-badge tx-badge--holding">In Escrow</span>;
+  if (escrowStatus === "holding")  return <span className="tx-badge tx-badge--escrow">In Escrow</span>;
   return <span className="tx-badge tx-badge--success">Success</span>;
+}
+
+function StatusBar({ status, escrowStatus, releaseLabel }) {
+  if (status === "refunded")
+    return (
+      <div className="tx-card__statusbar tx-card__statusbar--refunded">
+        <HiOutlineArrowUturnLeft />
+        <span>Payment refunded</span>
+      </div>
+    );
+  if (escrowStatus === "disputed")
+    return (
+      <div className="tx-card__statusbar tx-card__statusbar--disputed">
+        <HiOutlineExclamationTriangle />
+        <span>Dispute raised — under review</span>
+      </div>
+    );
+  if (escrowStatus === "released")
+    return (
+      <div className="tx-card__statusbar tx-card__statusbar--released">
+        <HiOutlineCheckCircle />
+        <span>Payment released to landlord</span>
+      </div>
+    );
+  if (escrowStatus === "holding")
+    return (
+      <div className="tx-card__statusbar tx-card__statusbar--escrow">
+        <HiOutlineClock />
+        <span>{releaseLabel}</span>
+      </div>
+    );
+  return null;
 }
 
 export default function TransactionsPage() {
@@ -41,11 +79,6 @@ export default function TransactionsPage() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading]           = useState(true);
   const [filter, setFilter]             = useState("all");
-  const [disputeId, setDisputeId]       = useState(null);
-  const [disputeReason, setDisputeReason] = useState("");
-  const [disputeDesc, setDisputeDesc]   = useState("");
-  const [submittingDispute, setSubmittingDispute] = useState(false);
-  const [disputeSuccess, setDisputeSuccess]       = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -54,53 +87,22 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     if (!user || !userRole) return;
-    async function load() {
-      try {
-        const data = userRole === "landlord"
-          ? await fetchTransactionsByLandlord(user.uid)
-          : await fetchTransactionsByStudent(user.uid);
-        setTransactions(data);
-      } catch (e) {
-        console.error("Failed to load transactions:", e);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
+  
+    setLoading(true);
+  
+    const unsub =
+      userRole === "landlord"
+        ? subscribeTransactionsByLandlord(user.uid, (data) => {
+            setTransactions(data);
+            setLoading(false);
+          })
+        : subscribeTransactionsByStudent(user.uid, (data) => {
+            setTransactions(data);
+            setLoading(false);
+          });
+  
+    return () => unsub(); // cleanup on unmount
   }, [user, userRole]);
-
-  async function handleRaiseDispute(tx) {
-    if (!disputeReason.trim() || !disputeDesc.trim()) return;
-    setSubmittingDispute(true);
-    try {
-      await createDispute({
-        transactionId: tx.id,
-        listingId:     tx.listingId,
-        listingTitle:  tx.listingTitle,
-        raisedBy:      user.uid,
-        raisedByName:  user.displayName || "Anonymous",
-        raisedByRole:  userRole,
-        againstId:     userRole === "student" ? tx.landlordId : tx.studentId,
-        reason:        disputeReason,
-        description:   disputeDesc,
-      });
-
-      setTransactions((prev) =>
-        prev.map((t) =>
-          t.id === tx.id ? { ...t, escrowStatus: "disputed" } : t
-        )
-      );
-
-      setDisputeSuccess(true);
-      setDisputeId(null);
-      setDisputeReason("");
-      setDisputeDesc("");
-    } catch (e) {
-      console.error("Dispute error:", e);
-    } finally {
-      setSubmittingDispute(false);
-    }
-  }
 
   const filtered = transactions.filter((t) => {
     if (filter === "all")      return true;
@@ -111,6 +113,13 @@ export default function TransactionsPage() {
     return true;
   });
 
+  const totalPaid = transactions.reduce(
+    (sum, t) => sum + Number(t.totalCharged || t.amount || 0), 0
+  );
+  const totalEscrow = transactions
+    .filter((t) => t.escrowStatus === "holding")
+    .reduce((sum, t) => sum + Number(t.totalCharged || t.amount || 0), 0);
+
   function formatDate(ts) {
     if (!ts) return "—";
     const d = ts.toDate ? ts.toDate() : new Date(ts);
@@ -118,17 +127,18 @@ export default function TransactionsPage() {
   }
 
   function formatEscrowRelease(ts) {
-    if (!ts) return null;
-    const d = new Date(ts);
+    if (!ts) return "Releasing soon";
+    const d   = new Date(ts);
     const now = new Date();
-    const diffHrs = Math.max(0, Math.round((d - now) / (1000 * 60 * 60)));
-    if (diffHrs === 0) return "Releasing soon";
-    return `Releases in ~${diffHrs}hrs`;
+    const hrs = Math.max(0, Math.round((d - now) / (1000 * 60 * 60)));
+    return hrs === 0 ? "Releasing soon" : `Releases in ~${hrs}hrs`;
   }
+
+  const TABS = ["all", "escrow", "released", "disputed", "refunded"];
 
   if (authLoading || loading) {
     return (
-      <main className="pay-page">
+      <main className="transactions-page">
         <div className="pay-page__loading">
           <span className="pay-page__spinner" />
         </div>
@@ -138,31 +148,58 @@ export default function TransactionsPage() {
 
   return (
     <main className="transactions-page">
+
+      {/* ── HEADER ── */}
       <motion.div
         className="transactions-page__header"
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.28 }}
       >
-        <Link href="/" className="pay-page__back">
+        <Link href="/" className="tx-page__back">
           <HiOutlineArrowLeft /> Back
         </Link>
 
-        <p className="pay-page__eyebrow">
+        <p className="tx-page__eyebrow">
           <HiOutlineBanknotes /> Transactions
         </p>
-
-        <h1>Payment History</h1>
-        <p className="pay-page__sub">
+        <h1 className="tx-page__title">Payment History</h1>
+        <p className="tx-page__sub">
           Track your rent payments, escrow status and disputes.
         </p>
       </motion.div>
 
-      {/* Filters */}
-      <div className="transactions-page__tabs">
-        {["all", "escrow", "released", "disputed", "refunded"].map((tab) => (
+      {/* ── SUMMARY ── */}
+      <motion.div
+        className="tx-summary"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.28, delay: 0.06 }}
+      >
+        <div className="tx-summary__card">
+          <p className="tx-summary__label">Total paid</p>
+          <p className="tx-summary__value">
+            ₦{totalPaid.toLocaleString("en-NG")}
+          </p>
+        </div>
+        <div className="tx-summary__card">
+          <p className="tx-summary__label">In escrow</p>
+          <p className="tx-summary__value tx-summary__value--amber">
+            ₦{totalEscrow.toLocaleString("en-NG")}
+          </p>
+        </div>
+        <div className="tx-summary__card">
+          <p className="tx-summary__label">Transactions</p>
+          <p className="tx-summary__value">{transactions.length}</p>
+        </div>
+      </motion.div>
+
+      {/* ── TABS ── */}
+      <div className="tx-tabs">
+        {TABS.map((tab) => (
           <button
             key={tab}
-            className={"transactions-page__tab" + (filter === tab ? " active" : "")}
+            className={"tx-tab" + (filter === tab ? " tx-tab--active" : "")}
             onClick={() => setFilter(tab)}
           >
             {tab}
@@ -170,56 +207,56 @@ export default function TransactionsPage() {
         ))}
       </div>
 
+      {/* ── LIST ── */}
       {filtered.length === 0 ? (
-        <div className="transactions-page__empty">
-          <h2>No transactions</h2>
-        </div>
+        <div className="tx-empty">No transactions found.</div>
       ) : (
-        <motion.div className="transactions-page__list" variants={stagger} initial="hidden" animate="show">
+        <motion.div
+          className="tx-list"
+          variants={stagger}
+          initial="hidden"
+          animate="show"
+        >
           {filtered.map((tx) => (
-            <motion.div key={tx.id} className="transaction-card" variants={fadeUp}>
-              
-              {/* HEADER */}
-              <div className="transaction-card__header">
-                <div>
-                  <p>{tx.listingTitle}</p>
-                  <p>{formatDate(tx.createdAt)}</p>
-                </div>
+            <motion.div key={tx.id} className="tx-card" variants={fadeUp}>
 
-                <div>
-                  <p>₦{Number(tx.totalCharged || tx.amount || 0).toLocaleString()}</p>
+              <div className="tx-card__header">
+                <div className="tx-card__meta">
+                  <p className="tx-card__title">{tx.listingTitle}</p>
+                  <p className="tx-card__date">{formatDate(tx.createdAt)}</p>
+                </div>
+                <div className="tx-card__right">
+                  <p className="tx-card__amount">
+                    ₦{Number(tx.totalCharged || tx.amount || 0).toLocaleString("en-NG")}
+                  </p>
                   <StatusBadge status={tx.status} escrowStatus={tx.escrowStatus} />
                 </div>
-
-                {/* ✅ RECEIPT LINK */}
                 <Link
                   href={"/transactions/" + (tx.reference || tx.id)}
-                  className="transaction-card__link"
+                  className="tx-card__link"
                   title="View receipt"
                 >
                   <HiOutlineArrowTopRightOnSquare />
                 </Link>
               </div>
 
-              {/* DETAILS */}
-              <div className="transaction-card__details">
-                <p>Rent: ₦{Number(tx.amount || 0).toLocaleString()}</p>
-                <p>Fee: ₦{Number(tx.serviceFee || 0).toLocaleString()}</p>
-                <p>Ref: {tx.reference?.slice(0, 12)}...</p>
+              <div className="tx-card__details">
+                <span>Rent: <strong>₦{Number(tx.amount || 0).toLocaleString("en-NG")}</strong></span>
+                <span>Fee: <strong>₦{Number(tx.serviceFee || 0).toLocaleString("en-NG")}</strong></span>
+                <span>Ref: <strong>{tx.reference?.slice(0, 14)}...</strong></span>
               </div>
 
-              {/* ESCROW */}
-              {tx.escrowStatus === "holding" && (
-                <div className="transaction-card__escrow-bar">
-                  <HiOutlineClock />
-                  <span>{formatEscrowRelease(tx.escrowReleaseAt)}</span>
-                </div>
-              )}
+              <StatusBar
+                status={tx.status}
+                escrowStatus={tx.escrowStatus}
+                releaseLabel={formatEscrowRelease(tx.escrowReleaseAt)}
+              />
 
             </motion.div>
           ))}
         </motion.div>
       )}
+
     </main>
   );
 }
