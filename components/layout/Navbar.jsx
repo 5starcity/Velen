@@ -62,7 +62,6 @@ export default function Navbar() {
     { href: "/",              label: "Home",         icon: <HiOutlineHome />,            roles: ["all"] },
     { href: "/listings",      label: "Browse",       icon: <HiOutlineBuildingOffice2 />, roles: ["all"] },
     { href: "/roommates",     label: "Roommates",    icon: <HiOutlineUserGroup />,       roles: ["student"] },
-    { href: "/my-reservations", label: "Reservations", icon: <HiOutlineShieldCheck />,   roles: ["student"] },
     { href: "/add-listing",   label: "Add Listing",  icon: <HiOutlinePlus />,            roles: ["landlord"] },
     { href: "/dashboard",     label: "Dashboard",    icon: <HiOutlineChartBarSquare />,  roles: ["landlord"] },
     { href: "/saved-listings",label: "Saved",        icon: <HiOutlineBookmark />,        roles: ["all"] },
