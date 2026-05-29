@@ -1,16 +1,17 @@
-/* styles/footer.css — light mode */
+/* styles/footer.css — light mode | Velen green scheme */
 
 .footer {
   position: relative;
-  background: var(--text-primary);
-  color: rgba(255,255,255,0.7);
+  background: var(--text-primary);   /* #161c15 — forest-black */
+  color: rgba(255, 255, 255, 0.7);
   margin-top: 0;
 }
 
+/* Slightly stronger opacity: green reads softer than amber on dark */
 .footer__accent-line {
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  opacity: 0.5;
+  background: linear-gradient(90deg, transparent, var(--accent-light), transparent);
+  opacity: 0.6;
 }
 
 .footer__container {
@@ -26,6 +27,7 @@
   margin-bottom: 48px;
 }
 
+/* ── Brand column ── */
 .footer__brand {
   display: flex;
   flex-direction: column;
@@ -42,14 +44,15 @@
   line-height: 1;
 }
 
+/* Italic "en" in Vel-en — uses accent-light green */
 .footer__logo em {
   font-style: italic;
-  color: var(--accent-light);
+  color: var(--accent-light);   /* #4a8a45 */
 }
 
 .footer__tagline {
   font-size: 0.85rem;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.42);
   line-height: 1.65;
   max-width: 240px;
 }
@@ -62,11 +65,26 @@
 }
 
 .footer__badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.75rem;
   font-weight: 500;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255, 255, 255, 0.32);
 }
 
+/* Tiny dot marker before each badge line */
+.footer__badge::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-light);
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+/* ── Link columns ── */
 .footer__links-group {
   display: flex;
   flex-direction: column;
@@ -78,26 +96,28 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255, 255, 255, 0.55);
   margin-bottom: 2px;
 }
 
 .footer__links-group a {
   font-size: 0.85rem;
-  color: rgba(255,255,255,0.4);
-  transition: color 0.18s;
+  color: rgba(255, 255, 255, 0.38);
+  transition: color 0.18s ease;
 }
 
 .footer__links-group a:hover {
-  color: rgba(255,255,255,0.85);
+  color: rgba(255, 255, 255, 0.88);
 }
 
+/* ── Divider ── */
 .footer__divider {
   height: 1px;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
   margin-bottom: 24px;
 }
 
+/* ── Bottom bar ── */
 .footer__bottom {
   display: flex;
   align-items: center;
@@ -108,27 +128,53 @@
 
 .footer__copy {
   font-size: 0.8rem;
-  color: rgba(255,255,255,0.3);
+  color: rgba(255, 255, 255, 0.28);
 }
 
+/* Serif italic tagline on the right */
 .footer__sub {
   font-size: 0.8rem;
-  color: rgba(255,255,255,0.3);
+  color: rgba(255, 255, 255, 0.28);
   font-style: italic;
   font-family: var(--font-display);
 }
 
+/* ── Responsive ── */
 @media (max-width: 1024px) {
-  .footer__top { grid-template-columns: 1fr 1fr 1fr; gap: 32px; }
-  .footer__brand { grid-column: 1 / -1; flex-direction: row; align-items: flex-start; gap: 32px; padding-right: 0; }
-  .footer__badges { flex-direction: row; flex-wrap: wrap; gap: 12px; margin-top: 0; }
+  .footer__top {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 32px;
+  }
+  .footer__brand {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 32px;
+    padding-right: 0;
+  }
+  .footer__badges {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 0;
+  }
 }
 
 @media (max-width: 640px) {
   .footer__container { padding: 48px 24px 28px; }
-  .footer__top { grid-template-columns: 1fr 1fr; gap: 28px; }
-  .footer__brand { grid-column: 1 / -1; flex-direction: column; }
-  .footer__bottom { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .footer__top {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+  .footer__brand {
+    grid-column: 1 / -1;
+    flex-direction: column;
+  }
+  .footer__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
 }
 
 @media (max-width: 400px) {

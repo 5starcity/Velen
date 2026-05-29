@@ -1,4 +1,4 @@
-/* global.css — Light mode */
+/* globals.css — Light mode  |  Velen Housing Platform */
 
 * {
   margin: 0;
@@ -10,61 +10,61 @@ html { scroll-behavior: smooth; }
 
 /* ── CSS Variables ── */
 :root {
-  /* Backgrounds */
-  --bg:           #f5f4f0;
+  /* Backgrounds — green-tinted neutrals, not warm beige */
+  --bg:           #f1f5f0;
   --bg-card:      #ffffff;
-  --bg-elevated:  #eeebe5;
+  --bg-elevated:  #e4ece2;
   --bg-input:     #ffffff;
-  --bg-hover:     rgba(0, 0, 0, 0.03);
+  --bg-hover:     rgba(45, 90, 40, 0.04);
 
   /* Borders */
-  --border:        rgba(0, 0, 0, 0.09);
-  --border-warm:   rgba(180, 120, 40, 0.3);
-  --border-strong: rgba(0, 0, 0, 0.18);
+  --border:        rgba(45, 90, 40, 0.12);
+  --border-warm:   rgba(45, 90, 40, 0.22);
+  --border-strong: rgba(45, 90, 40, 0.28);
 
-  /* Accent — amber */
-  --accent:       #b86e1a;
-  --accent-light: #d4894a;
-  --accent-dark:  #8a5210;
-  --accent-dim:   rgba(184, 110, 26, 0.1);
-  --accent-glow:  rgba(184, 110, 26, 0.2);
+  /* ── Accent — forest green (matches Velen brand) ── */
+  --accent:       #2d5a28;          /* primary CTA, buttons               */
+  --accent-light: #4a8a45;          /* italic hero text, badges, hover     */
+  --accent-dark:  #1a3d18;          /* pressed states, deep tones          */
+  --accent-dim:   rgba(45, 90, 40, 0.10);
+  --accent-glow:  rgba(45, 90, 40, 0.18);
 
-  /* Text */
-  --text-primary:   #1a1410;
-  --text-secondary: #524840;
-  --text-muted:     #9a9088;
+  /* Text — green-tinted darks, not warm olive */
+  --text-primary:   #161c15;
+  --text-secondary: #3a4a39;
+  --text-muted:     #7a8c79;
   --text-inverse:   #ffffff;
 
-  /* Semantic */
+  /* Semantic colours */
   --blue:         #3b5bdb;
   --blue-bg:      rgba(59, 91, 219, 0.08);
-  --blue-border:  rgba(59, 91, 219, 0.2);
+  --blue-border:  rgba(59, 91, 219, 0.20);
 
-  --green:        #1e8a4a;
-  --green-bg:     rgba(30, 138, 74, 0.08);
-  --green-border: rgba(30, 138, 74, 0.2);
+  --green:        #2d5a28;          /* re-aliased to match accent          */
+  --green-bg:     rgba(45, 90, 40, 0.08);
+  --green-border: rgba(45, 90, 40, 0.20);
 
   --red:          #c8303f;
   --red-bg:       rgba(200, 48, 63, 0.08);
-  --red-border:   rgba(200, 48, 63, 0.2);
+  --red-border:   rgba(200, 48, 63, 0.20);
 
   --purple:       #6d4fc2;
   --purple-bg:    rgba(109, 79, 194, 0.08);
-  --purple-border:rgba(109, 79, 194, 0.2);
+  --purple-border:rgba(109, 79, 194, 0.20);
 
   --teal:         #0d9488;
   --teal-bg:      rgba(13, 148, 136, 0.08);
-  --teal-border:  rgba(13, 148, 136, 0.2);
+  --teal-border:  rgba(13, 148, 136, 0.20);
 
   --amber:        #b86e1a;
   --amber-bg:     rgba(184, 110, 26, 0.08);
-  --amber-border: rgba(184, 110, 26, 0.2);
+  --amber-border: rgba(184, 110, 26, 0.20);
 
-  /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.07), 0 2px 6px rgba(0,0,0,0.04);
-  --shadow-lg: 0 12px 40px rgba(0,0,0,0.09), 0 4px 16px rgba(0,0,0,0.05);
-  --shadow-xl: 0 24px 60px rgba(0,0,0,0.11), 0 8px 24px rgba(0,0,0,0.06);
+  /* Shadows — green-tinted, not warm brown */
+  --shadow-sm: 0 1px 3px  rgba(22, 45, 20, 0.07), 0 1px 2px  rgba(22, 45, 20, 0.04);
+  --shadow-md: 0 4px 16px rgba(22, 45, 20, 0.08), 0 2px 6px  rgba(22, 45, 20, 0.04);
+  --shadow-lg: 0 12px 40px rgba(22, 45, 20, 0.10), 0 4px 16px rgba(22, 45, 20, 0.05);
+  --shadow-xl: 0 24px 60px rgba(22, 45, 20, 0.12), 0 8px 24px rgba(22, 45, 20, 0.06);
 
   /* Typography */
   --font-display: "DM Serif Display", Georgia, serif;
@@ -87,7 +87,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-a { text-decoration: none; color: inherit; }
+a   { text-decoration: none; color: inherit; }
 img { display: block; width: 100%; }
 
 h1, h2, h3 {
@@ -101,31 +101,123 @@ h1 { font-size: clamp(2.2rem, 5vw, 4rem); }
 h2 { font-size: clamp(1.6rem, 3.5vw, 2.6rem); }
 h3 { font-size: clamp(1rem, 2vw, 1.3rem); }
 
-p { font-size: 1rem; line-height: 1.7; color: var(--text-secondary); }
+p  { font-size: 1rem; line-height: 1.7; color: var(--text-secondary); }
 
 button, a { -webkit-tap-highlight-color: transparent; }
 button:active { transform: scale(0.97); }
 
-::-webkit-scrollbar { width: 6px; }
+/* ── Scrollbar ── */
+::-webkit-scrollbar       { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 999px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
+::-webkit-scrollbar-thumb {
+  background: rgba(45, 90, 40, 0.15);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(45, 90, 40, 0.28); }
 
-::selection { background: rgba(184, 110, 26, 0.18); color: var(--text-primary); }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* ── Selection & Focus ── */
+::selection     { background: rgba(45, 90, 40, 0.15); color: var(--text-primary); }
+:focus-visible  { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-body {
-  padding-top: 0; 
-}
-main {
-  padding-top: 82px;
-}
-.page-offset {
-  padding-top: 96px;
-}
+/* ── Layout offsets (sticky navbar) ── */
+body         { padding-top: 0; }
+main         { padding-top: 82px; }
+.page-offset { padding-top: 96px; }
 
 @media (max-width: 600px) {
-  .page-offset {
-    padding-top: 86px;
-  }
+  .page-offset { padding-top: 86px; }
+}
+
+/* ── Utility: accent text (used on "student home" italic) ── */
+.text-accent        { color: var(--accent); }
+.text-accent-light  { color: var(--accent-light); }
+
+/* ── Utility: common badge / pill ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.badge-green {
+  background: var(--green-bg);
+  color: var(--accent);
+  border: 1px solid var(--green-border);
+}
+
+.badge-amber {
+  background: var(--amber-bg);
+  color: var(--amber);
+  border: 1px solid var(--amber-border);
+}
+
+.badge-red {
+  background: var(--red-bg);
+  color: var(--red);
+  border: 1px solid var(--red-border);
+}
+
+/* ── Utility: primary & outline buttons ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--accent);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  background: var(--accent-dark);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: transparent;
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.btn-outline:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+/* ── Utility: card ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }

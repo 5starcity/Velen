@@ -1,4 +1,9 @@
-/* styles/verify-landlord.css */
+/* styles/verify-landlord.css — light mode | Velen green scheme */
+
+/*
+  Blue (#4f6ef7 / rgba(79,110,247)) → accent green (#2d5a28 / rgba(45,90,40))
+  Slate neutrals → green-tinted equivalents (same as globals)
+*/
 
 .verify-page {
   min-height: 100svh;
@@ -6,36 +11,37 @@
   align-items: center;
   justify-content: center;
   padding: 100px 24px 60px;
-  background: #f1f5f9;
+  background: #f1f5f0;
 }
 
 .verify-card {
   width: 100%;
   max-width: 520px;
   background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.07);
+  border: 1px solid rgba(45, 90, 40, 0.1);
   border-radius: 20px;
   padding: 36px 32px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 4px 20px rgba(22, 45, 20, 0.07);
 }
 
 .verify-header h1 {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #161c15;
   margin: 0 0 6px;
 }
+
 .verify-header p {
   font-size: 0.88rem;
-  color: #64748b;
+  color: #3a4a39;
   margin: 0;
   line-height: 1.6;
 }
 
-/* Steps */
+/* ── Steps ── */
 .verify-steps {
   display: flex;
   align-items: center;
@@ -43,6 +49,7 @@
   justify-content: space-between;
   position: relative;
 }
+
 .verify-steps::before {
   content: "";
   position: absolute;
@@ -50,7 +57,7 @@
   left: 14px;
   right: 14px;
   height: 1px;
-  background: rgba(0, 0, 0, 0.08);
+  background: rgba(45, 90, 40, 0.1);
   z-index: 0;
 }
 
@@ -62,39 +69,47 @@
   z-index: 1;
   flex: 1;
 }
+
 .verify-step__dot {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #f1f5f9;
-  border: 1.5px solid rgba(0, 0, 0, 0.12);
-  color: #94a3b8;
+  background: #e8ede6;
+  border: 1.5px solid rgba(45, 90, 40, 0.14);
+  color: #7a8c79;
   font-size: 0.78rem;
   font-weight: 700;
   display: grid;
   place-items: center;
   transition: all 0.2s;
 }
+
 .verify-step span {
   font-size: 0.7rem;
-  color: #94a3b8;
+  color: #7a8c79;
   text-align: center;
   white-space: nowrap;
 }
+
+/* Active step — accent green */
 .verify-step.active .verify-step__dot {
-  background: #4f6ef7;
-  border-color: #4f6ef7;
+  background: #2d5a28;
+  border-color: #2d5a28;
   color: #fff;
 }
-.verify-step.active span { color: #4f6ef7; }
-.verify-step.done .verify-step__dot {
-  background: rgba(5, 150, 105, 0.1);
-  border-color: rgba(5, 150, 105, 0.28);
-  color: #065f46;
-}
-.verify-step.done span { color: #059669; }
 
-/* Form */
+.verify-step.active span { color: #2d5a28; }
+
+/* Done step — teal confirmation */
+.verify-step.done .verify-step__dot {
+  background: rgba(45, 90, 40, 0.09);
+  border-color: rgba(45, 90, 40, 0.28);
+  color: #1a3d18;
+}
+
+.verify-step.done span { color: #2d5a28; }
+
+/* ── Form ── */
 .verify-form {
   display: flex;
   flex-direction: column;
@@ -113,70 +128,73 @@
   gap: 6px;
   font-size: 0.82rem;
   font-weight: 600;
-  color: #64748b;
+  color: #3a4a39;
 }
 
 .verify-field input,
 .verify-field select {
   width: 100%;
   padding: 12px 14px;
-  background: #f8fafc;
-  border: 1px solid rgba(0, 0, 0, 0.09);
+  background: #f1f5f0;
+  border: 1px solid rgba(45, 90, 40, 0.12);
   border-radius: 10px;
-  color: #0f172a;
+  color: #161c15;
   font-size: 0.9rem;
   outline: none;
   transition: border-color 0.2s;
   appearance: none;
 }
+
 .verify-field input:focus,
 .verify-field select:focus {
-  border-color: rgba(79, 110, 247, 0.4);
+  border-color: rgba(45, 90, 40, 0.4);
 }
-.verify-field input::placeholder { color: #94a3b8; }
+
+.verify-field input::placeholder { color: #7a8c79; }
 
 .verify-field__row {
   display: flex;
   gap: 8px;
 }
+
 .verify-field__row input { flex: 1; }
 
 .verify-hint {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #7a8c79;
   line-height: 1.5;
   margin: 0;
 }
 
 .verify-section-note {
   font-size: 0.82rem;
-  color: #475569;
-  background: rgba(79, 110, 247, 0.05);
-  border: 1px solid rgba(79, 110, 247, 0.14);
+  color: #3a4a39;
+  background: rgba(45, 90, 40, 0.05);
+  border: 1px solid rgba(45, 90, 40, 0.14);
   border-radius: 10px;
   padding: 12px 14px;
   line-height: 1.6;
   margin: 0;
 }
 
-/* Account verified */
+/* ── Account verified ── */
 .verify-account-confirmed {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(5, 150, 105, 0.07);
-  border: 1px solid rgba(5, 150, 105, 0.18);
+  background: rgba(45, 90, 40, 0.07);
+  border: 1px solid rgba(45, 90, 40, 0.18);
   border-radius: 8px;
   padding: 10px 14px;
   font-size: 0.85rem;
-  color: #065f46;
+  color: #1a3d18;
 }
 
-/* Verify account button */
+/* ── Verify account button (secondary action) ── */
 .verify-verify-btn {
-  background: rgba(79, 110, 247, 0.08);
-  border: 1px solid rgba(79, 110, 247, 0.2);
-  color: #4f6ef7;
+  background: rgba(45, 90, 40, 0.07);
+  border: 1px solid rgba(45, 90, 40, 0.2);
+  color: #2d5a28;
   padding: 12px 16px;
   border-radius: 10px;
   font-size: 0.85rem;
@@ -186,37 +204,40 @@
   transition: all 0.2s;
   flex-shrink: 0;
 }
+
 .verify-verify-btn:hover {
-  background: rgba(79, 110, 247, 0.14);
+  background: rgba(45, 90, 40, 0.14);
 }
+
 .verify-verify-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-/* Error */
+/* ── Error ── */
 .verify-error {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(220, 38, 38, 0.06);
-  border: 1px solid rgba(220, 38, 38, 0.18);
+  background: rgba(200, 48, 63, 0.06);
+  border: 1px solid rgba(200, 48, 63, 0.18);
   color: #991b1b;
   font-size: 0.85rem;
   padding: 10px 14px;
   border-radius: 8px;
 }
 
-/* Navigation */
+/* ── Navigation ── */
 .verify-nav {
   display: flex;
   gap: 10px;
   justify-content: flex-end;
 }
 
+/* Primary CTA */
 .verify-btn {
   padding: 12px 24px;
-  background: #4f6ef7;
+  background: #2d5a28;
   border: none;
   color: #fff;
   border-radius: 10px;
@@ -225,22 +246,27 @@
   cursor: pointer;
   transition: all 0.2s;
 }
-.verify-btn:hover { background: #3a58e0; }
+
+.verify-btn:hover { background: #1a3d18; }
+
 .verify-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
+/* Ghost back button */
 .verify-btn--ghost {
-  background: rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(0, 0, 0, 0.09);
-  color: #64748b;
-}
-.verify-btn--ghost:hover {
-  background: rgba(0, 0, 0, 0.06);
+  background: rgba(45, 90, 40, 0.04);
+  border: 1px solid rgba(45, 90, 40, 0.12);
+  color: #3a4a39;
 }
 
+.verify-btn--ghost:hover {
+  background: rgba(45, 90, 40, 0.08);
+}
+
+/* Skip link */
 .verify-skip {
   background: none;
   border: none;
-  color: #94a3b8;
+  color: #7a8c79;
   font-size: 0.82rem;
   cursor: pointer;
   text-align: center;
@@ -250,16 +276,18 @@
   display: block;
   transition: color 0.2s;
 }
-.verify-skip:hover { color: #64748b; }
 
-/* Success */
+.verify-skip:hover { color: #3a4a39; }
+
+/* ── Success ── */
 .verify-success__icon {
   font-size: 3rem;
-  color: #059669;
+  color: #2d5a28;
   display: flex;
   justify-content: center;
 }
 
+/* ── Responsive ── */
 @media (max-width: 480px) {
   .verify-card { padding: 24px 20px; }
   .verify-step span { display: none; }
