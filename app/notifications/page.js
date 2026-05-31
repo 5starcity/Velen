@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   HiOutlineBell,
   HiOutlineCheckCircle,
-  HiOutlineBolt,
   HiOutlineHomeModern,
   HiOutlineClipboardDocumentCheck,
   HiOutlineShieldCheck,
@@ -19,6 +18,7 @@ import {
   HiOutlineArrowLeft,
   HiOutlineCheck,
   HiOutlineExclamationCircle,
+  HiOutlineStar,
 } from "react-icons/hi2";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -30,7 +30,7 @@ import {
 } from "@/lib/firestoreNotifications";
 import "@/styles/notifications-page.css";
 
-// ── Helpers ──────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────
 
 function timeAgo(ts) {
   if (!ts) return "";
@@ -46,8 +46,7 @@ function timeAgo(ts) {
 function isToday(ts) {
   if (!ts) return false;
   const d = ts.toDate ? ts.toDate() : new Date(ts);
-  const now = new Date();
-  return d.toDateString() === now.toDateString();
+  return d.toDateString() === new Date().toDateString();
 }
 
 function notifIcon(type) {
@@ -60,38 +59,40 @@ function notifIcon(type) {
   if (type === "reservation_declined")  return <HiOutlineXMark className={`${cls} ${cls}--declined`} />;
   if (type === "listing_approved")      return <HiOutlineShieldCheck className={`${cls} ${cls}--approved`} />;
   if (type === "payment_received")      return <HiOutlineBanknotes className={`${cls} ${cls}--payment`} />;
+  if (type === "featured_activated")    return <HiOutlineStar className={`${cls} ${cls}--featured`} />;
   return <HiOutlineBell className={cls} />;
 }
 
 function notifHref(n) {
-  if (n.listingId && ["listing_interest", "reservation_request", "listing_approved"].includes(n.type)) {
+  if (n.type === "featured_activated")  return `/listings/${n.listingId}`;
+  if (n.listingId && ["listing_interest","reservation_request","listing_approved"].includes(n.type)) {
     return `/listings/${n.listingId}`;
   }
-  if (n.listingId && ["reservation_confirmed", "reservation_declined"].includes(n.type)) {
-    return `/my-reservations`;
-  }
-  if (n.listingId && n.type === "inspection_booked") return `/my-inspections`;
-  if (n.postId) return `/roommates`;
-  if (n.type === "payment_received") return `/my-reservations`;
+  if (["reservation_confirmed","reservation_declined"].includes(n.type)) return `/my-reservations`;
+  if (n.type === "inspection_booked")  return `/my-inspections`;
+  if (n.postId)                        return `/roommates`;
+  if (n.type === "payment_received")   return `/my-reservations`;
   return null;
 }
 
 function notifColor(type) {
   if (type === "reservation_confirmed" || type === "listing_approved") return "green";
-  if (type === "reservation_declined") return "red";
-  if (type === "payment_received") return "yellow";
-  if (type === "roommate_interest") return "teal";
+  if (type === "reservation_declined")  return "red";
+  if (type === "payment_received")      return "yellow";
+  if (type === "roommate_interest")     return "teal";
+  if (type === "featured_activated")    return "featured";
   return "blue";
 }
 
-const FILTERS = ["all", "unread", "listings", "reservations", "roommates"];
+const FILTERS = ["all", "unread", "listings", "reservations", "roommates", "featured"];
 
 function matchesFilter(n, filter) {
-  if (filter === "all") return true;
-  if (filter === "unread") return !n.read;
-  if (filter === "listings") return ["listing_interest", "listing_approved"].includes(n.type);
-  if (filter === "reservations") return ["reservation_request", "reservation_confirmed", "reservation_declined", "payment_received", "inspection_booked"].includes(n.type);
-  if (filter === "roommates") return n.type === "roommate_interest";
+  if (filter === "all")          return true;
+  if (filter === "unread")       return !n.read;
+  if (filter === "listings")     return ["listing_interest","listing_approved"].includes(n.type);
+  if (filter === "reservations") return ["reservation_request","reservation_confirmed","reservation_declined","payment_received","inspection_booked"].includes(n.type);
+  if (filter === "roommates")    return n.type === "roommate_interest";
+  if (filter === "featured")     return n.type === "featured_activated";
   return true;
 }
 
@@ -101,8 +102,8 @@ export default function NotificationsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  const [notifications, setNotifications] = useState([]);
-  const [filter, setFilter] = useState("all");
+  const [notifications,   setNotifications]   = useState([]);
+  const [filter,          setFilter]          = useState("all");
   const [confirmClearAll, setConfirmClearAll] = useState(false);
 
   useEffect(() => {
@@ -126,12 +127,14 @@ export default function NotificationsPage() {
 
   if (!user) return null;
 
-  const filtered = notifications.filter((n) => matchesFilter(n, filter));
+  const filtered    = notifications.filter((n) => matchesFilter(n, filter));
   const unreadCount = notifications.filter((n) => !n.read).length;
+  const todayItems  = filtered.filter((n) =>  isToday(n.createdAt));
+  const earlierItems= filtered.filter((n) => !isToday(n.createdAt));
 
-  // Group into Today / Earlier
-  const todayItems = filtered.filter((n) => isToday(n.createdAt));
-  const earlierItems = filtered.filter((n) => !isToday(n.createdAt));
+  // Only show "featured" tab if the user actually has featured notifications
+  const hasFeatured    = notifications.some((n) => n.type === "featured_activated");
+  const visibleFilters = FILTERS.filter((f) => f !== "featured" || hasFeatured);
 
   async function handleClick(n) {
     if (!n.read) await markNotificationRead(n.id);
@@ -155,7 +158,7 @@ export default function NotificationsPage() {
 
   function NotifItem({ n }) {
     const color = notifColor(n.type);
-    const href = notifHref(n);
+    const href  = notifHref(n);
     return (
       <motion.div
         className={`notif-page-item${!n.read ? " unread" : ""} notif-page-item--${color}`}
@@ -169,16 +172,21 @@ export default function NotificationsPage() {
         <div className="notif-page-item__icon-wrap">
           {notifIcon(n.type)}
         </div>
+
         <div className="notif-page-item__body">
           <div className="notif-page-item__top">
             <p className="notif-page-item__title">{n.title}</p>
             <span className="notif-page-item__time">{timeAgo(n.createdAt)}</span>
           </div>
-          <p className="notif-page-item__message">{n.message}</p>
+          <p className="notif-page-item__message">{n.message || n.body}</p>
           {n.senderName && (
             <p className="notif-page-item__sender">From: {n.senderName}</p>
           )}
+          {n.type === "featured_activated" && n.txRef && (
+            <p className="notif-page-item__ref">Payment ref: {n.txRef}</p>
+          )}
         </div>
+
         <div className="notif-page-item__right">
           {!n.read && <div className="notif-page-item__dot" />}
           <button
@@ -207,6 +215,7 @@ export default function NotificationsPage() {
 
   return (
     <main className="notif-page">
+
       {/* Header */}
       <motion.div
         className="notif-page__header"
@@ -253,7 +262,7 @@ export default function NotificationsPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
         >
-          {FILTERS.map((f) => {
+          {visibleFilters.map((f) => {
             const count = f === "all"
               ? notifications.length
               : f === "unread"
@@ -262,11 +271,16 @@ export default function NotificationsPage() {
             return (
               <button
                 key={f}
-                className={"notif-page__filter" + (filter === f ? " active" : "")}
+                className={`notif-page__filter${filter === f ? " active" : ""}${f === "featured" ? " notif-page__filter--featured" : ""}`}
                 onClick={() => setFilter(f)}
               >
+                {f === "featured" && <HiOutlineStar />}
                 {f.charAt(0).toUpperCase() + f.slice(1)}
-                {count > 0 && <span className="notif-page__filter-count">{count}</span>}
+                {count > 0 && (
+                  <span className={`notif-page__filter-count${f === "featured" ? " notif-page__filter-count--featured" : ""}`}>
+                    {count}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -291,7 +305,7 @@ export default function NotificationsPage() {
           </motion.div>
         ) : (
           <>
-            <Group label="Today" items={todayItems} />
+            <Group label="Today"   items={todayItems} />
             <Group label="Earlier" items={earlierItems} />
           </>
         )}
@@ -329,6 +343,7 @@ export default function NotificationsPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
     </main>
   );
 }

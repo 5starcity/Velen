@@ -490,3 +490,45 @@
     }
   }
 */
+
+/* ── Featured placement notification ── */
+.notif-page-item--featured {
+  border-left-color: var(--accent);
+}
+
+.notif-page-item__icon--featured {
+  color: var(--accent);
+  background: var(--accent-dim);
+  border-color: var(--green-border);
+}
+
+.notif-page-item__ref {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+  font-family: monospace;
+  letter-spacing: 0.02em;
+}
+
+/* Featured filter tab */
+.notif-page__filter--featured {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.notif-page__filter--featured svg {
+  font-size: 0.78rem;
+  color: var(--accent-light);
+}
+
+.notif-page__filter--featured.active {
+  background: var(--accent-dim);
+  border-color: var(--green-border);
+  color: var(--accent);
+}
+
+.notif-page__filter-count--featured {
+  background: var(--accent-dim) !important;
+  color: var(--accent) !important;
+}
