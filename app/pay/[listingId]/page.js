@@ -23,18 +23,18 @@ import { trackEvent } from "@/lib/posthog";
 import "@/styles/payment.css";
 
 function generateIdempotencyKey(listingId, studentId) {
-  return `velen_pay_${listingId}_${studentId}_${Date.now()}`;
+  return `rezidence_pay_${listingId}_${studentId}_${Date.now()}`;
 }
 
 export default function PayPage() {
   const { listingId } = useParams();
-  const router        = useRouter();
+  const router = useRouter();
   const { user, userRole } = useAuth();
 
-  const [listing, setListing]     = useState(null);
-  const [loading, setLoading]     = useState(true);
-  const [paying, setPaying]       = useState(false);
-  const [error, setError]         = useState("");
+  const [listing, setListing] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [paying, setPaying] = useState(false);
+  const [error, setError] = useState("");
   const [subaccount, setSubaccount] = useState(null);
 
   useEffect(() => {
@@ -65,27 +65,27 @@ export default function PayPage() {
   async function handlePay() {
     setError("");
     if (!user?.email) { setError("Could not get your email. Please log out and back in."); return; }
-    if (!listing)     { setError("Listing not found."); return; }
-    if (paying)       return; // prevent double click
+    if (!listing) { setError("Listing not found."); return; }
+    if (paying) return; // prevent double click
 
     setPaying(true);
     const idempotencyKey = generateIdempotencyKey(listingId, user.uid);
 
     try {
       const res = await fetch("/api/paystack/initialize", {
-        method:  "POST",
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email:              user.email,
-          amount:             listing.price,
+          email: user.email,
+          amount: listing.price,
           listingId,
-          listingTitle:       listing.title,
-          studentId:          user.uid,
-          studentName:        user.displayName || "Anonymous",
-          landlordId:         listing.landlordId,
+          listingTitle: listing.title,
+          studentId: user.uid,
+          studentName: user.displayName || "Anonymous",
+          landlordId: listing.landlordId,
           paystackSubaccount: subaccount || "",
           idempotencyKey,
-          type:               "rent",
+          type: "rent",
         }),
       });
 
@@ -99,7 +99,7 @@ export default function PayPage() {
       trackEvent("payment_initiated", {
         listingId,
         listingTitle: listing.title,
-        amount:       listing.price,
+        amount: listing.price,
       });
 
       // Redirect to Paystack checkout
@@ -185,7 +185,7 @@ export default function PayPage() {
             <strong>₦{amount.toLocaleString()}</strong>
           </div>
           <div className="pay-page__breakdown-row pay-page__breakdown-row--fee">
-            <span>Velen Service Fee ({PAYMENT_CONFIG.serviceFeePercent}%)</span>
+            <span>rezidence Service Fee ({PAYMENT_CONFIG.serviceFeePercent}%)</span>
             <strong>₦{fee.toLocaleString()}</strong>
           </div>
           <div className="pay-page__breakdown-row pay-page__breakdown-row--total">
@@ -236,46 +236,46 @@ export default function PayPage() {
 
       {error && <p className="pay-page__error">{error}</p>}
       {/* Trust signals */}
-<motion.div
-  className="pay-page__trust-signals"
-  initial={{ opacity: 0, y: 10 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ delay: 0.22 }}
->
-  <div className="pay-page__trust-item">
-    <HiOutlineShieldCheck />
-    <div>
-      <p className="pay-page__trust-title">Your money is protected</p>
-      <p className="pay-page__trust-sub">
-        Funds are held in escrow — not sent directly to the landlord until you've moved in safely.
-      </p>
-    </div>
-  </div>
+      <motion.div
+        className="pay-page__trust-signals"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.22 }}
+      >
+        <div className="pay-page__trust-item">
+          <HiOutlineShieldCheck />
+          <div>
+            <p className="pay-page__trust-title">Your money is protected</p>
+            <p className="pay-page__trust-sub">
+              Funds are held in escrow — not sent directly to the landlord until you've moved in safely.
+            </p>
+          </div>
+        </div>
 
-  <div className="pay-page__trust-item">
-    <HiOutlineClock />
-    <div>
-      <p className="pay-page__trust-title">48-hour dispute window</p>
-      <p className="pay-page__trust-sub">
-        If anything goes wrong, raise a dispute before the timer expires and your money is frozen.
-      </p>
-    </div>
-  </div>
+        <div className="pay-page__trust-item">
+          <HiOutlineClock />
+          <div>
+            <p className="pay-page__trust-title">48-hour dispute window</p>
+            <p className="pay-page__trust-sub">
+              If anything goes wrong, raise a dispute before the timer expires and your money is frozen.
+            </p>
+          </div>
+        </div>
 
-  <div className="pay-page__trust-item">
-    <HiOutlineExclamationTriangle />
-    <div>
-      <p className="pay-page__trust-title">Human support available</p>
-      <p className="pay-page__trust-sub">
-        Real people on WhatsApp and phone. We hold both parties accountable.
-      </p>
-    </div>
-  </div>
-</motion.div>
+        <div className="pay-page__trust-item">
+          <HiOutlineExclamationTriangle />
+          <div>
+            <p className="pay-page__trust-title">Human support available</p>
+            <p className="pay-page__trust-sub">
+              Real people on WhatsApp and phone. We hold both parties accountable.
+            </p>
+          </div>
+        </div>
+      </motion.div>
 
-<p className="pay-page__final-note">
-  You will receive a digital receipt immediately after payment.
-</p>
+      <p className="pay-page__final-note">
+        You will receive a digital receipt immediately after payment.
+      </p>
       <button
         className="pay-page__submit"
         onClick={handlePay}
@@ -288,16 +288,16 @@ export default function PayPage() {
       </button>
 
       <p className="pay-page__disclaimer">
-        By paying, you agree to Velen's payment terms. Your card details are handled
-        securely by Paystack and never stored by Velen.
+        By paying, you agree to rezidence's payment terms. Your card details are handled
+        securely by Paystack and never stored by rezidence.
       </p>
 
       {/* Support */}
       <div className="pay-page__support">
         <p>Need help?</p>
         <div className="pay-page__support-links">
-          
-            <a href={`https://wa.me/${PAYMENT_CONFIG.supportWhatsApp}?text=Hi, I need help with a payment on Velen for listing: ${listing.title}`}
+
+          <a href={`https://wa.me/${PAYMENT_CONFIG.supportWhatsApp}?text=Hi, I need help with a payment on rezidence for listing: ${listing.title}`}
             target="_blank"
             rel="noreferrer"
             className="pay-page__support-btn"

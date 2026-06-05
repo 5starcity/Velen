@@ -1,4 +1,4 @@
-/* globals.css — Light mode  |  Velen Housing Platform */
+/* globals.css — Light mode  |  rezidence Housing Platform */
 
 * {
   margin: 0;
@@ -6,69 +6,75 @@
   box-sizing: border-box;
 }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+}
 
 /* ── CSS Variables ── */
 :root {
   /* Backgrounds — green-tinted neutrals, not warm beige */
-  --bg:           #f1f5f0;
-  --bg-card:      #ffffff;
-  --bg-elevated:  #e4ece2;
-  --bg-input:     #ffffff;
-  --bg-hover:     rgba(45, 90, 40, 0.04);
+  --bg: #f1f5f0;
+  --bg-card: #ffffff;
+  --bg-elevated: #e4ece2;
+  --bg-input: #ffffff;
+  --bg-hover: rgba(45, 90, 40, 0.04);
 
   /* Borders */
-  --border:        rgba(45, 90, 40, 0.12);
-  --border-warm:   rgba(45, 90, 40, 0.22);
+  --border: rgba(45, 90, 40, 0.12);
+  --border-warm: rgba(45, 90, 40, 0.22);
   --border-strong: rgba(45, 90, 40, 0.28);
 
-  /* ── Accent — forest green (matches Velen brand) ── */
-  --accent:       #2d5a28;          /* primary CTA, buttons               */
-  --accent-light: #4a8a45;          /* italic hero text, badges, hover     */
-  --accent-dark:  #1a3d18;          /* pressed states, deep tones          */
-  --accent-dim:   rgba(45, 90, 40, 0.10);
-  --accent-glow:  rgba(45, 90, 40, 0.18);
+  /* ── Accent — forest green (matches rezidence brand) ── */
+  --accent: #2d5a28;
+  /* primary CTA, buttons               */
+  --accent-light: #4a8a45;
+  /* italic hero text, badges, hover     */
+  --accent-dark: #1a3d18;
+  /* pressed states, deep tones          */
+  --accent-dim: rgba(45, 90, 40, 0.10);
+  --accent-glow: rgba(45, 90, 40, 0.18);
 
   /* Text — green-tinted darks, not warm olive */
-  --text-primary:   #161c15;
+  --text-primary: #161c15;
   --text-secondary: #3a4a39;
-  --text-muted:     #7a8c79;
-  --text-inverse:   #ffffff;
+  --text-muted: #7a8c79;
+  --text-inverse: #ffffff;
 
   /* Semantic colours */
-  --blue:         #3b5bdb;
-  --blue-bg:      rgba(59, 91, 219, 0.08);
-  --blue-border:  rgba(59, 91, 219, 0.20);
+  --blue: #3b5bdb;
+  --blue-bg: rgba(59, 91, 219, 0.08);
+  --blue-border: rgba(59, 91, 219, 0.20);
 
-  --green:        #2d5a28;          /* re-aliased to match accent          */
-  --green-bg:     rgba(45, 90, 40, 0.08);
+  --green: #2d5a28;
+  /* re-aliased to match accent          */
+  --green-bg: rgba(45, 90, 40, 0.08);
   --green-border: rgba(45, 90, 40, 0.20);
 
-  --red:          #c8303f;
-  --red-bg:       rgba(200, 48, 63, 0.08);
-  --red-border:   rgba(200, 48, 63, 0.20);
+  --red: #c8303f;
+  --red-bg: rgba(200, 48, 63, 0.08);
+  --red-border: rgba(200, 48, 63, 0.20);
 
-  --purple:       #6d4fc2;
-  --purple-bg:    rgba(109, 79, 194, 0.08);
-  --purple-border:rgba(109, 79, 194, 0.20);
+  --purple: #6d4fc2;
+  --purple-bg: rgba(109, 79, 194, 0.08);
+  --purple-border: rgba(109, 79, 194, 0.20);
 
-  --teal:         #0d9488;
-  --teal-bg:      rgba(13, 148, 136, 0.08);
-  --teal-border:  rgba(13, 148, 136, 0.20);
+  --teal: #0d9488;
+  --teal-bg: rgba(13, 148, 136, 0.08);
+  --teal-border: rgba(13, 148, 136, 0.20);
 
-  --amber:        #b86e1a;
-  --amber-bg:     rgba(184, 110, 26, 0.08);
+  --amber: #b86e1a;
+  --amber-bg: rgba(184, 110, 26, 0.08);
   --amber-border: rgba(184, 110, 26, 0.20);
 
   /* Shadows — green-tinted, not warm brown */
-  --shadow-sm: 0 1px 3px  rgba(22, 45, 20, 0.07), 0 1px 2px  rgba(22, 45, 20, 0.04);
-  --shadow-md: 0 4px 16px rgba(22, 45, 20, 0.08), 0 2px 6px  rgba(22, 45, 20, 0.04);
+  --shadow-sm: 0 1px 3px rgba(22, 45, 20, 0.07), 0 1px 2px rgba(22, 45, 20, 0.04);
+  --shadow-md: 0 4px 16px rgba(22, 45, 20, 0.08), 0 2px 6px rgba(22, 45, 20, 0.04);
   --shadow-lg: 0 12px 40px rgba(22, 45, 20, 0.10), 0 4px 16px rgba(22, 45, 20, 0.05);
   --shadow-xl: 0 24px 60px rgba(22, 45, 20, 0.12), 0 8px 24px rgba(22, 45, 20, 0.06);
 
   /* Typography */
   --font-display: "DM Serif Display", Georgia, serif;
-  --font-body:    "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Radii */
   --radius-sm: 8px;
@@ -87,50 +93,108 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-a   { text-decoration: none; color: inherit; }
-img { display: block; width: 100%; }
+a {
+  text-decoration: none;
+  color: inherit;
+}
 
-h1, h2, h3 {
+img {
+  display: block;
+  width: 100%;
+}
+
+h1,
+h2,
+h3 {
   font-family: var(--font-display);
   line-height: 1.1;
   letter-spacing: -0.02em;
   color: var(--text-primary);
 }
 
-h1 { font-size: clamp(2.2rem, 5vw, 4rem); }
-h2 { font-size: clamp(1.6rem, 3.5vw, 2.6rem); }
-h3 { font-size: clamp(1rem, 2vw, 1.3rem); }
+h1 {
+  font-size: clamp(2.2rem, 5vw, 4rem);
+}
 
-p  { font-size: 1rem; line-height: 1.7; color: var(--text-secondary); }
+h2 {
+  font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+}
 
-button, a { -webkit-tap-highlight-color: transparent; }
-button:active { transform: scale(0.97); }
+h3 {
+  font-size: clamp(1rem, 2vw, 1.3rem);
+}
+
+p {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active {
+  transform: scale(0.97);
+}
 
 /* ── Scrollbar ── */
-::-webkit-scrollbar       { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 ::-webkit-scrollbar-thumb {
   background: rgba(45, 90, 40, 0.15);
   border-radius: 999px;
 }
-::-webkit-scrollbar-thumb:hover { background: rgba(45, 90, 40, 0.28); }
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(45, 90, 40, 0.28);
+}
 
 /* ── Selection & Focus ── */
-::selection     { background: rgba(45, 90, 40, 0.15); color: var(--text-primary); }
-:focus-visible  { outline: 2px solid var(--accent); outline-offset: 2px; }
+::selection {
+  background: rgba(45, 90, 40, 0.15);
+  color: var(--text-primary);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 
 /* ── Layout offsets (sticky navbar) ── */
-body         { padding-top: 0; }
-main         { padding-top: 82px; }
-.page-offset { padding-top: 96px; }
+body {
+  padding-top: 0;
+}
+
+main {
+  padding-top: 82px;
+}
+
+.page-offset {
+  padding-top: 96px;
+}
 
 @media (max-width: 600px) {
-  .page-offset { padding-top: 86px; }
+  .page-offset {
+    padding-top: 86px;
+  }
 }
 
 /* ── Utility: accent text (used on "student home" italic) ── */
-.text-accent        { color: var(--accent); }
-.text-accent-light  { color: var(--accent-light); }
+.text-accent {
+  color: var(--accent);
+}
+
+.text-accent-light {
+  color: var(--accent-light);
+}
 
 /* ── Utility: common badge / pill ── */
 .badge {

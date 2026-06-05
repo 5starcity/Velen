@@ -28,15 +28,15 @@ const FAQS = [
     id: "reserve",
     category: "Reservations",
     icon: <HiOutlineHomeModern />,
-    q: "How do I reserve a room on Velen?",
+    q: "How do I reserve a room on rezidence?",
     a: "Find a listing you like, then click 'Reserve this Room' on the listing detail page. Fill in your preferred move-in date and phone number, then confirm. The landlord will be notified immediately and will confirm or decline your reservation. You can track the status in 'My Reservations'.",
   },
   {
     id: "payment",
     category: "Payments",
     icon: <HiOutlineBanknotes />,
-    q: "Is my payment secure on Velen?",
-    a: "Yes. All payments on Velen are processed securely. We use industry-standard encryption and your payment details are never stored on our servers. Each transaction generates a unique receipt with a tracking ID you can use to verify your payment.",
+    q: "Is my payment secure on rezidence?",
+    a: "Yes. All payments on rezidence are processed securely. We use industry-standard encryption and your payment details are never stored on our servers. Each transaction generates a unique receipt with a tracking ID you can use to verify your payment.",
   },
   {
     id: "reservation-cancel",
@@ -64,7 +64,7 @@ const FAQS = [
     category: "Safety",
     icon: <HiOutlineShieldCheck />,
     q: "What does the 'Verified' badge mean?",
-    a: "A Verified badge means Velen has confirmed the landlord's identity and the property exists as described. Verified listings are more trustworthy and have been reviewed by our team. We recommend prioritising verified listings when searching.",
+    a: "A Verified badge means rezidence has confirmed the landlord's identity and the property exists as described. Verified listings are more trustworthy and have been reviewed by our team. We recommend prioritising verified listings when searching.",
   },
   {
     id: "roommate",
@@ -99,28 +99,28 @@ const FAQS = [
 const CATEGORIES = ["All", "Reservations", "Payments", "Inspections", "Safety", "Roommates", "Account", "Landlords", "General"];
 
 const TICKET_CATEGORIES = [
-  { value: "general",  label: "General Question" },
-  { value: "listing",  label: "Listing Issue" },
-  { value: "payment",  label: "Payment Problem" },
-  { value: "account",  label: "Account Help" },
-  { value: "report",   label: "Report / Safety" },
+  { value: "general", label: "General Question" },
+  { value: "listing", label: "Listing Issue" },
+  { value: "payment", label: "Payment Problem" },
+  { value: "account", label: "Account Help" },
+  { value: "report", label: "Report / Safety" },
 ];
 
 export default function SupportPage() {
   const { user } = useAuth();
 
   const [activeCategory, setActiveCategory] = useState("All");
-  const [openFaq, setOpenFaq]               = useState(null);
-  const [search, setSearch]                 = useState("");
+  const [openFaq, setOpenFaq] = useState(null);
+  const [search, setSearch] = useState("");
 
   // Contact form
-  const [name, setName]               = useState(user?.displayName || "");
-  const [email, setEmail]             = useState(user?.email || "");
-  const [category, setCategory]       = useState("");
-  const [message, setMessage]         = useState("");
-  const [submitting, setSubmitting]   = useState(false);
-  const [submitted, setSubmitted]     = useState(false);
-  const [formError, setFormError]     = useState("");
+  const [name, setName] = useState(user?.displayName || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [category, setCategory] = useState("");
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const filtered = FAQS.filter((faq) => {
     const matchesCat = activeCategory === "All" || faq.category === activeCategory;
@@ -141,11 +141,11 @@ export default function SupportPage() {
     setSubmitting(true);
     try {
       await submitSupportTicket({
-        userId:   user?.uid || "anonymous",
-        name:     name.trim(),
-        email:    email.trim(),
+        userId: user?.uid || "anonymous",
+        name: name.trim(),
+        email: email.trim(),
         category,
-        message:  message.trim(),
+        message: message.trim(),
       });
       setSubmitted(true);
     } catch (e) {

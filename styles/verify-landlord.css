@@ -1,4 +1,4 @@
-/* styles/verify-landlord.css — light mode | Velen green scheme */
+/* styles/verify-landlord.css — light mode | rezidence green scheme */
 
 /*
   Blue (#4f6ef7 / rgba(79,110,247)) → accent green (#2d5a28 / rgba(45,90,40))
@@ -98,7 +98,9 @@
   color: #fff;
 }
 
-.verify-step.active span { color: #2d5a28; }
+.verify-step.active span {
+  color: #2d5a28;
+}
 
 /* Done step — teal confirmation */
 .verify-step.done .verify-step__dot {
@@ -107,7 +109,9 @@
   color: #1a3d18;
 }
 
-.verify-step.done span { color: #2d5a28; }
+.verify-step.done span {
+  color: #2d5a28;
+}
 
 /* ── Form ── */
 .verify-form {
@@ -150,14 +154,18 @@
   border-color: rgba(45, 90, 40, 0.4);
 }
 
-.verify-field input::placeholder { color: #7a8c79; }
+.verify-field input::placeholder {
+  color: #7a8c79;
+}
 
 .verify-field__row {
   display: flex;
   gap: 8px;
 }
 
-.verify-field__row input { flex: 1; }
+.verify-field__row input {
+  flex: 1;
+}
 
 .verify-hint {
   font-size: 0.75rem;
@@ -247,9 +255,14 @@
   transition: all 0.2s;
 }
 
-.verify-btn:hover { background: #1a3d18; }
+.verify-btn:hover {
+  background: #1a3d18;
+}
 
-.verify-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.verify-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 /* Ghost back button */
 .verify-btn--ghost {
@@ -277,7 +290,9 @@
   transition: color 0.2s;
 }
 
-.verify-skip:hover { color: #3a4a39; }
+.verify-skip:hover {
+  color: #3a4a39;
+}
 
 /* ── Success ── */
 .verify-success__icon {
@@ -289,8 +304,20 @@
 
 /* ── Responsive ── */
 @media (max-width: 480px) {
-  .verify-card { padding: 24px 20px; }
-  .verify-step span { display: none; }
-  .verify-nav { flex-direction: column-reverse; }
-  .verify-btn { width: 100%; text-align: center; }
+  .verify-card {
+    padding: 24px 20px;
+  }
+
+  .verify-step span {
+    display: none;
+  }
+
+  .verify-nav {
+    flex-direction: column-reverse;
+  }
+
+  .verify-btn {
+    width: 100%;
+    text-align: center;
+  }
 }

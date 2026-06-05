@@ -1,4 +1,4 @@
-/* styles/profile.css — light mode, Velen design system */
+/* styles/profile.css — light mode, rezidence design system */
 
 .profile-page {
   max-width: 680px;
@@ -35,7 +35,9 @@
 }
 
 @keyframes profile-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ── Toast ── */

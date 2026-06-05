@@ -26,7 +26,7 @@ export async function POST(req) {
     // Build Paystack payload
     const payload = {
       email,
-      amount:    total * 100, // Paystack uses kobo
+      amount: total * 100, // Paystack uses kobo
       reference: idempotencyKey,
       callback_url: `https://rsu-housing.vercel.app/pay/verify?ref=${idempotencyKey}`,
       metadata: {
@@ -35,11 +35,11 @@ export async function POST(req) {
         studentId,
         studentName,
         landlordId,
-        rentAmount:    amount,
-        serviceFee:    fee,
-        totalCharged:  total,
+        rentAmount: amount,
+        serviceFee: fee,
+        totalCharged: total,
         landlordPayout: amount, // full amount to landlord, fee taken from student
-        type:          type || "rent",
+        type: type || "rent",
         idempotencyKey,
         cancel_action: `https://rsu-housing.vercel.app/listings/${listingId}`,
       },
@@ -47,15 +47,15 @@ export async function POST(req) {
 
     // Add subaccount split if landlord has one
     if (paystackSubaccount) {
-      payload.subaccount        = paystackSubaccount;
-      payload.transaction_charge = fee * 100; // fee stays with Velen
-      payload.bearer            = "subaccount"; // landlord bears their own charge
+      payload.subaccount = paystackSubaccount;
+      payload.transaction_charge = fee * 100; // fee stays with rezidence
+      payload.bearer = "subaccount"; // landlord bears their own charge
     }
 
     const res = await fetch("https://api.paystack.co/transaction/initialize", {
-      method:  "POST",
+      method: "POST",
       headers: {
-        Authorization:  `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+        Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
@@ -69,8 +69,8 @@ export async function POST(req) {
 
     return NextResponse.json({
       authorization_url: data.data.authorization_url,
-      reference:         data.data.reference,
-      access_code:       data.data.access_code,
+      reference: data.data.reference,
+      access_code: data.data.access_code,
     });
   } catch (e) {
     console.error("Initialize payment error:", e);

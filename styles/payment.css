@@ -1,4 +1,4 @@
-/* styles/payment.css — light mode, Velen design system */
+/* styles/payment.css — light mode, rezidence design system */
 
 .pay-page,
 .transactions-page {
@@ -26,7 +26,11 @@
   animation: spin 0.7s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* ── Not found ── */
 
@@ -54,7 +58,9 @@
   transition: color 0.2s;
 }
 
-.pay-page__back:hover { color: var(--text-primary); }
+.pay-page__back:hover {
+  color: var(--text-primary);
+}
 
 /* ── Header ── */
 
@@ -111,7 +117,9 @@
   flex-shrink: 0;
 }
 
-.pay-page__listing-info { flex: 1; }
+.pay-page__listing-info {
+  flex: 1;
+}
 
 .pay-page__listing-title {
   font-size: 0.92rem;
@@ -165,7 +173,9 @@
   color: var(--accent);
 }
 
-.pay-page__breakdown-rows { padding: 4px 0; }
+.pay-page__breakdown-rows {
+  padding: 4px 0;
+}
 
 .pay-page__breakdown-row {
   display: flex;
@@ -175,19 +185,35 @@
   border-bottom: 1px solid var(--border);
 }
 
-.pay-page__breakdown-row:last-child { border-bottom: none; }
-.pay-page__breakdown-row span   { color: var(--text-muted); }
-.pay-page__breakdown-row strong { color: var(--text-primary); }
+.pay-page__breakdown-row:last-child {
+  border-bottom: none;
+}
 
-.pay-page__breakdown-row--fee strong { color: var(--amber); }
+.pay-page__breakdown-row span {
+  color: var(--text-muted);
+}
+
+.pay-page__breakdown-row strong {
+  color: var(--text-primary);
+}
+
+.pay-page__breakdown-row--fee strong {
+  color: var(--amber);
+}
 
 .pay-page__breakdown-row--total {
   background: var(--bg-elevated);
   font-weight: 700;
 }
 
-.pay-page__breakdown-row--total span   { color: var(--text-secondary); }
-.pay-page__breakdown-row--total strong { color: var(--text-primary); font-size: 1rem; }
+.pay-page__breakdown-row--total span {
+  color: var(--text-secondary);
+}
+
+.pay-page__breakdown-row--total strong {
+  color: var(--text-primary);
+  font-size: 1rem;
+}
 
 /* ── Escrow notice ── */
 
@@ -345,7 +371,9 @@
   font-family: var(--font-body);
 }
 
-.pay-page__support-btn:hover { background: var(--accent-glow); }
+.pay-page__support-btn:hover {
+  background: var(--accent-glow);
+}
 
 .pay-page__support-btn--ghost {
   background: var(--bg-elevated);
@@ -374,8 +402,13 @@
   display: flex;
 }
 
-.pay-page__result-icon--success { color: var(--green); }
-.pay-page__result-icon--failed  { color: var(--red); }
+.pay-page__result-icon--success {
+  color: var(--green);
+}
+
+.pay-page__result-icon--failed {
+  color: var(--red);
+}
 
 .pay-page__result h1 {
   font-size: 1.8rem;
@@ -428,9 +461,17 @@
   border-bottom: 1px solid var(--border);
 }
 
-.pay-page__mini-receipt-row:last-child { border-bottom: none; }
-.pay-page__mini-receipt-row span   { color: var(--text-muted); }
-.pay-page__mini-receipt-row strong { color: var(--text-primary); }
+.pay-page__mini-receipt-row:last-child {
+  border-bottom: none;
+}
+
+.pay-page__mini-receipt-row span {
+  color: var(--text-muted);
+}
+
+.pay-page__mini-receipt-row strong {
+  color: var(--text-primary);
+}
 
 .pay-page__ref {
   font-family: monospace;
@@ -438,7 +479,9 @@
   color: var(--accent) !important;
 }
 
-.pay-page__escrow-active { color: var(--amber) !important; }
+.pay-page__escrow-active {
+  color: var(--amber) !important;
+}
 
 /* ── Result actions ── */
 
@@ -539,9 +582,17 @@
   margin-bottom: 12px;
 }
 
-.receipt__header-icon--success  { color: var(--green); }
-.receipt__header-icon--disputed { color: var(--red); }
-.receipt__header-icon--refunded { color: var(--text-muted); }
+.receipt__header-icon--success {
+  color: var(--green);
+}
+
+.receipt__header-icon--disputed {
+  color: var(--red);
+}
+
+.receipt__header-icon--refunded {
+  color: var(--text-muted);
+}
 
 .receipt__header h1 {
   font-size: 1.6rem;
@@ -576,13 +627,40 @@
   margin-top: 2px;
 }
 
-.receipt__status-banner--holding  { background: var(--amber-bg); border: 1px solid var(--amber-border); color: var(--amber); }
-.receipt__status-banner--released { background: var(--green-bg); border: 1px solid var(--green-border); color: var(--green); }
-.receipt__status-banner--disputed { background: var(--red-bg);   border: 1px solid var(--red-border);   color: var(--red); }
-.receipt__status-banner--refunded { background: rgba(0,0,0,0.03); border: 1px solid var(--border);      color: var(--text-muted); }
+.receipt__status-banner--holding {
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  color: var(--amber);
+}
 
-.receipt__status-title { font-weight: 600; margin: 0 0 3px; }
-.receipt__status-sub   { font-size: 0.78rem; opacity: 0.85; margin: 0; }
+.receipt__status-banner--released {
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  color: var(--green);
+}
+
+.receipt__status-banner--disputed {
+  background: var(--red-bg);
+  border: 1px solid var(--red-border);
+  color: var(--red);
+}
+
+.receipt__status-banner--refunded {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.receipt__status-title {
+  font-weight: 600;
+  margin: 0 0 3px;
+}
+
+.receipt__status-sub {
+  font-size: 0.78rem;
+  opacity: 0.85;
+  margin: 0;
+}
 
 /* ── Receipt card ── */
 
@@ -614,7 +692,9 @@
   color: var(--text-muted);
 }
 
-.receipt__rows { padding: 4px 0; }
+.receipt__rows {
+  padding: 4px 0;
+}
 
 .receipt__section-label {
   font-size: 0.7rem;
@@ -635,19 +715,37 @@
   gap: 12px;
 }
 
-.receipt__row:last-child { border-bottom: none; }
-.receipt__row span   { color: var(--text-muted); flex-shrink: 0; }
-.receipt__row strong { color: var(--text-primary); text-align: right; }
+.receipt__row:last-child {
+  border-bottom: none;
+}
 
-.receipt__row--fee strong { color: var(--amber); }
+.receipt__row span {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.receipt__row strong {
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.receipt__row--fee strong {
+  color: var(--amber);
+}
 
 .receipt__row--total {
   background: var(--bg-elevated);
   font-weight: 700;
 }
 
-.receipt__row--total span   { color: var(--text-secondary); }
-.receipt__row--total strong { color: var(--text-primary); font-size: 1rem; }
+.receipt__row--total span {
+  color: var(--text-secondary);
+}
+
+.receipt__row--total strong {
+  color: var(--text-primary);
+  font-size: 1rem;
+}
 
 .receipt__monospace {
   font-family: monospace;
@@ -666,7 +764,9 @@
   font-size: 0.85rem;
 }
 
-.receipt__link:hover { text-decoration: underline; }
+.receipt__link:hover {
+  text-decoration: underline;
+}
 
 /* ── Trust footer ── */
 
@@ -729,6 +829,7 @@
   line-height: 1.5;
   margin: 0;
 }
+
 /* =========================================================
    Transactions page — redesigned
    Replace everything from "Transactions page" section down
@@ -756,8 +857,15 @@
   margin-bottom: 1rem;
   transition: color 0.2s;
 }
-.tx-page__back:hover { color: var(--text-primary); }
-.tx-page__back svg   { width: 14px; height: 14px; }
+
+.tx-page__back:hover {
+  color: var(--text-primary);
+}
+
+.tx-page__back svg {
+  width: 14px;
+  height: 14px;
+}
 
 /* ── Eyebrow ── */
 .tx-page__eyebrow {
@@ -771,7 +879,11 @@
   color: var(--accent);
   margin-bottom: 5px;
 }
-.tx-page__eyebrow svg { width: 13px; height: 13px; }
+
+.tx-page__eyebrow svg {
+  width: 13px;
+  height: 13px;
+}
 
 /* ── Title ── */
 .tx-page__title {
@@ -821,7 +933,9 @@
   letter-spacing: -0.2px;
 }
 
-.tx-summary__value--amber { color: var(--amber); }
+.tx-summary__value--amber {
+  color: var(--amber);
+}
 
 /* ── Filter tabs ── */
 .tx-tabs {
@@ -894,7 +1008,10 @@
   padding: 12px 14px 8px;
 }
 
-.tx-card__meta { flex: 1; min-width: 0; }
+.tx-card__meta {
+  flex: 1;
+  min-width: 0;
+}
 
 .tx-card__title {
   font-size: 0.88rem;
@@ -948,7 +1065,10 @@
   border-color: var(--border-warm);
 }
 
-.tx-card__link svg { width: 13px; height: 13px; }
+.tx-card__link svg {
+  width: 13px;
+  height: 13px;
+}
 
 /* Details row */
 .tx-card__details {
@@ -979,12 +1099,41 @@
   white-space: nowrap;
 }
 
-.tx-badge--escrow   { background: var(--amber-bg);   border: 1px solid var(--amber-border); color: var(--amber); }
-.tx-badge--released { background: var(--green-bg);   border: 1px solid var(--green-border); color: var(--green); }
-.tx-badge--disputed { background: var(--red-bg);     border: 1px solid var(--red-border);   color: var(--red); }
-.tx-badge--refunded { background: var(--bg-elevated);border: 1px solid var(--border);       color: var(--text-muted); }
-.tx-badge--failed   { background: var(--red-bg);     border: 1px solid var(--red-border);   color: var(--red); }
-.tx-badge--success  { background: var(--green-bg);   border: 1px solid var(--green-border); color: var(--green); }
+.tx-badge--escrow {
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  color: var(--amber);
+}
+
+.tx-badge--released {
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  color: var(--green);
+}
+
+.tx-badge--disputed {
+  background: var(--red-bg);
+  border: 1px solid var(--red-border);
+  color: var(--red);
+}
+
+.tx-badge--refunded {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.tx-badge--failed {
+  background: var(--red-bg);
+  border: 1px solid var(--red-border);
+  color: var(--red);
+}
+
+.tx-badge--success {
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  color: var(--green);
+}
 
 /* ── Status bar (bottom strip) ── */
 .tx-card__statusbar {
@@ -1002,17 +1151,49 @@
   flex-shrink: 0;
 }
 
-.tx-card__statusbar--escrow   { background: var(--amber-bg);    color: var(--amber); }
-.tx-card__statusbar--released { background: var(--green-bg);    color: var(--green); }
-.tx-card__statusbar--disputed { background: var(--red-bg);      color: var(--red); }
-.tx-card__statusbar--refunded { background: var(--bg-elevated); color: var(--text-muted); }
+.tx-card__statusbar--escrow {
+  background: var(--amber-bg);
+  color: var(--amber);
+}
+
+.tx-card__statusbar--released {
+  background: var(--green-bg);
+  color: var(--green);
+}
+
+.tx-card__statusbar--disputed {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+.tx-card__statusbar--refunded {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+}
 
 /* ── Responsive ── */
 @media (max-width: 520px) {
-  .transactions-page { padding: 80px 14px 60px; }
-  .tx-page__title    { font-size: 1.35rem; }
-  .tx-summary        { gap: 6px; }
-  .tx-summary__value { font-size: 0.88rem; }
-  .tx-card__amount   { font-size: 0.88rem; }
-  .tx-card__title    { font-size: 0.84rem; }
+  .transactions-page {
+    padding: 80px 14px 60px;
+  }
+
+  .tx-page__title {
+    font-size: 1.35rem;
+  }
+
+  .tx-summary {
+    gap: 6px;
+  }
+
+  .tx-summary__value {
+    font-size: 0.88rem;
+  }
+
+  .tx-card__amount {
+    font-size: 0.88rem;
+  }
+
+  .tx-card__title {
+    font-size: 0.84rem;
+  }
 }

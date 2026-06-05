@@ -81,7 +81,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="navbar__logo">
-            Vel<em>en</em>
+            Rezi<em>dence</em>
           </Link>
 
           {/* Desktop links */}

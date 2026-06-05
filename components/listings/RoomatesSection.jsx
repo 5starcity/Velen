@@ -27,28 +27,28 @@ import {
   expressRoommateInterest,
 } from "@/lib/firestoreRoommates";
 
-const GENDER_OPTS     = ["No preference", "Male", "Female"];
+const GENDER_OPTS = ["No preference", "Male", "Female"];
 const OCCUPATION_OPTS = ["Any", "Student", "Working professional"];
-const LIFESTYLE_OPTS  = ["No preference", "Quiet", "Social"];
+const LIFESTYLE_OPTS = ["No preference", "Quiet", "Social"];
 
 export default function RoommateSection({ listing }) {
   const { user, userRole } = useAuth();
 
-  const [posts, setPosts]           = useState([]);
-  const [loading, setLoading]       = useState(true);
-  const [showForm, setShowForm]     = useState(false);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [interestSentId, setInterestSentId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
-  const [error, setError]           = useState("");
+  const [error, setError] = useState("");
 
   const [form, setForm] = useState({
-    message:     "",
-    contact:     "",
-    gender:      "No preference",
-    occupation:  "Any",
-    lifestyle:   "No preference",
-    moveInDate:  "",
+    message: "",
+    contact: "",
+    gender: "No preference",
+    occupation: "Any",
+    lifestyle: "No preference",
+    moveInDate: "",
   });
 
   useEffect(() => {
@@ -89,42 +89,42 @@ export default function RoommateSection({ listing }) {
     setSubmitting(true);
     try {
       const id = await createRoommatePost({
-        listingId:       listing.id,
-        listingTitle:    listing.title,
+        listingId: listing.id,
+        listingTitle: listing.title,
         listingLocation: listing.location,
-        listingPrice:    listing.price,
-        listingType:     listing.type,
-        postedBy:        user.uid,
-        posterName:      user.displayName || "Anonymous",
-        posterContact:   form.contact.trim(),
-        message:         form.message.trim(),
+        listingPrice: listing.price,
+        listingType: listing.type,
+        postedBy: user.uid,
+        posterName: user.displayName || "Anonymous",
+        posterContact: form.contact.trim(),
+        message: form.message.trim(),
         preferences: {
-          gender:     form.gender,
+          gender: form.gender,
           occupation: form.occupation,
-          lifestyle:  form.lifestyle,
+          lifestyle: form.lifestyle,
           moveInDate: form.moveInDate.trim(),
         },
       });
 
       const newPost = {
         id,
-        listingId:       listing.id,
-        listingTitle:    listing.title,
+        listingId: listing.id,
+        listingTitle: listing.title,
         listingLocation: listing.location,
-        listingPrice:    Number(listing.price),
-        listingType:     listing.type,
+        listingPrice: Number(listing.price),
+        listingType: listing.type,
         splitCost,
-        postedBy:        user.uid,
-        posterName:      user.displayName || "Anonymous",
-        posterContact:   form.contact.trim(),
-        message:         form.message.trim(),
+        postedBy: user.uid,
+        posterName: user.displayName || "Anonymous",
+        posterContact: form.contact.trim(),
+        message: form.message.trim(),
         preferences: {
-          gender:     form.gender,
+          gender: form.gender,
           occupation: form.occupation,
-          lifestyle:  form.lifestyle,
+          lifestyle: form.lifestyle,
           moveInDate: form.moveInDate.trim(),
         },
-        status:    "open",
+        status: "open",
         interests: 0,
         createdAt: new Date(),
       };
@@ -165,7 +165,7 @@ export default function RoommateSection({ listing }) {
         ? "234" + post.posterContact.slice(1)
         : post.posterContact;
       const msg = encodeURIComponent(
-        `Hi ${post.posterName}, I saw your roommate post on Velen for "${post.listingTitle}" and I'm interested in splitting the rent. My name is ${user.displayName || "a prospective tenant"}.`
+        `Hi ${post.posterName}, I saw your roommate post on rezidence for "${post.listingTitle}" and I'm interested in splitting the rent. My name is ${user.displayName || "a prospective tenant"}.`
       );
       window.open(`https://wa.me/${waNum}?text=${msg}`, "_blank");
     } catch (e) {
@@ -345,7 +345,7 @@ export default function RoommateSection({ listing }) {
       ) : (
         <div className="roommate-section__posts">
           {posts.map((post) => {
-            const isOwn      = post.postedBy === user?.uid;
+            const isOwn = post.postedBy === user?.uid;
             const isDeleting = deletingId === post.id;
             const sentAlready = interestSentId === post.id;
 

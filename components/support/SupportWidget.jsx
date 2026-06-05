@@ -16,10 +16,10 @@ import {
 import "@/styles/support-widget.css";
 
 const QUICK_LINKS = [
-  { icon: <HiOutlineHomeModern />,         label: "How to reserve a room",   href: "/support#reserve"  },
-  { icon: <HiOutlineShieldCheck />,        label: "Is my payment secure?",   href: "/support#payment"  },
-  { icon: <HiOutlineQuestionMarkCircle />, label: "Report a fake listing",   href: "/support#report"   },
-  { icon: <HiOutlineEnvelope />,           label: "Contact support",         href: "/support#contact"  },
+  { icon: <HiOutlineHomeModern />, label: "How to reserve a room", href: "/support#reserve" },
+  { icon: <HiOutlineShieldCheck />, label: "Is my payment secure?", href: "/support#payment" },
+  { icon: <HiOutlineQuestionMarkCircle />, label: "Report a fake listing", href: "/support#report" },
+  { icon: <HiOutlineEnvelope />, label: "Contact support", href: "/support#contact" },
 ];
 
 export default function SupportWidget() {
@@ -40,7 +40,7 @@ export default function SupportWidget() {
               <div className="support-widget__header-left">
                 <div className="support-widget__avatar">V</div>
                 <div>
-                  <p className="support-widget__name">Velen Support</p>
+                  <p className="support-widget__name">rezidence Support</p>
                   <p className="support-widget__status">
                     <span className="support-widget__dot" /> Usually replies within 24h
                   </p>

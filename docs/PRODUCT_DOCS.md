@@ -1,13 +1,13 @@
-# Velen — Product Documentation
+# rezidence — Product Documentation
 
 > Student housing platform for Port Harcourt, Nigeria
 > Version: 1.0 (V1) | Updated: May 2026
 
 ---
 
-## What is Velen?
+## What is rezidence?
 
-Velen is a student housing discovery platform built specifically for university students in Port Harcourt, Nigeria. It connects students looking for accommodation near RSU, UniPort, IAUE, and Ken Saro-Wiwa Polytechnic with verified landlords and agents — showing full move-in costs upfront, with no hidden fees.
+rezidence is a student housing discovery platform built specifically for university students in Port Harcourt, Nigeria. It connects students looking for accommodation near RSU, UniPort, IAUE, and Ken Saro-Wiwa Polytechnic with verified landlords and agents — showing full move-in costs upfront, with no hidden fees.
 
 **Core promise to students:** Find a verified room near your school, see exactly what you'll pay, contact the landlord directly.
 
@@ -116,7 +116,7 @@ Velen is a student housing discovery platform built specifically for university 
 
 ## Features Deliberately Deferred to V2
 
-These features exist in the codebase but are disabled — pushed to V2 when Velen has an active user base and landlord trust is established.
+These features exist in the codebase but are disabled — pushed to V2 when rezidence has an active user base and landlord trust is established.
 
 | Feature | Reason Deferred |
 |---------|----------------|
@@ -215,7 +215,7 @@ See product docs above. Nigerian market trust dynamics, landlord payment expecta
 
 ## Scam Prevention Strategy
 
-Velen's approach to trust and safety:
+rezidence's approach to trust and safety:
 
 1. **Verified badge** — only landlords who complete NIN + bank verification get the badge
 2. **Scam price flag** — listings under ₦50,000/yr automatically show a warning banner
@@ -239,14 +239,14 @@ Velen's approach to trust and safety:
 
 ## Competition
 
-| Platform | Gap Velen Fills |
+| Platform | Gap rezidence Fills |
 |----------|----------------|
 | PropertyPro.ng | Not student-focused, poor mobile UX |
 | Nigeria Property Centre | Agent/realtor heavy, no student tools |
 | Tolet.com.ng | General, not Port Harcourt depth |
 | Houza | Better UX but Lagos-focused |
 
-**Velen's moat:** Student-only focus + verified listings + Port Harcourt depth + full move-in cost transparency. Nobody is doing all of this together for PH students.
+**rezidence's moat:** Student-only focus + verified listings + Port Harcourt depth + full move-in cost transparency. Nobody is doing all of this together for PH students.
 
 ---
 

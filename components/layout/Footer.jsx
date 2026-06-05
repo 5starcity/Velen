@@ -19,7 +19,7 @@ export default function Footer() {
           {/* Brand column */}
           <div className="footer__brand">
             <p className="footer__logo">
-              Vel<em>en</em>
+              Rezi<em>dence</em>
             </p>
             <p className="footer__tagline">
               Verified student housing in Port Harcourt.
@@ -70,7 +70,7 @@ export default function Footer() {
         {/* ── Bottom ── */}
         <div className="footer__bottom">
           <p className="footer__copy">
-            © {year} Velen. All rights reserved.
+            © {year} rezidence. All rights reserved.
           </p>
           <p className="footer__sub">
             Built for students, by people who get it.

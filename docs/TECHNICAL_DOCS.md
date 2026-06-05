@@ -1,4 +1,4 @@
-# Velen — Technical Documentation
+# rezidence — Technical Documentation
 
 > Last updated: May 2026 | Stack: Next.js 14, Firebase, Paystack, Cloudinary
 
@@ -310,8 +310,8 @@ NEXT_PUBLIC_RESERVATION_FEES_ACTIVE=false  # V2 — not active
 NEXT_PUBLIC_LISTING_FEES_ACTIVE=false      # V2 — not active
 
 # Support
-NEXT_PUBLIC_VELEN_SUPPORT_WHATSAPP=2349015117668
-NEXT_PUBLIC_VELEN_SUPPORT_PHONE=09015117668
+NEXT_PUBLIC_rezidence_SUPPORT_WHATSAPP=2349015117668
+NEXT_PUBLIC_rezidence_SUPPORT_PHONE=09015117668
 
 # PostHog
 NEXT_PUBLIC_POSTHOG_KEY=

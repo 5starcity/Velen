@@ -9,7 +9,7 @@ import { Suspense } from "react";
 import "./global.css";
 
 export const metadata = {
-  title: "Velen — Student Housing in Port Harcourt",
+  title: "rezidence — Student Housing in Port Harcourt",
   description: "Find verified rooms near RSU, UniPort and more. No agents, no hidden fees, no stress.",
 };
 

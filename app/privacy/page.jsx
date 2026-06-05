@@ -6,17 +6,17 @@ const sections = [
   {
     id: "overview",
     title: "1. Overview",
-    content: `Velen ("we", "our", or "the Platform") is committed to protecting your privacy. This Privacy Policy explains what information we collect, how we use it, and your rights regarding your data. By using Velen, you agree to the practices described in this policy.`,
+    content: `rezidence ("we", "our", or "the Platform") is committed to protecting your privacy. This Privacy Policy explains what information we collect, how we use it, and your rights regarding your data. By using rezidence, you agree to the practices described in this policy.`,
   },
   {
     id: "what-we-collect",
     title: "2. Information We Collect",
-    content: `We collect information you provide directly: your name, email address, phone number, university affiliation, and profile photo when you register. For landlords and agents, we collect NIN (National Identification Number) and bank account details for verification and payout purposes. We also collect listing content including photos, descriptions, and pricing that you submit to the Platform. When you make or receive payments, transaction details are processed and logged by Paystack; Velen stores references to those transactions but not your full card details.`,
+    content: `We collect information you provide directly: your name, email address, phone number, university affiliation, and profile photo when you register. For landlords and agents, we collect NIN (National Identification Number) and bank account details for verification and payout purposes. We also collect listing content including photos, descriptions, and pricing that you submit to the Platform. When you make or receive payments, transaction details are processed and logged by Paystack; rezidence stores references to those transactions but not your full card details.`,
   },
   {
     id: "automatic",
     title: "3. Automatically Collected Information",
-    content: `When you use Velen, we automatically collect usage data such as pages visited, listings viewed, searches performed, and actions taken (e.g. bookmarks, reports, reservations). This is collected via PostHog analytics. We may also collect device type, browser, and approximate location data to improve the relevance of listings shown to you.`,
+    content: `When you use rezidence, we automatically collect usage data such as pages visited, listings viewed, searches performed, and actions taken (e.g. bookmarks, reports, reservations). This is collected via PostHog analytics. We may also collect device type, browser, and approximate location data to improve the relevance of listings shown to you.`,
   },
   {
     id: "how-we-use",
@@ -31,7 +31,7 @@ const sections = [
   {
     id: "nin",
     title: "6. NIN & Verification Data",
-    content: `For landlord and agent verification, we collect your National Identification Number (NIN). This data is used solely to verify your identity and is not shared with third parties beyond our verification process. NIN data is stored securely and access is restricted to authorised Velen staff only. You may request deletion of this data by contacting us, subject to legal retention obligations.`,
+    content: `For landlord and agent verification, we collect your National Identification Number (NIN). This data is used solely to verify your identity and is not shared with third parties beyond our verification process. NIN data is stored securely and access is restricted to authorised rezidence staff only. You may request deletion of this data by contacting us, subject to legal retention obligations.`,
   },
   {
     id: "retention",
@@ -46,17 +46,17 @@ const sections = [
   {
     id: "rights",
     title: "9. Your Rights",
-    content: `You have the right to access the personal data we hold about you, request corrections to inaccurate data, request deletion of your account and associated data, and withdraw consent for certain data processing activities. To exercise these rights, contact us at support@velen.ng. We will respond within 14 business days.`,
+    content: `You have the right to access the personal data we hold about you, request corrections to inaccurate data, request deletion of your account and associated data, and withdraw consent for certain data processing activities. To exercise these rights, contact us at support@rezidence.ng. We will respond within 14 business days.`,
   },
   {
     id: "cookies",
     title: "10. Cookies & Local Storage",
-    content: `Velen uses browser storage (localStorage and sessionStorage) for session management and user preferences. We use PostHog cookies for analytics. You can clear browser storage at any time through your browser settings. Disabling cookies may affect some Platform functionality.`,
+    content: `rezidence uses browser storage (localStorage and sessionStorage) for session management and user preferences. We use PostHog cookies for analytics. You can clear browser storage at any time through your browser settings. Disabling cookies may affect some Platform functionality.`,
   },
   {
     id: "children",
     title: "11. Children's Privacy",
-    content: `Velen is not intended for users under the age of 18. We do not knowingly collect personal data from minors. If you believe a minor has registered on the Platform, please contact us and we will remove the account promptly.`,
+    content: `rezidence is not intended for users under the age of 18. We do not knowingly collect personal data from minors. If you believe a minor has registered on the Platform, please contact us and we will remove the account promptly.`,
   },
   {
     id: "changes",
@@ -66,7 +66,7 @@ const sections = [
   {
     id: "contact",
     title: "13. Contact Us",
-    content: `For any privacy-related questions, requests, or concerns, please contact us at support@velen.ng or through the Help section of the Platform. We are based in Port Harcourt, Rivers State, Nigeria.`,
+    content: `For any privacy-related questions, requests, or concerns, please contact us at support@rezidence.ng or through the Help section of the Platform. We are based in Port Harcourt, Rivers State, Nigeria.`,
   },
 ];
 
@@ -91,7 +91,7 @@ export default function PrivacyPage() {
           <span className={styles.badge}>Legal</span>
           <h1 className={styles.title}>Privacy Policy</h1>
           <p className={styles.subtitle}>
-            How Velen collects, uses, and protects your personal information.
+            How rezidence collects, uses, and protects your personal information.
           </p>
           <p className={styles.lastUpdated}>Last updated: May 2026</p>
         </div>
@@ -129,7 +129,7 @@ export default function PrivacyPage() {
             <div className={styles.footer}>
               <p>
                 Privacy questions?{" "}
-                <a href="mailto:support@velen.ng" className={styles.link}>
+                <a href="mailto:support@rezidence.ng" className={styles.link}>
                   Contact us
                 </a>
               </p>

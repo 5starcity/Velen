@@ -7,43 +7,43 @@ import "@/styles/about.css";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
 };
 
 const stagger = {
   hidden: {},
-  show:   { transition: { staggerChildren: 0.1 } },
+  show: { transition: { staggerChildren: 0.1 } },
 };
 
 const VALUES = [
   {
     number: "01",
-    title:  "Full cost, upfront.",
-    body:   "Every listing on Velen shows the complete move-in cost — rent, caution fee, legal fee, agency fee, all of it. No surprises after you have fallen in love with a place.",
+    title: "Full cost, upfront.",
+    body: "Every listing on rezidence shows the complete move-in cost — rent, caution fee, legal fee, agency fee, all of it. No surprises after you have fallen in love with a place.",
   },
   {
     number: "02",
-    title:  "Verified where it matters.",
-    body:   "We manually review landlords who apply for verification. It is not a checkbox — it is a signal you can trust.",
+    title: "Verified where it matters.",
+    body: "We manually review landlords who apply for verification. It is not a checkbox — it is a signal you can trust.",
   },
   {
     number: "03",
-    title:  "Direct contact. No middlemen.",
-    body:   "You reach the property owner or manager directly. No agent taking a cut just for forwarding your message.",
+    title: "Direct contact. No middlemen.",
+    body: "You reach the property owner or manager directly. No agent taking a cut just for forwarding your message.",
   },
   {
     number: "04",
-    title:  "Built for Port Harcourt.",
-    body:   "Not a Lagos product awkwardly extended. Every area, every landmark, every price range is tuned for the way people actually rent here.",
+    title: "Built for Port Harcourt.",
+    body: "Not a Lagos product awkwardly extended. Every area, every landmark, every price range is tuned for the way people actually rent here.",
   },
 ];
 
 const WHO = [
-  { label: "Fresh graduates",  desc: "Starting a new job and finding a place before the first salary arrives." },
-  { label: "Students",         desc: "Looking for a safe, affordable flat near campus without getting scammed." },
-  { label: "Families",         desc: "Needing more space and a trustworthy process to find it." },
-  { label: "Professionals",    desc: "Relocating to Port Harcourt and needing somewhere to land quickly." },
-  { label: "Property owners",  desc: "Who want serious enquiries, not tyre-kickers — and tools to manage them." },
+  { label: "Fresh graduates", desc: "Starting a new job and finding a place before the first salary arrives." },
+  { label: "Students", desc: "Looking for a safe, affordable flat near campus without getting scammed." },
+  { label: "Families", desc: "Needing more space and a trustworthy process to find it." },
+  { label: "Professionals", desc: "Relocating to Port Harcourt and needing somewhere to land quickly." },
+  { label: "Property owners", desc: "Who want serious enquiries, not tyre-kickers — and tools to manage them." },
 ];
 
 export default function AboutPage() {
@@ -57,13 +57,13 @@ export default function AboutPage() {
         animate="show"
         variants={stagger}
       >
-        <motion.p className="about__eyebrow" variants={fadeUp}>About Velen</motion.p>
+        <motion.p className="about__eyebrow" variants={fadeUp}>About rezidence</motion.p>
         <motion.h1 className="about__hero-title" variants={fadeUp}>
           Renting in Port Harcourt<br />
           <span className="about__hero-accent">should not be a gamble.</span>
         </motion.h1>
         <motion.p className="about__hero-sub" variants={fadeUp}>
-          We built Velen because we were tired of listings that hide the real cost,
+          We built rezidence because we were tired of listings that hide the real cost,
           agents who disappear after payment, and properties that look nothing like
           the photos. There had to be a better way.
         </motion.p>
@@ -109,7 +109,7 @@ export default function AboutPage() {
             </p>
             <p>
               This happens every day in Port Harcourt. It is not an accident —
-              it is how the informal rental market has always worked. Velen
+              it is how the informal rental market has always worked. rezidence
               exists to change that, one transparent listing at a time.
             </p>
           </motion.div>
@@ -126,8 +126,8 @@ export default function AboutPage() {
       >
         {[
           { value: "100%", label: "of listings show full move-in cost" },
-          { value: "₦0",   label: "in hidden fees, ever" },
-          { value: "PH",   label: "built specifically for Port Harcourt" },
+          { value: "₦0", label: "in hidden fees, ever" },
+          { value: "PH", label: "built specifically for Port Harcourt" },
         ].map((s) => (
           <motion.div key={s.label} className="about__strip-item" variants={fadeUp}>
             <span className="about__strip-value">{s.value}</span>
@@ -170,7 +170,7 @@ export default function AboutPage() {
         viewport={{ once: true, margin: "-60px" }}
         variants={stagger}
       >
-        <motion.p className="about__section-label" variants={fadeUp}>Who Velen is for</motion.p>
+        <motion.p className="about__section-label" variants={fadeUp}>Who rezidence is for</motion.p>
         <motion.h2 className="about__section-heading" variants={fadeUp}>
           Everyone who rents.<br />Everyone who lets.
         </motion.h2>

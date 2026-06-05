@@ -57,45 +57,45 @@ import {
 import "@/styles/details-page.css";
 
 const REPORT_CATEGORIES = [
-  { value: "fake_listing",   label: "🚫 Fake listing",         desc: "This property doesn't exist or is misleading" },
-  { value: "scam",           label: "⚠️ Scam / Fraud",         desc: "Suspicious activity or fraudulent intent" },
-  { value: "wrong_price",    label: "💰 Wrong price",           desc: "Price is significantly different from reality" },
-  { value: "already_rented", label: "🔒 Already rented",       desc: "This property is no longer available" },
-  { value: "bad_photos",     label: "📷 Misleading photos",    desc: "Photos don't match the actual property" },
-  { value: "inappropriate",  label: "🔞 Inappropriate content", desc: "Content violates community guidelines" },
-  { value: "other",          label: "📝 Other",                 desc: "Something else is wrong" },
+  { value: "fake_listing", label: "🚫 Fake listing", desc: "This property doesn't exist or is misleading" },
+  { value: "scam", label: "⚠️ Scam / Fraud", desc: "Suspicious activity or fraudulent intent" },
+  { value: "wrong_price", label: "💰 Wrong price", desc: "Price is significantly different from reality" },
+  { value: "already_rented", label: "🔒 Already rented", desc: "This property is no longer available" },
+  { value: "bad_photos", label: "📷 Misleading photos", desc: "Photos don't match the actual property" },
+  { value: "inappropriate", label: "🔞 Inappropriate content", desc: "Content violates community guidelines" },
+  { value: "other", label: "📝 Other", desc: "Something else is wrong" },
 ];
 
 export default function ListingDetailsPage() {
-  const params    = useParams();
-  const router    = useRouter();
+  const params = useParams();
+  const router = useRouter();
   const listingId = params?.id;
-  const { user }  = useAuth();
+  const { user } = useAuth();
 
-  const [listing, setListing]                 = useState(null);
-  const [loading, setLoading]                 = useState(true);
-  const [favorites, setFavorites]             = useState([]);
-  const [isEditing, setIsEditing]             = useState(false);
-  const [editForm, setEditForm]               = useState({});
-  const [saving, setSaving]                   = useState(false);
-  const [deleting, setDeleting]               = useState(false);
-  const [copied, setCopied]                   = useState(false);
-  const [activeMedia, setActiveMedia]         = useState(0);
-  const [showVideo, setShowVideo]             = useState(false);
-  const [interestSent, setInterestSent]       = useState(false);
+  const [listing, setListing] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [favorites, setFavorites] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [activeMedia, setActiveMedia] = useState(0);
+  const [showVideo, setShowVideo] = useState(false);
+  const [interestSent, setInterestSent] = useState(false);
   const [sendingInterest, setSendingInterest] = useState(false);
-  const [roommatePost, setRoommatePost]       = useState(null);
+  const [roommatePost, setRoommatePost] = useState(null);
 
   // Reservation status
-  const [listingReserved, setListingReserved]             = useState(false);
+  const [listingReserved, setListingReserved] = useState(false);
   const [studentHasReservation, setStudentHasReservation] = useState(false);
 
   // Report state
   const [showReportModal, setShowReportModal] = useState(false);
-  const [reportCategory, setReportCategory]   = useState("");
-  const [reportDetail, setReportDetail]       = useState("");
-  const [reportSent, setReportSent]           = useState(false);
-  const [reportError, setReportError]         = useState("");
+  const [reportCategory, setReportCategory] = useState("");
+  const [reportDetail, setReportDetail] = useState("");
+  const [reportSent, setReportSent] = useState(false);
+  const [reportError, setReportError] = useState("");
   const [submittingReport, setSubmittingReport] = useState(false);
 
   useEffect(() => {
@@ -120,7 +120,7 @@ export default function ListingDetailsPage() {
         }
         const hasImagesOnLoad = (data?.images?.length > 0) || !!data?.image;
         if (!hasImagesOnLoad && data?.videoUrl) setShowVideo(true);
-        try { await incrementViewCount(listingId); } catch (e) {}
+        try { await incrementViewCount(listingId); } catch (e) { }
       } catch (error) {
         console.error("Error fetching listing:", error);
         setListing(null);
@@ -137,7 +137,7 @@ export default function ListingDetailsPage() {
       try {
         const posts = await fetchRoommatePostsByListing(listingId);
         if (posts.length > 0) setRoommatePost(posts[0]);
-      } catch (e) {}
+      } catch (e) { }
     }
     checkRoommate();
   }, [listingId]);
@@ -151,8 +151,8 @@ export default function ListingDetailsPage() {
           user ? fetchStudentReservationForListing(listingId, user.uid) : Promise.resolve(null),
         ]);
         if (active) setListingReserved(true);
-        if (mine)   setStudentHasReservation(true);
-      } catch (e) {}
+        if (mine) setStudentHasReservation(true);
+      } catch (e) { }
     }
     checkReservationStatus();
   }, [listing, user]);
@@ -188,18 +188,18 @@ export default function ListingDetailsPage() {
     );
   }
 
-  const images  = listing.images?.length > 0 ? listing.images : listing.image ? [listing.image] : [];
+  const images = listing.images?.length > 0 ? listing.images : listing.image ? [listing.image] : [];
   const isOwner = user && user.uid === listing.landlordId;
-  const saved   = favorites.includes(listing.id);
+  const saved = favorites.includes(listing.id);
 
   const whatsappNumber = typeof listing.contact === "string" && listing.contact.startsWith("0")
     ? "234" + listing.contact.slice(1)
     : listing.contact;
   const whatsappHref = "https://wa.me/" + whatsappNumber;
-  const telHref      = "tel:" + listing.contact;
+  const telHref = "tel:" + listing.contact;
 
   const hasCostBreakdown = listing.cautionFee || listing.legalFee || listing.agencyFee || listing.serviceCharge;
-  const totalMoveInCost  = listing.totalMoveInCost ||
+  const totalMoveInCost = listing.totalMoveInCost ||
     (Number(listing.price) || 0) + (Number(listing.cautionFee) || 0) +
     (Number(listing.legalFee) || 0) + (Number(listing.agencyFee) || 0) +
     (Number(listing.serviceCharge) || 0);
@@ -208,7 +208,7 @@ export default function ListingDetailsPage() {
     (listing.address ? "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(listing.address + ", Port Harcourt, Nigeria") : null);
 
   function handleToggleFavorite() { setFavorites(toggleFavorite(listing.id)); }
-  function handleEditChange(e)    { setEditForm((prev) => ({ ...prev, [e.target.name]: e.target.value })); }
+  function handleEditChange(e) { setEditForm((prev) => ({ ...prev, [e.target.name]: e.target.value })); }
 
   async function handleSave() {
     setSaving(true);
@@ -288,12 +288,12 @@ export default function ListingDetailsPage() {
       await expressInterest(listingId, user.uid, user.displayName || "A prospective tenant");
       try {
         await createNotification({
-          userId:     listing.landlordId,
-          type:       "listing_interest",
-          title:      "New interest on your listing",
-          message:    `${user.displayName || "Someone"} is interested in "${listing.title}"`,
+          userId: listing.landlordId,
+          type: "listing_interest",
+          title: "New interest on your listing",
+          message: `${user.displayName || "Someone"} is interested in "${listing.title}"`,
           listingId,
-          senderId:   user.uid,
+          senderId: user.uid,
           senderName: user.displayName || "Someone",
         });
       } catch (e) { console.warn("Notification failed silently:", e); }
@@ -326,10 +326,10 @@ export default function ListingDetailsPage() {
   }
 
   const costIcons = {
-    rent:    <HiOutlineBanknotes />,
+    rent: <HiOutlineBanknotes />,
     caution: <HiOutlineShieldCheck />,
-    legal:   <HiOutlineReceiptPercent />,
-    agency:  <HiOutlineBuildingOffice />,
+    legal: <HiOutlineReceiptPercent />,
+    agency: <HiOutlineBuildingOffice />,
     service: <HiOutlineCog6Tooth />,
   };
 
@@ -359,7 +359,7 @@ export default function ListingDetailsPage() {
                   <HiOutlineFlag className="report-modal__header-icon" />
                   <div>
                     <h2>Report this listing</h2>
-                    <p>Help us keep Velen safe for everyone.</p>
+                    <p>Help us keep rezidence safe for everyone.</p>
                   </div>
                 </div>
                 <button className="report-modal__close" onClick={() => setShowReportModal(false)}>

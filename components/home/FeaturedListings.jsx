@@ -20,50 +20,50 @@ import "@/styles/featured.css";
 
 const FEATURES = [
   {
-    icon:  <HiOutlineShieldCheck />,
+    icon: <HiOutlineShieldCheck />,
     title: "Verified listings",
-    desc:  "Every property is checked before it goes live. No ghost apartments, no upfront scams.",
+    desc: "Every property is checked before it goes live. No ghost apartments, no upfront scams.",
   },
   {
-    icon:  <HiOutlineBanknotes />,
+    icon: <HiOutlineBanknotes />,
     title: "Full cost upfront",
-    desc:  "Rent, caution fee, legal fee — all visible before you call a single landlord.",
+    desc: "Rent, caution fee, legal fee — all visible before you call a single landlord.",
   },
   {
-    icon:  <HiOutlineUserGroup />,
+    icon: <HiOutlineUserGroup />,
     title: "Split rent board",
-    desc:  "Can't cover it alone? Find a roommate and split the cost.",
+    desc: "Can't cover it alone? Find a roommate and split the cost.",
   },
   {
-    icon:  <HiOutlineMapPin />,
+    icon: <HiOutlineMapPin />,
     title: "Near your campus",
-    desc:  "Filter by school — RSU, UniPort, IAUE and more.",
+    desc: "Filter by school — RSU, UniPort, IAUE and more.",
   },
   {
-    icon:  <HiOutlineChatBubbleLeftRight />,
+    icon: <HiOutlineChatBubbleLeftRight />,
     title: "Direct contact",
-    desc:  "WhatsApp landlords directly. No middlemen, no agent delays.",
+    desc: "WhatsApp landlords directly. No middlemen, no agent delays.",
   },
   {
-    icon:  <HiOutlineExclamationTriangle />,
+    icon: <HiOutlineExclamationTriangle />,
     title: "Scam protection",
-    desc:  "Suspicious prices get flagged. Report bad listings instantly.",
+    desc: "Suspicious prices get flagged. Report bad listings instantly.",
   },
 ];
 
 const inView = {
   hidden: { opacity: 0, y: 24 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } },
 };
 
 const stagger = {
   hidden: {},
-  show:   { transition: { staggerChildren: 0.07 } },
+  show: { transition: { staggerChildren: 0.07 } },
 };
 
 export default function FeaturedListings() {
   const [listings, setListings] = useState([]);
-  const [loading, setLoading]   = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
@@ -87,7 +87,7 @@ export default function FeaturedListings() {
   return (
     <>
 
-      {/* ══ WHY VELEN ══ */}
+      {/* ══ WHY rezidence ══ */}
       <section className="why">
         <div className="why__inner">
 
@@ -98,7 +98,7 @@ export default function FeaturedListings() {
             whileInView="show"
             viewport={{ once: true }}
           >
-            <span className="why__eyebrow">Why students choose Velen</span>
+            <span className="why__eyebrow">Why students choose rezidence</span>
             <h2 className="why__heading">
               Housing search,{" "}
               <em>the way it should be.</em>

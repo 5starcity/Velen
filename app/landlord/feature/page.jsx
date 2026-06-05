@@ -27,28 +27,28 @@ import "@/styles/feature-page.css";
 
 const TIERS = [
   {
-    id:      "week",
-    label:   "1 Week",
-    days:    7,
-    price:   2000,
+    id: "week",
+    label: "1 Week",
+    days: 7,
+    price: 2000,
     popular: false,
-    perks:   ["Homepage hero card", "7 days visibility", "~500 student impressions"],
+    perks: ["Homepage hero card", "7 days visibility", "~500 student impressions"],
   },
   {
-    id:      "month",
-    label:   "1 Month",
-    days:    30,
-    price:   6000,
+    id: "month",
+    label: "1 Month",
+    days: 30,
+    price: 6000,
     popular: true,
-    perks:   ["Homepage hero card", "30 days visibility", "~2,000 student impressions", "Priority in browse results"],
+    perks: ["Homepage hero card", "30 days visibility", "~2,000 student impressions", "Priority in browse results"],
   },
   {
-    id:      "quarter",
-    label:   "3 Months",
-    days:    90,
-    price:   15000,
+    id: "quarter",
+    label: "3 Months",
+    days: 90,
+    price: 15000,
     popular: false,
-    perks:   ["Homepage hero card", "90 days visibility", "~6,000 student impressions", "Priority in browse results", "Featured badge on listing page"],
+    perks: ["Homepage hero card", "90 days visibility", "~6,000 student impressions", "Priority in browse results", "Featured badge on listing page"],
   },
 ];
 
@@ -64,22 +64,22 @@ function addDays(date, days) {
 
 export default function FeaturePage() {
   const { user, userRole } = useAuth();
-  const router             = useRouter();
+  const router = useRouter();
 
-  const [listings,        setListings]        = useState([]);
+  const [listings, setListings] = useState([]);
   const [selectedListing, setSelectedListing] = useState(null);
-  const [selectedTier,    setSelectedTier]    = useState(TIERS[1]);
+  const [selectedTier, setSelectedTier] = useState(TIERS[1]);
   const [loadingListings, setLoadingListings] = useState(true);
-  const [step,            setStep]            = useState("configure"); // configure | activating | success
-  const [paying,          setPaying]          = useState(false);
-  const [error,           setError]           = useState("");
+  const [step, setStep] = useState("configure"); // configure | activating | success
+  const [paying, setPaying] = useState(false);
+  const [error, setError] = useState("");
 
   // Stored after Paystack confirms — triggers the useEffect below
   const [pendingActivation, setPendingActivation] = useState(null);
 
   // ── Auth guard ────────────────────────────────────────
   useEffect(() => {
-    if (!user)                               { router.push("/login"); return; }
+    if (!user) { router.push("/login"); return; }
     if (userRole && userRole !== "landlord") { router.push("/"); }
   }, [user, userRole, router]);
 
@@ -88,7 +88,7 @@ export default function FeaturePage() {
     if (!user) return;
     async function fetch() {
       try {
-        const q    = query(collection(db, "listings"), where("landlordId", "==", user.uid));
+        const q = query(collection(db, "listings"), where("landlordId", "==", user.uid));
         const snap = await getDocs(q);
         const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
         setListings(data);
@@ -114,23 +114,23 @@ export default function FeaturePage() {
       try {
         // 1. Mark listing featured
         await updateDoc(doc(db, "listings", listingId), {
-          featured:       true,
-          featuredTier:   tier.id,
-          featuredAt:     serverTimestamp(),
+          featured: true,
+          featuredTier: tier.id,
+          featuredAt: serverTimestamp(),
           featuredExpiry: Timestamp.fromDate(expiry),
-          featuredTxRef:  txRef,
+          featuredTxRef: txRef,
         });
 
         // 2. Write audit record
         await addDoc(collection(db, "featuredPayments"), {
-          landlordId:  user.uid,
+          landlordId: user.uid,
           listingId,
-          tierId:      tier.id,
-          tierDays:    tier.days,
-          amount:      tier.price,
+          tierId: tier.id,
+          tierDays: tier.days,
+          amount: tier.price,
           txRef,
           activatedAt: serverTimestamp(),
-          expiresAt:   Timestamp.fromDate(expiry),
+          expiresAt: Timestamp.fromDate(expiry),
         });
 
         setStep("success");
@@ -168,7 +168,7 @@ export default function FeaturePage() {
     // Dynamically import @paystack/inline-js (avoids SSR issues)
     let PaystackPop;
     try {
-      const mod  = await import("@paystack/inline-js");
+      const mod = await import("@paystack/inline-js");
       PaystackPop = mod.default;
     } catch (e) {
       setError("Payment library failed to load. Please refresh and try again.");
@@ -180,15 +180,15 @@ export default function FeaturePage() {
 
     const popup = new PaystackPop();
     popup.newTransaction({
-      key:      process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
-      email:    user.email,
-      amount:   selectedTier.price * 100,   // kobo
+      key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
+      email: user.email,
+      amount: selectedTier.price * 100,   // kobo
       currency: "NGN",
-      ref:      txRef,
+      ref: txRef,
       metadata: {
         landlord_id: user.uid,
-        listing_id:  selectedListing.id,
-        tier_id:     selectedTier.id,
+        listing_id: selectedListing.id,
+        tier_id: selectedTier.id,
       },
 
       // ── onSuccess must be SYNCHRONOUS ────────────────
@@ -199,8 +199,8 @@ export default function FeaturePage() {
         setStep("activating");
         setPendingActivation({
           listingId: selectedListing.id,
-          tier:      selectedTier,
-          txRef:     transaction.reference,
+          tier: selectedTier,
+          txRef: transaction.reference,
         });
       },
 
@@ -252,7 +252,7 @@ export default function FeaturePage() {
           <div className="fp-success-icon"><HiOutlineCheckCircle /></div>
           <h2>You're featured!</h2>
           <p>
-            <strong>{selectedListing?.title}</strong> is now live on the Velen
+            <strong>{selectedListing?.title}</strong> is now live on the rezidence
             homepage for <strong>{selectedTier.label}</strong>.
           </p>
           <div className="fp-success-meta">
@@ -282,7 +282,7 @@ export default function FeaturePage() {
         <div className="fp__header">
           <div className="fp__header-badge"><HiOutlineStar /> Featured Placement</div>
           <h1>Boost your listing's visibility</h1>
-          <p>Your listing appears in the hero section of the Velen homepage — the first thing every student sees.</p>
+          <p>Your listing appears in the hero section of the rezidence homepage — the first thing every student sees.</p>
         </div>
 
         <div className="fp__grid">
@@ -297,7 +297,7 @@ export default function FeaturePage() {
               </div>
               <div className="fp__listing-list">
                 {listings.map((l) => {
-                  const active          = selectedListing?.id === l.id;
+                  const active = selectedListing?.id === l.id;
                   const alreadyFeatured = l.featured && l.featuredExpiry?.toDate?.() > new Date();
                   return (
                     <button

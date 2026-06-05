@@ -21,31 +21,31 @@ import "@/styles/verify-landlord.css";
 
 // Nigerian banks with their Paystack bank codes
 const NIGERIAN_BANKS = [
-  { name: "Access Bank",            code: "044" },
-  { name: "Citibank Nigeria",       code: "023" },
-  { name: "Ecobank Nigeria",        code: "050" },
-  { name: "Fidelity Bank",          code: "070" },
-  { name: "First Bank of Nigeria",  code: "011" },
+  { name: "Access Bank", code: "044" },
+  { name: "Citibank Nigeria", code: "023" },
+  { name: "Ecobank Nigeria", code: "050" },
+  { name: "Fidelity Bank", code: "070" },
+  { name: "First Bank of Nigeria", code: "011" },
   { name: "First City Monument Bank (FCMB)", code: "214" },
-  { name: "Globus Bank",            code: "00103" },
-  { name: "GTBank",                 code: "058" },
-  { name: "Heritage Bank",          code: "030" },
-  { name: "Keystone Bank",          code: "082" },
-  { name: "Kuda Bank",              code: "090267" },
-  { name: "Opay",                   code: "100004" },
-  { name: "Palmpay",                code: "100033" },
-  { name: "Polaris Bank",           code: "076" },
-  { name: "Providus Bank",          code: "101" },
-  { name: "Stanbic IBTC Bank",      code: "221" },
-  { name: "Standard Chartered",     code: "068" },
-  { name: "Sterling Bank",          code: "232" },
-  { name: "Titan Bank",             code: "102" },
-  { name: "UBA",                    code: "033" },
-  { name: "Union Bank",             code: "032" },
-  { name: "Unity Bank",             code: "215" },
-  { name: "VFD Microfinance Bank",  code: "566" },
-  { name: "Wema Bank",              code: "035" },
-  { name: "Zenith Bank",            code: "057" },
+  { name: "Globus Bank", code: "00103" },
+  { name: "GTBank", code: "058" },
+  { name: "Heritage Bank", code: "030" },
+  { name: "Keystone Bank", code: "082" },
+  { name: "Kuda Bank", code: "090267" },
+  { name: "Opay", code: "100004" },
+  { name: "Palmpay", code: "100033" },
+  { name: "Polaris Bank", code: "076" },
+  { name: "Providus Bank", code: "101" },
+  { name: "Stanbic IBTC Bank", code: "221" },
+  { name: "Standard Chartered", code: "068" },
+  { name: "Sterling Bank", code: "232" },
+  { name: "Titan Bank", code: "102" },
+  { name: "UBA", code: "033" },
+  { name: "Union Bank", code: "032" },
+  { name: "Unity Bank", code: "215" },
+  { name: "VFD Microfinance Bank", code: "566" },
+  { name: "Wema Bank", code: "035" },
+  { name: "Zenith Bank", code: "057" },
 ];
 
 const STEPS = ["Personal Info", "Identity", "Bank Details", "Property Info"];
@@ -54,30 +54,30 @@ export default function VerifyLandlordPage() {
   const { user, userRole } = useAuth();
   const router = useRouter();
 
-  const [step, setStep]         = useState(0);
-  const [loading, setLoading]   = useState(false);
+  const [step, setStep] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError]       = useState("");
+  const [error, setError] = useState("");
   const [verifyingAccount, setVerifyingAccount] = useState(false);
-  const [accountVerified, setAccountVerified]   = useState(false);
+  const [accountVerified, setAccountVerified] = useState(false);
 
   const [form, setForm] = useState({
     // Personal
-    name:          "",
-    phone:         "",
-    email:         "",
-    address:       "",
+    name: "",
+    phone: "",
+    email: "",
+    address: "",
     // Identity
-    nin:           "",
+    nin: "",
     // Bank
-    bankCode:      "",
-    bankName:      "",
+    bankCode: "",
+    bankName: "",
     accountNumber: "",
-    accountName:   "",
+    accountName: "",
     // Property
-    propertyType:  "",
-    yearsActive:   "",
-    listingCount:  "",
+    propertyType: "",
+    yearsActive: "",
+    listingCount: "",
   });
 
   useEffect(() => {
@@ -87,8 +87,8 @@ export default function VerifyLandlordPage() {
     if (user) {
       setForm((prev) => ({
         ...prev,
-        name:  user.displayName || "",
-        email: user.email       || "",
+        name: user.displayName || "",
+        email: user.email || "",
       }));
     }
   }, [user, userRole]);
@@ -134,8 +134,8 @@ export default function VerifyLandlordPage() {
 
   function validateStep() {
     if (step === 0) {
-      if (!form.name.trim())    { setError("Full name is required."); return false; }
-      if (!form.phone.trim())   { setError("Phone number is required."); return false; }
+      if (!form.name.trim()) { setError("Full name is required."); return false; }
+      if (!form.phone.trim()) { setError("Phone number is required."); return false; }
       if (!form.address.trim()) { setError("Address is required."); return false; }
     }
     if (step === 1) {
@@ -144,9 +144,9 @@ export default function VerifyLandlordPage() {
       }
     }
     if (step === 2) {
-      if (!form.bankCode)             { setError("Select your bank."); return false; }
+      if (!form.bankCode) { setError("Select your bank."); return false; }
       if (!form.accountNumber.trim()) { setError("Account number is required."); return false; }
-      if (!accountVerified)           { setError("Please verify your account number first."); return false; }
+      if (!accountVerified) { setError("Please verify your account number first."); return false; }
     }
     if (step === 3) {
       if (!form.propertyType) { setError("Select a property type."); return false; }
@@ -172,13 +172,13 @@ export default function VerifyLandlordPage() {
     try {
       // Create Paystack subaccount
       const subRes = await fetch("/api/paystack/create-subaccount", {
-        method:  "POST",
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          business_name:  form.name,
-          bank_code:      form.bankCode,
+          business_name: form.name,
+          bank_code: form.bankCode,
           account_number: form.accountNumber,
-          uid:            user.uid,
+          uid: user.uid,
         }),
       });
       const subData = await subRes.json();
@@ -241,7 +241,7 @@ export default function VerifyLandlordPage() {
         {/* Header */}
         <div className="verify-header">
           <h1>Landlord Verification</h1>
-          <p>Complete your profile to list properties and receive payments on Velen.</p>
+          <p>Complete your profile to list properties and receive payments on rezidence.</p>
         </div>
 
         {/* Step indicators */}
@@ -307,7 +307,7 @@ export default function VerifyLandlordPage() {
         {step === 2 && (
           <motion.div className="verify-form" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }}>
             <p className="verify-section-note">
-              Your bank details are used to receive rent payments from students via Velen. Velen takes a 10% service fee per transaction.
+              Your bank details are used to receive rent payments from students via rezidence. rezidence takes a 10% service fee per transaction.
             </p>
             <div className="verify-field">
               <label><HiOutlineBuildingLibrary /> Bank Name</label>

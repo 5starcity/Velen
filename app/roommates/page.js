@@ -36,35 +36,35 @@ import { LOCATION_FILTER_OPTIONS, UNIVERSITIES } from "@/lib/locations";
 import "@/styles/roommates.css";
 
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
-const fadeUp  = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22, 1, 0.36, 1] } } };
+const fadeUp = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.22, 1, 0.36, 1] } } };
 
 export default function RoommatesPage() {
   const { user, userRole } = useAuth();
 
-  const [posts, setPosts]                     = useState([]);
-  const [loading, setLoading]                 = useState(true);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [interestSentIds, setInterestSentIds] = useState(new Set());
 
-  const [myPosts, setMyPosts]               = useState([]);
+  const [myPosts, setMyPosts] = useState([]);
   const [myPostsLoading, setMyPostsLoading] = useState(false);
-  const [deletingId, setDeletingId]         = useState(null);
-  const [fillingId, setFillingId]           = useState(null);
-  const [toast, setToast]                   = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [fillingId, setFillingId] = useState(null);
+  const [toast, setToast] = useState(null);
 
   // Inline edit state
-  const [editingId, setEditingId]       = useState(null);
-  const [editMessage, setEditMessage]   = useState("");
-  const [editContact, setEditContact]   = useState("");
-  const [editGender, setEditGender]     = useState("No preference");
+  const [editingId, setEditingId] = useState(null);
+  const [editMessage, setEditMessage] = useState("");
+  const [editContact, setEditContact] = useState("");
+  const [editGender, setEditGender] = useState("No preference");
   const [editOccupation, setEditOccupation] = useState("Any");
-  const [editLifestyle, setEditLifestyle]   = useState("No preference");
-  const [editMoveIn, setEditMoveIn]     = useState("");
-  const [savingEdit, setSavingEdit]     = useState(false);
+  const [editLifestyle, setEditLifestyle] = useState("No preference");
+  const [editMoveIn, setEditMoveIn] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
 
-  const [search, setSearch]         = useState("");
-  const [location, setLocation]     = useState("All");
-  const [maxSplit, setMaxSplit]      = useState("All");
-  const [gender, setGender]         = useState("All");
+  const [search, setSearch] = useState("");
+  const [location, setLocation] = useState("All");
+  const [maxSplit, setMaxSplit] = useState("All");
+  const [gender, setGender] = useState("All");
   const [occupation, setOccupation] = useState("All");
 
   useEffect(() => {
@@ -105,12 +105,12 @@ export default function RoommatesPage() {
   // ── Start inline edit ──
   function startEdit(post) {
     setEditingId(post.id);
-    setEditMessage(post.message     || "");
+    setEditMessage(post.message || "");
     setEditContact(post.posterContact || "");
-    setEditGender(post.preferences?.gender     || "No preference");
+    setEditGender(post.preferences?.gender || "No preference");
     setEditOccupation(post.preferences?.occupation || "Any");
-    setEditLifestyle(post.preferences?.lifestyle   || "No preference");
-    setEditMoveIn(post.preferences?.moveInDate   || "");
+    setEditLifestyle(post.preferences?.lifestyle || "No preference");
+    setEditMoveIn(post.preferences?.moveInDate || "");
   }
 
   function cancelEdit() {
@@ -121,12 +121,12 @@ export default function RoommatesPage() {
     setSavingEdit(true);
     try {
       await updateRoommatePost(postId, {
-        message:       editMessage,
+        message: editMessage,
         posterContact: editContact,
         preferences: {
-          gender:     editGender,
+          gender: editGender,
           occupation: editOccupation,
-          lifestyle:  editLifestyle,
+          lifestyle: editLifestyle,
           moveInDate: editMoveIn,
         },
       });
@@ -134,12 +134,12 @@ export default function RoommatesPage() {
       // Update local state
       const updater = (p) => p.id !== postId ? p : {
         ...p,
-        message:       editMessage,
+        message: editMessage,
         posterContact: editContact,
         preferences: {
-          gender:     editGender,
+          gender: editGender,
           occupation: editOccupation,
-          lifestyle:  editLifestyle,
+          lifestyle: editLifestyle,
           moveInDate: editMoveIn,
         },
       };
@@ -186,10 +186,10 @@ export default function RoommatesPage() {
 
   const filtered = useMemo(() => {
     return posts.filter((p) => {
-      const matchSearch     = search === "" || p.listingTitle?.toLowerCase().includes(search.toLowerCase()) || p.listingLocation?.toLowerCase().includes(search.toLowerCase()) || p.posterName?.toLowerCase().includes(search.toLowerCase()) || p.message?.toLowerCase().includes(search.toLowerCase());
-      const matchLocation   = location === "All" || p.listingLocation === location;
-      const matchSplit      = maxSplit === "All" || (p.splitCost || 0) <= Number(maxSplit);
-      const matchGender     = gender === "All" || p.preferences?.gender === gender || p.preferences?.gender === "No preference";
+      const matchSearch = search === "" || p.listingTitle?.toLowerCase().includes(search.toLowerCase()) || p.listingLocation?.toLowerCase().includes(search.toLowerCase()) || p.posterName?.toLowerCase().includes(search.toLowerCase()) || p.message?.toLowerCase().includes(search.toLowerCase());
+      const matchLocation = location === "All" || p.listingLocation === location;
+      const matchSplit = maxSplit === "All" || (p.splitCost || 0) <= Number(maxSplit);
+      const matchGender = gender === "All" || p.preferences?.gender === gender || p.preferences?.gender === "No preference";
       const matchOccupation = occupation === "All" || p.preferences?.occupation === occupation || p.preferences?.occupation === "Any";
       return matchSearch && matchLocation && matchSplit && matchGender && matchOccupation;
     });
@@ -209,18 +209,18 @@ export default function RoommatesPage() {
       setPosts((prev) => prev.map((p) => p.id === post.id ? { ...p, interests: (p.interests || 0) + 1 } : p));
       try {
         await createNotification({
-          userId:     post.postedBy,
-          type:       "roommate_interest",
-          title:      "New interest on your post",
-          message:    `${user.displayName || "Someone"} is interested in your roommate post for "${post.listingTitle}"`,
-          postId:     post.id,
-          senderId:   user.uid,
+          userId: post.postedBy,
+          type: "roommate_interest",
+          title: "New interest on your post",
+          message: `${user.displayName || "Someone"} is interested in your roommate post for "${post.listingTitle}"`,
+          postId: post.id,
+          senderId: user.uid,
           senderName: user.displayName || "Someone",
         });
       } catch (e) { console.warn("Notification failed silently:", e); }
 
       const waNum = post.posterContact?.startsWith("0") ? "234" + post.posterContact.slice(1) : post.posterContact;
-      const msg   = encodeURIComponent(`Hi ${post.posterName}, I saw your roommate post on Velen for "${post.listingTitle}" and I'm interested in splitting the rent. My name is ${user.displayName || "a prospective tenant"}.`);
+      const msg = encodeURIComponent(`Hi ${post.posterName}, I saw your roommate post on rezidence for "${post.listingTitle}" and I'm interested in splitting the rent. My name is ${user.displayName || "a prospective tenant"}.`);
       window.open(`https://wa.me/${waNum}?text=${msg}`, "_blank");
     } catch (e) {
       console.error("Interest error:", e);
@@ -482,13 +482,13 @@ export default function RoommatesPage() {
         <motion.div className="roommates-page__grid" variants={stagger} initial="hidden" animate="show">
           <AnimatePresence>
             {filtered.map((post) => {
-              const isOwn       = post.postedBy === user?.uid;
+              const isOwn = post.postedBy === user?.uid;
               const sentAlready = interestSentIds.has(post.id);
-              const waNum       = post.posterContact?.startsWith("0") ? "234" + post.posterContact.slice(1) : post.posterContact;
-              const prefTags    = [
-                post.preferences?.gender     !== "No preference" && post.preferences?.gender,
-                post.preferences?.occupation !== "Any"           && post.preferences?.occupation,
-                post.preferences?.lifestyle  !== "No preference" && post.preferences?.lifestyle,
+              const waNum = post.posterContact?.startsWith("0") ? "234" + post.posterContact.slice(1) : post.posterContact;
+              const prefTags = [
+                post.preferences?.gender !== "No preference" && post.preferences?.gender,
+                post.preferences?.occupation !== "Any" && post.preferences?.occupation,
+                post.preferences?.lifestyle !== "No preference" && post.preferences?.lifestyle,
               ].filter(Boolean);
 
               return (

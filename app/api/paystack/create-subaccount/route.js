@@ -16,7 +16,7 @@ export async function POST(req) {
         bank_code,
         account_number,
         percentage_charge: 10,
-        description: `Velen landlord - ${uid}`,
+        description: `rezidence landlord - ${uid}`,
       }),
     });
 
@@ -28,7 +28,7 @@ export async function POST(req) {
 
     return NextResponse.json({
       subaccount_code: data.data.subaccount_code,
-      subaccount_id:   data.data.id,
+      subaccount_id: data.data.id,
     });
   } catch (e) {
     console.error("Subaccount creation error:", e);

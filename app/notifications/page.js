@@ -51,48 +51,48 @@ function isToday(ts) {
 
 function notifIcon(type) {
   const cls = "notif-page-item__icon";
-  if (type === "roommate_interest")     return <HiOutlineUserGroup className={`${cls} ${cls}--roommate`} />;
-  if (type === "listing_interest")      return <HiOutlineHomeModern className={`${cls} ${cls}--home`} />;
-  if (type === "inspection_booked")     return <HiOutlineClipboardDocumentCheck className={`${cls} ${cls}--inspect`} />;
-  if (type === "reservation_request")   return <HiOutlineShieldCheck className={`${cls} ${cls}--reserve`} />;
+  if (type === "roommate_interest") return <HiOutlineUserGroup className={`${cls} ${cls}--roommate`} />;
+  if (type === "listing_interest") return <HiOutlineHomeModern className={`${cls} ${cls}--home`} />;
+  if (type === "inspection_booked") return <HiOutlineClipboardDocumentCheck className={`${cls} ${cls}--inspect`} />;
+  if (type === "reservation_request") return <HiOutlineShieldCheck className={`${cls} ${cls}--reserve`} />;
   if (type === "reservation_confirmed") return <HiOutlineCheckCircle className={`${cls} ${cls}--confirmed`} />;
-  if (type === "reservation_declined")  return <HiOutlineXMark className={`${cls} ${cls}--declined`} />;
-  if (type === "listing_approved")      return <HiOutlineShieldCheck className={`${cls} ${cls}--approved`} />;
-  if (type === "payment_received")      return <HiOutlineBanknotes className={`${cls} ${cls}--payment`} />;
-  if (type === "featured_activated")    return <HiOutlineStar className={`${cls} ${cls}--featured`} />;
+  if (type === "reservation_declined") return <HiOutlineXMark className={`${cls} ${cls}--declined`} />;
+  if (type === "listing_approved") return <HiOutlineShieldCheck className={`${cls} ${cls}--approved`} />;
+  if (type === "payment_received") return <HiOutlineBanknotes className={`${cls} ${cls}--payment`} />;
+  if (type === "featured_activated") return <HiOutlineStar className={`${cls} ${cls}--featured`} />;
   return <HiOutlineBell className={cls} />;
 }
 
 function notifHref(n) {
-  if (n.type === "featured_activated")  return `/listings/${n.listingId}`;
-  if (n.listingId && ["listing_interest","reservation_request","listing_approved"].includes(n.type)) {
+  if (n.type === "featured_activated") return `/listings/${n.listingId}`;
+  if (n.listingId && ["listing_interest", "reservation_request", "listing_approved"].includes(n.type)) {
     return `/listings/${n.listingId}`;
   }
-  if (["reservation_confirmed","reservation_declined"].includes(n.type)) return `/my-reservations`;
-  if (n.type === "inspection_booked")  return `/my-inspections`;
-  if (n.postId)                        return `/roommates`;
-  if (n.type === "payment_received")   return `/my-reservations`;
+  if (["reservation_confirmed", "reservation_declined"].includes(n.type)) return `/my-reservations`;
+  if (n.type === "inspection_booked") return `/my-inspections`;
+  if (n.postId) return `/roommates`;
+  if (n.type === "payment_received") return `/my-reservations`;
   return null;
 }
 
 function notifColor(type) {
   if (type === "reservation_confirmed" || type === "listing_approved") return "green";
-  if (type === "reservation_declined")  return "red";
-  if (type === "payment_received")      return "yellow";
-  if (type === "roommate_interest")     return "teal";
-  if (type === "featured_activated")    return "featured";
+  if (type === "reservation_declined") return "red";
+  if (type === "payment_received") return "yellow";
+  if (type === "roommate_interest") return "teal";
+  if (type === "featured_activated") return "featured";
   return "blue";
 }
 
 const FILTERS = ["all", "unread", "listings", "reservations", "roommates", "featured"];
 
 function matchesFilter(n, filter) {
-  if (filter === "all")          return true;
-  if (filter === "unread")       return !n.read;
-  if (filter === "listings")     return ["listing_interest","listing_approved"].includes(n.type);
-  if (filter === "reservations") return ["reservation_request","reservation_confirmed","reservation_declined","payment_received","inspection_booked"].includes(n.type);
-  if (filter === "roommates")    return n.type === "roommate_interest";
-  if (filter === "featured")     return n.type === "featured_activated";
+  if (filter === "all") return true;
+  if (filter === "unread") return !n.read;
+  if (filter === "listings") return ["listing_interest", "listing_approved"].includes(n.type);
+  if (filter === "reservations") return ["reservation_request", "reservation_confirmed", "reservation_declined", "payment_received", "inspection_booked"].includes(n.type);
+  if (filter === "roommates") return n.type === "roommate_interest";
+  if (filter === "featured") return n.type === "featured_activated";
   return true;
 }
 
@@ -102,8 +102,8 @@ export default function NotificationsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  const [notifications,   setNotifications]   = useState([]);
-  const [filter,          setFilter]          = useState("all");
+  const [notifications, setNotifications] = useState([]);
+  const [filter, setFilter] = useState("all");
   const [confirmClearAll, setConfirmClearAll] = useState(false);
 
   useEffect(() => {
@@ -127,13 +127,13 @@ export default function NotificationsPage() {
 
   if (!user) return null;
 
-  const filtered    = notifications.filter((n) => matchesFilter(n, filter));
+  const filtered = notifications.filter((n) => matchesFilter(n, filter));
   const unreadCount = notifications.filter((n) => !n.read).length;
-  const todayItems  = filtered.filter((n) =>  isToday(n.createdAt));
-  const earlierItems= filtered.filter((n) => !isToday(n.createdAt));
+  const todayItems = filtered.filter((n) => isToday(n.createdAt));
+  const earlierItems = filtered.filter((n) => !isToday(n.createdAt));
 
   // Only show "featured" tab if the user actually has featured notifications
-  const hasFeatured    = notifications.some((n) => n.type === "featured_activated");
+  const hasFeatured = notifications.some((n) => n.type === "featured_activated");
   const visibleFilters = FILTERS.filter((f) => f !== "featured" || hasFeatured);
 
   async function handleClick(n) {
@@ -158,7 +158,7 @@ export default function NotificationsPage() {
 
   function NotifItem({ n }) {
     const color = notifColor(n.type);
-    const href  = notifHref(n);
+    const href = notifHref(n);
     return (
       <motion.div
         className={`notif-page-item${!n.read ? " unread" : ""} notif-page-item--${color}`}
@@ -234,7 +234,7 @@ export default function NotificationsPage() {
                 <span className="notif-page__unread-badge">{unreadCount}</span>
               )}
             </h1>
-            <p className="notif-page__sub">Stay up to date with your activity on Velen.</p>
+            <p className="notif-page__sub">Stay up to date with your activity on rezidence.</p>
           </div>
           {notifications.length > 0 && (
             <div className="notif-page__header-actions">
@@ -266,8 +266,8 @@ export default function NotificationsPage() {
             const count = f === "all"
               ? notifications.length
               : f === "unread"
-              ? unreadCount
-              : notifications.filter((n) => matchesFilter(n, f)).length;
+                ? unreadCount
+                : notifications.filter((n) => matchesFilter(n, f)).length;
             return (
               <button
                 key={f}
@@ -305,7 +305,7 @@ export default function NotificationsPage() {
           </motion.div>
         ) : (
           <>
-            <Group label="Today"   items={todayItems} />
+            <Group label="Today" items={todayItems} />
             <Group label="Earlier" items={earlierItems} />
           </>
         )}
