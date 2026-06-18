@@ -5,8 +5,7 @@ import { adminDb } from "@/lib/firebase-admin";
 
 export const runtime = "nodejs";
 
-const ESCROW_RELEASE_HOURS = Number(process.env.ESCROW_RELEASE_HOURS || 48);
-const SERVICE_FEE_PERCENT  = Number(process.env.PAYMENT_SERVICE_FEE_PERCENT || 5);
+const SERVICE_FEE_PERCENT = Number(process.env.PAYMENT_SERVICE_FEE_PERCENT || 5);
 
 export async function POST(req) {
   const body      = await req.text();
@@ -50,7 +49,7 @@ async function handleChargeSuccess(data) {
   const { reference, amount, metadata } = data;
 
   // ── 2. Idempotency — use reference as document ID ──
-  const txRef = adminDb.collection("transactions").doc(reference);
+  const txRef    = adminDb.collection("transactions").doc(reference);
   const existing = await txRef.get();
   if (existing.exists) {
     console.log("Duplicate webhook ignored:", reference);
@@ -64,7 +63,6 @@ async function handleChargeSuccess(data) {
     throw new Error("Missing required metadata fields");
   }
 
-  // Prevent self-payment
   if (studentId === landlordId) {
     throw new Error("Student and landlord cannot be the same user");
   }
@@ -79,7 +77,7 @@ async function handleChargeSuccess(data) {
   const listingPrice = Number(listing.price);
   const paidAmount   = amount / 100; // convert from kobo
 
-  // Calculate expected total server-side — never trust frontend fee
+  // Always recalculate server-side — never trust frontend amounts
   const expectedFee   = Math.round(listingPrice * (SERVICE_FEE_PERCENT / 100));
   const expectedTotal = listingPrice + expectedFee;
 
@@ -93,20 +91,19 @@ async function handleChargeSuccess(data) {
     throw new Error("Landlord not found: " + landlordId);
   }
 
-  // ── 4. Create transaction with reference as doc ID ──
-  const releaseAt = new Date();
-  releaseAt.setHours(releaseAt.getHours() + ESCROW_RELEASE_HOURS);
+  const landlordName = landlordSnap.data().name || landlordSnap.data().displayName || "";
 
+  // ── 4. Create transaction record ──
   await txRef.set({
     // Parties
     studentId,
     studentName:    studentName || "",
     landlordId,
-    landlordName:   landlordSnap.data().name || landlordSnap.data().displayName || "",
+    landlordName,
 
     // Property
     listingId,
-    listingTitle:   listingTitle || listing.title || "",
+    listingTitle: listingTitle || listing.title || "",
 
     // Amounts — all server-calculated
     amount:         listingPrice,
@@ -118,17 +115,13 @@ async function handleChargeSuccess(data) {
     reference,
     paystackSubaccount: listing.paystackSubaccount || "",
 
-    // State machine
-    status:         "paid",      // pending | paid | completed | refunded | on_hold
-    escrowStatus:   "holding",   // holding | released | disputed | refunded
-    escrowReleaseAt: releaseAt.toISOString(),
-    releasedAt:     null,
-    disputedAt:     null,
-    refundedAt:     null,
+    // Status — payment is complete, Paystack splits automatically
+    status:      "completed",
+    completedAt: new Date(),
 
-    type:           metadata.type || "rent",
-    createdAt:      new Date(),
-    updatedAt:      new Date(),
+    type:      metadata.type || "rent",
+    createdAt: new Date(),
+    updatedAt: new Date(),
   });
 
   // ── 5. Notify both parties ──
@@ -138,7 +131,7 @@ async function handleChargeSuccess(data) {
     userId:    studentId,
     type:      "payment_success",
     title:     "Payment successful",
-    message:   `Your rent payment of ₦${listingPrice.toLocaleString()} for "${listing.title}" was received. Funds held in escrow for 48 hours.`,
+    message:   `Your rent payment of ₦${listingPrice.toLocaleString()} for "${listing.title}" was received and sent to the landlord.`,
     listingId,
     reference,
     createdAt: new Date(),
@@ -148,7 +141,7 @@ async function handleChargeSuccess(data) {
     userId:    landlordId,
     type:      "payment_received",
     title:     "Rent payment received",
-    message:   `${studentName || "A student"} paid ₦${listingPrice.toLocaleString()} for "${listing.title}". Funds release in 48 hours if no dispute.`,
+    message:   `${studentName || "A student"} paid ₦${listingPrice.toLocaleString()} for "${listing.title}". Payment has been sent to your account.`,
     listingId,
     reference,
     createdAt: new Date(),
@@ -156,7 +149,7 @@ async function handleChargeSuccess(data) {
 
   await batch.commit();
 
-  console.log("Transaction created:", reference);
+  console.log("Transaction completed:", reference);
 }
 
 async function handleRefundProcessed(data) {
@@ -167,10 +160,9 @@ async function handleRefundProcessed(data) {
   if (!snap.exists) return;
 
   await txRef.update({
-    status:       "refunded",
-    escrowStatus: "refunded",
-    refundedAt:   new Date(),
-    updatedAt:    new Date(),
+    status:     "refunded",
+    refundedAt: new Date(),
+    updatedAt:  new Date(),
   });
 }
 

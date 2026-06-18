@@ -18,52 +18,29 @@ import {
 } from "react-icons/hi2";
 import "@/styles/featured.css";
 
+// Compact chip data — just label + icon, no long descriptions
 const FEATURES = [
-  {
-    icon: <HiOutlineShieldCheck />,
-    title: "Verified listings",
-    desc: "Every property is checked before it goes live. No ghost apartments, no upfront scams.",
-  },
-  {
-    icon: <HiOutlineBanknotes />,
-    title: "Full cost upfront",
-    desc: "Rent, caution fee, legal fee — all visible before you call a single landlord.",
-  },
-  {
-    icon: <HiOutlineUserGroup />,
-    title: "Split rent board",
-    desc: "Can't cover it alone? Find a roommate and split the cost.",
-  },
-  {
-    icon: <HiOutlineMapPin />,
-    title: "Near your campus",
-    desc: "Filter by school — RSU, UniPort, IAUE and more.",
-  },
-  {
-    icon: <HiOutlineChatBubbleLeftRight />,
-    title: "Direct contact",
-    desc: "WhatsApp landlords directly. No middlemen, no agent delays.",
-  },
-  {
-    icon: <HiOutlineExclamationTriangle />,
-    title: "Scam protection",
-    desc: "Suspicious prices get flagged. Report bad listings instantly.",
-  },
+  { icon: <HiOutlineShieldCheck />, label: "Verified listings"        },
+  { icon: <HiOutlineBanknotes />,   label: "Full cost upfront"        },
+  { icon: <HiOutlineUserGroup />,   label: "Split rent board"         },
+  { icon: <HiOutlineMapPin />,      label: "Near your campus"         },
+  { icon: <HiOutlineChatBubbleLeftRight />, label: "Direct contact"   },
+  { icon: <HiOutlineExclamationTriangle />, label: "Scam protection"  },
 ];
 
 const inView = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] } },
+  hidden: { opacity: 0, y: 20 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
 };
 
 const stagger = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.07 } },
+  show:   { transition: { staggerChildren: 0.06 } },
 };
 
 export default function FeaturedListings() {
   const [listings, setListings] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading]   = useState(true);
 
   useEffect(() => {
     async function load() {
@@ -87,39 +64,40 @@ export default function FeaturedListings() {
   return (
     <>
 
-      {/* ══ WHY rezidence ══ */}
+      {/* ══ WHY REZIDENCE — compact chip bar ══ */}
       <section className="why">
         <div className="why__inner">
 
+          {/* Left: compact label */}
           <motion.div
-            className="why__header"
+            className="why__label"
             variants={inView}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true }}
           >
-            <span className="why__eyebrow">Why students choose rezidence</span>
+            <span className="why__eyebrow">Why us</span>
             <h2 className="why__heading">
               Housing search,{" "}
-              <em>the way it should be.</em>
+              <em>done right.</em>
             </h2>
           </motion.div>
 
+          <div className="why__divider" />
+
+          {/* Right: chips */}
           <motion.div
-            className="why__list"
+            className="why__chips"
             variants={stagger}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true, margin: "-40px" }}
+            viewport={{ once: true }}
           >
             {FEATURES.map((f) => (
-              <motion.div key={f.title} className="why__item" variants={inView}>
-                <div className="why__item-icon">{f.icon}</div>
-                <div className="why__item-body">
-                  <h3 className="why__item-title">{f.title}</h3>
-                  <p className="why__item-desc">{f.desc}</p>
-                </div>
-              </motion.div>
+              <motion.span key={f.label} className="why__chip" variants={inView}>
+                {f.icon}
+                {f.label}
+              </motion.span>
             ))}
           </motion.div>
 
@@ -155,7 +133,7 @@ export default function FeaturedListings() {
 
           {loading ? (
             <div className="featured__skeleton-grid">
-              {[1, 2, 3].map((n) => <div key={n} className="featured__skeleton" />)}
+              {[1, 2, 3, 4, 5, 6].map((n) => <div key={n} className="featured__skeleton" />)}
             </div>
           ) : listings.length === 0 ? (
             <div className="featured__empty">

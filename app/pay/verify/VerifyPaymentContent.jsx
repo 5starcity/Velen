@@ -8,7 +8,7 @@ import Link from "next/link";
 import {
   HiOutlineCheckCircle,
   HiOutlineXCircle,
-  HiOutlineShieldCheck,
+  HiOutlineReceiptPercent,
 } from "react-icons/hi2";
 import { trackEvent } from "@/lib/posthog";
 import { PAYMENT_CONFIG } from "@/lib/paymentConfig";
@@ -23,7 +23,11 @@ export default function VerifyPaymentContent() {
   const reference = searchParams.get("reference") || searchParams.get("ref");
 
   useEffect(() => {
-    if (!reference) { setStatus("failed"); setError("No payment reference found."); return; }
+    if (!reference) {
+      setStatus("failed");
+      setError("No payment reference found.");
+      return;
+    }
 
     async function verify() {
       try {
@@ -76,20 +80,17 @@ export default function VerifyPaymentContent() {
           <div className="pay-page__result-icon pay-page__result-icon--success">
             <HiOutlineCheckCircle />
           </div>
+
           <h1>Payment successful!</h1>
           <p>
             Your rent payment of{" "}
             <strong>₦{Number(txData?.amount || 0).toLocaleString()}</strong>{" "}
-            has been received and is held in escrow.
-          </p>
-          <p className="pay-page__result-note">
-            Funds will be released to the landlord in 48 hours.
-            If you have any issues, raise a dispute before then.
+            has been received and sent directly to the landlord.
           </p>
 
           <div className="pay-page__mini-receipt">
             <div className="pay-page__mini-receipt-header">
-              <HiOutlineShieldCheck />
+              <HiOutlineReceiptPercent />
               <span>Payment Receipt</span>
             </div>
             <div className="pay-page__mini-receipt-row">
@@ -105,19 +106,33 @@ export default function VerifyPaymentContent() {
               <strong>{txData?.metadata?.listingTitle || "—"}</strong>
             </div>
             <div className="pay-page__mini-receipt-row">
-              <span>Escrow Status</span>
-              <strong className="pay-page__escrow-active">Holding (48hrs)</strong>
+              <span>Status</span>
+              <strong className="pay-page__status-complete">Completed ✓</strong>
             </div>
+            {txData?.paidAt && (
+              <div className="pay-page__mini-receipt-row">
+                <span>Paid At</span>
+                <strong>
+                  {new Date(txData.paidAt).toLocaleString("en-NG", {
+                    day:    "numeric",
+                    month:  "short",
+                    year:   "numeric",
+                    hour:   "2-digit",
+                    minute: "2-digit",
+                  })}
+                </strong>
+              </div>
+            )}
           </div>
 
           <div className="pay-page__result-actions">
-  <Link href={"/transactions/" + reference} className="pay-page__btn">
-    View Receipt
-  </Link>
-  <Link href="/transactions" className="pay-page__btn pay-page__btn--ghost">
-    All Transactions
-  </Link>
-</div>
+            <Link href={"/transactions/" + reference} className="pay-page__btn">
+              View Receipt
+            </Link>
+            <Link href="/transactions" className="pay-page__btn pay-page__btn--ghost">
+              All Transactions
+            </Link>
+          </div>
         </motion.div>
       </main>
     );
@@ -140,9 +155,11 @@ export default function VerifyPaymentContent() {
           No charge was made. If you believe this is wrong, contact our support team.
         </p>
         <div className="pay-page__result-actions">
-          <Link href="/listings" className="pay-page__btn">Browse Listings</Link>
-          
-           <a href={`https://wa.me/${PAYMENT_CONFIG.supportWhatsApp}`}
+          <Link href="/listings" className="pay-page__btn">
+            Browse Listings
+          </Link>
+          <a
+            href={`https://wa.me/${PAYMENT_CONFIG.supportWhatsApp}`}
             target="_blank"
             rel="noreferrer"
             className="pay-page__btn pay-page__btn--ghost"

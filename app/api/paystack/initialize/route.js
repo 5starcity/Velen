@@ -23,12 +23,11 @@ export async function POST(req) {
 
     const { fee, total } = calculateTotal(Number(amount));
 
-    // Build Paystack payload
     const payload = {
       email,
       amount: total * 100, // Paystack uses kobo
       reference: idempotencyKey,
-      callback_url: `https://rsu-housing.vercel.app/pay/verify?ref=${idempotencyKey}`,
+      callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/pay/verify?ref=${idempotencyKey}`,
       metadata: {
         listingId,
         listingTitle,
@@ -38,18 +37,18 @@ export async function POST(req) {
         rentAmount: amount,
         serviceFee: fee,
         totalCharged: total,
-        landlordPayout: amount, // full amount to landlord, fee taken from student
+        landlordPayout: amount,
         type: type || "rent",
         idempotencyKey,
-        cancel_action: `https://rsu-housing.vercel.app/listings/${listingId}`,
+        cancel_action: `${process.env.NEXT_PUBLIC_APP_URL}/listings/${listingId}`,
       },
     };
 
-    // Add subaccount split if landlord has one
+    // Split payment if landlord has a subaccount
     if (paystackSubaccount) {
       payload.subaccount = paystackSubaccount;
-      payload.transaction_charge = fee * 100; // fee stays with rezidence
-      payload.bearer = "subaccount"; // landlord bears their own charge
+      payload.transaction_charge = fee * 100; // service fee stays with Rezidence
+      payload.bearer = "subaccount";          // landlord bears Paystack's own charge
     }
 
     const res = await fetch("https://api.paystack.co/transaction/initialize", {

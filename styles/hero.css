@@ -164,6 +164,8 @@
   background: transparent;
   color: var(--text-primary);
   border: 1.5px solid var(--border-strong);
+  width: 100%;
+  justify-content: center;
 }
 
 .hero__btn--ghost:hover {
