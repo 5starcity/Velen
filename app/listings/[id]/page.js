@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import "@/styles/inspect.css";
@@ -72,7 +72,9 @@ export default function ListingDetailsPage() {
   const listingId = params?.id;
   const { user } = useAuth();
 
+  const searchParams = useSearchParams();
   const [listing, setListing] = useState(null);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -163,6 +165,20 @@ export default function ListingDetailsPage() {
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
   }, []);
+
+  // Show success toast when redirected back from payment
+  useEffect(() => {
+    if (searchParams.get("payment") === "success") {
+      setPaymentSuccess(true);
+      // Clean the URL so refreshing doesn't re-trigger the toast
+      const url = new URL(window.location.href);
+      url.searchParams.delete("payment");
+      url.searchParams.delete("reference");
+      window.history.replaceState({}, "", url.toString());
+      const t = setTimeout(() => setPaymentSuccess(false), 6000);
+      return () => clearTimeout(t);
+    }
+  }, [searchParams]);
 
   if (loading) {
     return (
@@ -335,6 +351,28 @@ export default function ListingDetailsPage() {
 
   return (
     <main className="details-page">
+
+      {/* ── Payment Success Toast ── */}
+      <AnimatePresence>
+        {paymentSuccess && (
+          <motion.div
+            className="payment-toast"
+            initial={{ opacity: 0, y: -32 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -32 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
+            <HiOutlineCheckCircle className="payment-toast__icon" />
+            <div className="payment-toast__text">
+              <p className="payment-toast__title">Payment successful!</p>
+              <p className="payment-toast__sub">Your rent has been paid and sent to the landlord.</p>
+            </div>
+            <button className="payment-toast__close" onClick={() => setPaymentSuccess(false)}>
+              <HiOutlineXMark />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Report Modal ── */}
       <AnimatePresence>

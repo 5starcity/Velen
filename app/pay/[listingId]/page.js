@@ -23,26 +23,15 @@ function generateIdempotencyKey(listingId, studentId) {
   return `rezidence_pay_${listingId}_${studentId}_${Date.now()}`;
 }
 
-// Load Paystack inline script once
-function loadPaystackScript() {
-  return new Promise((resolve) => {
-    if (window.PaystackPop) { resolve(); return; }
-    const script = document.createElement("script");
-    script.src = "https://js.paystack.co/v1/inline.js";
-    script.onload = resolve;
-    document.body.appendChild(script);
-  });
-}
-
 export default function PayPage() {
   const { listingId } = useParams();
   const router = useRouter();
   const { user, userRole } = useAuth();
 
-  const [listing, setListing]   = useState(null);
-  const [loading, setLoading]   = useState(true);
-  const [paying, setPaying]     = useState(false);
-  const [error, setError]       = useState("");
+  const [listing, setListing]       = useState(null);
+  const [loading, setLoading]       = useState(true);
+  const [paying, setPaying]         = useState(false);
+  const [error, setError]           = useState("");
   const [subaccount, setSubaccount] = useState(null);
 
   useEffect(() => {
@@ -71,16 +60,14 @@ export default function PayPage() {
 
   async function handlePay() {
     setError("");
-    if (!user?.email)  { setError("Could not get your email. Please log out and back in."); return; }
-    if (!listing)      { setError("Listing not found."); return; }
-    if (paying)        return;
+    if (!user?.email) { setError("Could not get your email. Please log out and back in."); return; }
+    if (!listing)     { setError("Listing not found."); return; }
+    if (paying)       return;
 
     setPaying(true);
     const idempotencyKey = generateIdempotencyKey(listingId, user.uid);
-    const { total } = calculateTotal(Number(listing.price));
 
     try {
-      // 1. Initialize transaction on server — get access_code back
       const res = await fetch("/api/paystack/initialize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -112,30 +99,9 @@ export default function PayPage() {
         amount:       listing.price,
       });
 
-      // 2. Load Paystack inline script
-      await loadPaystackScript();
+      // Hard redirect to Paystack — callback_url brings them back to listing page
+      window.location.href = data.authorization_url;
 
-      // 3. Open Paystack popup — stays inside the app
-      const handler = window.PaystackPop.setup({
-        key:         PAYMENT_CONFIG.paystackPublicKey,
-        email:       user.email,
-        amount:      total * 100,  // kobo — required even when using access_code
-        access_code: data.access_code,
-        ref:         data.reference,
-
-        onSuccess(transaction) {
-          // Redirect back to listing with success flag
-          window.location.href = `/listings/${listingId}?payment=success&reference=${transaction.reference}`;
-        },
-
-        onClose() {
-          // User closed popup without paying
-          setPaying(false);
-          setError("Payment cancelled. You were not charged.");
-        },
-      });
-
-      handler.openIframe();
     } catch (e) {
       console.error("Payment error:", e);
       setError("Something went wrong. Please try again.");
@@ -179,7 +145,6 @@ export default function PayPage() {
         <h1>Pay your rent securely</h1>
       </motion.div>
 
-      {/* Listing preview */}
       <motion.div
         className="pay-page__listing-preview"
         initial={{ opacity: 0, y: 10 }}
@@ -196,7 +161,6 @@ export default function PayPage() {
         </p>
       </motion.div>
 
-      {/* Breakdown */}
       <motion.div
         className="pay-page__breakdown"
         initial={{ opacity: 0, y: 10 }}
@@ -226,10 +190,7 @@ export default function PayPage() {
       {!subaccount && (
         <div className="pay-page__warning">
           <HiOutlineExclamationTriangle />
-          <p>
-            This landlord hasn't set up their payment account yet.
-            Contact them directly before paying.
-          </p>
+          <p>This landlord hasn't set up their payment account yet. Contact them directly before paying.</p>
         </div>
       )}
 
@@ -244,9 +205,7 @@ export default function PayPage() {
         onClick={handlePay}
         disabled={paying || !subaccount}
       >
-        {paying
-          ? "Opening payment..."
-          : `Pay ₦${total.toLocaleString()} securely`}
+        {paying ? "Redirecting to payment..." : `Pay ₦${total.toLocaleString()} securely`}
       </button>
 
       <p className="pay-page__disclaimer">

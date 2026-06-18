@@ -23,11 +23,14 @@ export async function POST(req) {
 
     const { fee, total } = calculateTotal(Number(amount));
 
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
     const payload = {
       email,
-      amount: total * 100, // Paystack uses kobo
+      amount: total * 100, // kobo
       reference: idempotencyKey,
-      callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/pay/verify?ref=${idempotencyKey}`,
+      // After payment, Paystack redirects here with ?reference= appended automatically
+      callback_url: `${appUrl}/listings/${listingId}?payment=success`,
       metadata: {
         listingId,
         listingTitle,
@@ -40,15 +43,14 @@ export async function POST(req) {
         landlordPayout: amount,
         type: type || "rent",
         idempotencyKey,
-        cancel_action: `${process.env.NEXT_PUBLIC_APP_URL}/listings/${listingId}`,
+        cancel_action: `${appUrl}/listings/${listingId}`,
       },
     };
 
-    // Split payment if landlord has a subaccount
     if (paystackSubaccount) {
       payload.subaccount = paystackSubaccount;
-      payload.transaction_charge = fee * 100; // service fee stays with Rezidence
-      payload.bearer = "subaccount";          // landlord bears Paystack's own charge
+      payload.transaction_charge = fee * 100;
+      payload.bearer = "subaccount";
     }
 
     const res = await fetch("https://api.paystack.co/transaction/initialize", {
