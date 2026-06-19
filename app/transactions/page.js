@@ -1,3 +1,4 @@
+// app/transactions/page.jsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -8,17 +9,16 @@ import {
   HiOutlineBanknotes,
   HiOutlineArrowLeft,
   HiOutlineArrowTopRightOnSquare,
-  HiOutlineClock,
   HiOutlineCheckCircle,
   HiOutlineExclamationTriangle,
   HiOutlineArrowUturnLeft,
+  HiOutlineReceiptPercent,
 } from "react-icons/hi2";
 import { useAuth } from "@/context/AuthContext";
 import {
   subscribeTransactionsByStudent,
   subscribeTransactionsByLandlord,
 } from "@/lib/firestoreTransactions";
-import { createDispute } from "@/lib/firestoreDisputes";
 import "@/styles/payment.css";
 
 const stagger = {
@@ -31,16 +31,15 @@ const fadeUp = {
   show:   { opacity: 1, y: 0, transition: { duration: 0.28 } },
 };
 
-function StatusBadge({ status, escrowStatus }) {
-  if (status === "refunded")       return <span className="tx-badge tx-badge--refunded">Refunded</span>;
-  if (status === "failed")         return <span className="tx-badge tx-badge--failed">Failed</span>;
-  if (escrowStatus === "disputed") return <span className="tx-badge tx-badge--disputed">Disputed</span>;
-  if (escrowStatus === "released") return <span className="tx-badge tx-badge--released">Released</span>;
-  if (escrowStatus === "holding")  return <span className="tx-badge tx-badge--escrow">In Escrow</span>;
-  return <span className="tx-badge tx-badge--success">Success</span>;
+function StatusBadge({ status }) {
+  if (status === "refunded")  return <span className="tx-badge tx-badge--refunded">Refunded</span>;
+  if (status === "failed")    return <span className="tx-badge tx-badge--failed">Failed</span>;
+  if (status === "on_hold")   return <span className="tx-badge tx-badge--disputed">On Hold</span>;
+  if (status === "completed") return <span className="tx-badge tx-badge--released">Completed</span>;
+  return <span className="tx-badge tx-badge--success">Paid</span>;
 }
 
-function StatusBar({ status, escrowStatus, releaseLabel }) {
+function StatusBar({ status }) {
   if (status === "refunded")
     return (
       <div className="tx-card__statusbar tx-card__statusbar--refunded">
@@ -48,25 +47,18 @@ function StatusBar({ status, escrowStatus, releaseLabel }) {
         <span>Payment refunded</span>
       </div>
     );
-  if (escrowStatus === "disputed")
+  if (status === "on_hold")
     return (
       <div className="tx-card__statusbar tx-card__statusbar--disputed">
         <HiOutlineExclamationTriangle />
-        <span>Dispute raised — under review</span>
+        <span>Payment under review</span>
       </div>
     );
-  if (escrowStatus === "released")
+  if (status === "completed")
     return (
       <div className="tx-card__statusbar tx-card__statusbar--released">
         <HiOutlineCheckCircle />
-        <span>Payment released to landlord</span>
-      </div>
-    );
-  if (escrowStatus === "holding")
-    return (
-      <div className="tx-card__statusbar tx-card__statusbar--escrow">
-        <HiOutlineClock />
-        <span>{releaseLabel}</span>
+        <span>Payment sent to landlord</span>
       </div>
     );
   return null;
@@ -87,54 +79,33 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     if (!user || !userRole) return;
-  
     setLoading(true);
-  
     const unsub =
       userRole === "landlord"
-        ? subscribeTransactionsByLandlord(user.uid, (data) => {
-            setTransactions(data);
-            setLoading(false);
-          })
-        : subscribeTransactionsByStudent(user.uid, (data) => {
-            setTransactions(data);
-            setLoading(false);
-          });
-  
-    return () => unsub(); // cleanup on unmount
+        ? subscribeTransactionsByLandlord(user.uid, (data) => { setTransactions(data); setLoading(false); })
+        : subscribeTransactionsByStudent(user.uid,  (data) => { setTransactions(data); setLoading(false); });
+    return () => unsub();
   }, [user, userRole]);
 
+  const TABS = ["all", "completed", "refunded", "on_hold"];
+
   const filtered = transactions.filter((t) => {
-    if (filter === "all")      return true;
-    if (filter === "escrow")   return t.escrowStatus === "holding";
-    if (filter === "released") return t.escrowStatus === "released";
-    if (filter === "disputed") return t.escrowStatus === "disputed";
-    if (filter === "refunded") return t.status === "refunded";
+    if (filter === "all")       return true;
+    if (filter === "completed") return t.status === "completed";
+    if (filter === "refunded")  return t.status === "refunded";
+    if (filter === "on_hold")   return t.status === "on_hold";
     return true;
   });
 
   const totalPaid = transactions.reduce(
     (sum, t) => sum + Number(t.totalCharged || t.amount || 0), 0
   );
-  const totalEscrow = transactions
-    .filter((t) => t.escrowStatus === "holding")
-    .reduce((sum, t) => sum + Number(t.totalCharged || t.amount || 0), 0);
 
   function formatDate(ts) {
     if (!ts) return "—";
     const d = ts.toDate ? ts.toDate() : new Date(ts);
     return d.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" });
   }
-
-  function formatEscrowRelease(ts) {
-    if (!ts) return "Releasing soon";
-    const d   = new Date(ts);
-    const now = new Date();
-    const hrs = Math.max(0, Math.round((d - now) / (1000 * 60 * 60)));
-    return hrs === 0 ? "Releasing soon" : `Releases in ~${hrs}hrs`;
-  }
-
-  const TABS = ["all", "escrow", "released", "disputed", "refunded"];
 
   if (authLoading || loading) {
     return (
@@ -149,7 +120,7 @@ export default function TransactionsPage() {
   return (
     <main className="transactions-page">
 
-      {/* ── HEADER ── */}
+      {/* Header */}
       <motion.div
         className="transactions-page__header"
         initial={{ opacity: 0, y: 12 }}
@@ -159,17 +130,14 @@ export default function TransactionsPage() {
         <Link href="/" className="tx-page__back">
           <HiOutlineArrowLeft /> Back
         </Link>
-
         <p className="tx-page__eyebrow">
           <HiOutlineBanknotes /> Transactions
         </p>
         <h1 className="tx-page__title">Payment History</h1>
-        <p className="tx-page__sub">
-          Track your rent payments, escrow status and disputes.
-        </p>
+        <p className="tx-page__sub">Track all your rent payments.</p>
       </motion.div>
 
-      {/* ── SUMMARY ── */}
+      {/* Summary */}
       <motion.div
         className="tx-summary"
         initial={{ opacity: 0, y: 8 }}
@@ -178,14 +146,12 @@ export default function TransactionsPage() {
       >
         <div className="tx-summary__card">
           <p className="tx-summary__label">Total paid</p>
-          <p className="tx-summary__value">
-            ₦{totalPaid.toLocaleString("en-NG")}
-          </p>
+          <p className="tx-summary__value">₦{totalPaid.toLocaleString("en-NG")}</p>
         </div>
         <div className="tx-summary__card">
-          <p className="tx-summary__label">In escrow</p>
-          <p className="tx-summary__value tx-summary__value--amber">
-            ₦{totalEscrow.toLocaleString("en-NG")}
+          <p className="tx-summary__label">Completed</p>
+          <p className="tx-summary__value tx-summary__value--green">
+            {transactions.filter(t => t.status === "completed").length}
           </p>
         </div>
         <div className="tx-summary__card">
@@ -194,7 +160,7 @@ export default function TransactionsPage() {
         </div>
       </motion.div>
 
-      {/* ── TABS ── */}
+      {/* Tabs */}
       <div className="tx-tabs">
         {TABS.map((tab) => (
           <button
@@ -202,12 +168,12 @@ export default function TransactionsPage() {
             className={"tx-tab" + (filter === tab ? " tx-tab--active" : "")}
             onClick={() => setFilter(tab)}
           >
-            {tab}
+            {tab === "on_hold" ? "on hold" : tab}
           </button>
         ))}
       </div>
 
-      {/* ── LIST ── */}
+      {/* List */}
       {filtered.length === 0 ? (
         <div className="tx-empty">No transactions found.</div>
       ) : (
@@ -229,7 +195,7 @@ export default function TransactionsPage() {
                   <p className="tx-card__amount">
                     ₦{Number(tx.totalCharged || tx.amount || 0).toLocaleString("en-NG")}
                   </p>
-                  <StatusBadge status={tx.status} escrowStatus={tx.escrowStatus} />
+                  <StatusBadge status={tx.status} />
                 </div>
                 <Link
                   href={"/transactions/" + (tx.reference || tx.id)}
@@ -246,11 +212,7 @@ export default function TransactionsPage() {
                 <span>Ref: <strong>{tx.reference?.slice(0, 14)}...</strong></span>
               </div>
 
-              <StatusBar
-                status={tx.status}
-                escrowStatus={tx.escrowStatus}
-                releaseLabel={formatEscrowRelease(tx.escrowReleaseAt)}
-              />
+              <StatusBar status={tx.status} />
 
             </motion.div>
           ))}

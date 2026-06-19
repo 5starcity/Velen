@@ -2,17 +2,17 @@
 
 .filter-bar {
   max-width: 1200px;
-  margin: 0 auto 28px;
+  margin: 0 auto 24px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 /* Each row */
 .filter-bar__row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
   width: 100%;
 }
@@ -21,18 +21,18 @@
 .filter-bar__search-wrap {
   position: relative;
   flex: 2;
-  min-width: 200px;
+  min-width: 180px;
 }
 
 .filter-bar__clear {
   position: absolute;
-  right: 12px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   cursor: pointer;
   padding: 4px;
   transition: color 0.2s;
@@ -46,13 +46,13 @@
 .filter-bar__input,
 .filter-bar__select {
   width: 100%;
-  padding: 13px 16px;
-  border-radius: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--bg-card);
   color: var(--text-primary);
   outline: none;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-family: var(--font-body);
   transition: border-color 0.2s, box-shadow 0.2s;
   appearance: none;
@@ -79,18 +79,18 @@
 /* Row 1 selects — equal flex */
 .filter-bar__row .filter-bar__select {
   flex: 1;
-  min-width: 130px;
+  min-width: 120px;
 }
 
-/* University select — slightly wider */
+/* University select */
 .filter-bar__select--university {
   flex: 1.5;
-  min-width: 200px;
+  min-width: 180px;
 }
 
 /* Sort select */
 .filter-bar__select--sort {
-  min-width: 150px;
+  min-width: 140px;
 }
 
 /* Price range */
@@ -99,18 +99,18 @@
   align-items: center;
   gap: 6px;
   flex: 1.5;
-  min-width: 240px;
+  min-width: 200px;
 }
 
 .filter-bar__input--price {
   flex: 1;
   min-width: 0;
-  padding: 13px 12px;
+  padding: 10px 10px;
 }
 
 .filter-bar__price-sep {
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   flex-shrink: 0;
 }
 
@@ -118,7 +118,7 @@
 .filter-bar__toggles {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   flex-shrink: 0;
 }
 
@@ -126,7 +126,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   cursor: pointer;
   color: var(--text-secondary);
   white-space: nowrap;
@@ -134,8 +134,8 @@
 
 .filter-bar__toggle input {
   accent-color: var(--accent);
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   cursor: pointer;
 }
 
@@ -148,9 +148,9 @@
   background: none;
   border: 1px solid var(--border);
   color: var(--text-muted);
-  padding: 10px 16px;
+  padding: 8px 14px;
   border-radius: 8px;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -164,11 +164,10 @@
   color: var(--text-primary);
   background: var(--bg-hover);
 }
-
-/* Responsive */
+/* ── Responsive ── */
 @media (max-width: 1024px) {
   .filter-bar__row .filter-bar__select {
-    min-width: 120px;
+    min-width: 110px;
   }
 }
 
@@ -178,25 +177,82 @@
   }
 
   .filter-bar__row .filter-bar__select {
-    flex: 1 1 calc(50% - 10px);
+    flex: 1 1 calc(50% - 5px);
+    min-width: 0;
   }
 
   .filter-bar__select--university {
+    flex: 1 1 calc(50% - 5px); /* pair with furnishing */
+  }
+
+  .filter-bar__select--sort {
+    flex: 1 1 100%; /* sort stays full width */
+  }
+
+  .filter-bar__price-range {
+    flex: 1 1 100%;
+  }
+
+  .filter-bar__toggles {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+  }
+
+  .filter-bar__reset {
+    flex: 1 1 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-bar {
+    gap: 7px;
+  }
+
+  .filter-bar__input,
+  .filter-bar__select {
+    padding: 9px 12px;
+    font-size: 0.82rem;
+    border-radius: 9px;
+  }
+
+  .filter-bar__row {
+    gap: 8px;
+  }
+
+  .filter-bar__row .filter-bar__select {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+  }
+
+  .filter-bar__select--university {
+    flex: 1 1 calc(50% - 4px);
+  }
+
+  .filter-bar__select--sort {
     flex: 1 1 100%;
   }
 
   .filter-bar__price-range {
     flex: 1 1 100%;
   }
-}
 
-@media (max-width: 480px) {
-  .filter-bar__row .filter-bar__select {
-    flex: 1 1 100%;
+  .filter-bar__input--price {
+    padding: 9px 8px;
   }
 
   .filter-bar__toggles {
-    flex-wrap: wrap;
-    gap: 12px;
+    gap: 16px;
+    flex: 1 1 100%;
+  }
+
+  .filter-bar__toggle {
+    font-size: 0.8rem;
+  }
+
+  .filter-bar__reset {
+    width: 100%;
+    text-align: center;
+    padding: 9px;
   }
 }

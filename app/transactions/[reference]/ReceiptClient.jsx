@@ -4,26 +4,21 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  HiOutlineShieldCheck,
   HiOutlineCheckCircle,
-  HiOutlineClock,
   HiOutlineExclamationTriangle,
   HiOutlineArrowTopRightOnSquare,
   HiOutlineHomeModern,
   HiOutlineBanknotes,
   HiOutlineArrowLeft,
+  HiOutlineReceiptPercent,
+  HiOutlineShieldCheck,
 } from "react-icons/hi2";
 import "@/styles/payment.css";
 
-function EscrowBadge({ escrowStatus, status }) {
-  if (status === "refunded" || escrowStatus === "refunded")
-    return <span className="tx-badge tx-badge--refunded">Refunded</span>;
-  if (status === "on_hold" || escrowStatus === "disputed")
-    return <span className="tx-badge tx-badge--disputed">Disputed — Under Review</span>;
-  if (escrowStatus === "released" || status === "completed")
-    return <span className="tx-badge tx-badge--released">Released to Landlord</span>;
-  if (escrowStatus === "holding")
-    return <span className="tx-badge tx-badge--holding">In Escrow</span>;
+function StatusBadge({ status }) {
+  if (status === "refunded")  return <span className="tx-badge tx-badge--refunded">Refunded</span>;
+  if (status === "on_hold")   return <span className="tx-badge tx-badge--disputed">On Hold</span>;
+  if (status === "completed") return <span className="tx-badge tx-badge--released">Completed</span>;
   return <span className="tx-badge tx-badge--success">{status}</span>;
 }
 
@@ -38,20 +33,9 @@ export default function ReceiptClient({ tx }) {
     } catch { return "—"; }
   }
 
-  function formatEscrowRelease(ts) {
-    if (!ts) return null;
-    const d = new Date(ts);
-    const now = new Date();
-    const diff = d - now;
-    if (diff <= 0) return "Releasing soon";
-    const hrs = Math.round(diff / (1000 * 60 * 60));
-    return `~${hrs} hours remaining`;
-  }
-
-  const isHolding = tx.escrowStatus === "holding";
-  const isReleased = tx.escrowStatus === "released" || tx.status === "completed";
-  const isDisputed = tx.escrowStatus === "disputed" || tx.status === "on_hold";
-  const isRefunded = tx.status === "refunded";
+  const isCompleted = tx.status === "completed";
+  const isRefunded  = tx.status === "refunded";
+  const isOnHold    = tx.status === "on_hold";
 
   return (
     <main className="pay-page">
@@ -66,52 +50,43 @@ export default function ReceiptClient({ tx }) {
 
         {/* Header */}
         <div className="receipt__header">
-          <div className={"receipt__header-icon " + (isRefunded ? "receipt__header-icon--refunded" : isDisputed ? "receipt__header-icon--disputed" : "receipt__header-icon--success")}>
-            {isDisputed ? <HiOutlineExclamationTriangle /> :
-              isRefunded ? <HiOutlineBanknotes /> :
-                isReleased ? <HiOutlineCheckCircle /> :
-                  <HiOutlineClock />}
+          <div className={"receipt__header-icon " + (isRefunded ? "receipt__header-icon--refunded" : isOnHold ? "receipt__header-icon--disputed" : "receipt__header-icon--success")}>
+            {isOnHold    ? <HiOutlineExclamationTriangle /> :
+             isRefunded  ? <HiOutlineBanknotes /> :
+                           <HiOutlineCheckCircle />}
           </div>
           <h1>
-            {isDisputed ? "Payment Disputed" :
-              isRefunded ? "Payment Refunded" :
-                isReleased ? "Payment Complete" :
-                  "Payment Receipt"}
+            {isOnHold   ? "Payment On Hold" :
+             isRefunded ? "Payment Refunded" :
+                          "Payment Complete"}
           </h1>
           <p className="receipt__header-sub">
-            {isHolding ? "Your payment is secured in escrow. It will be released to the landlord in 48 hours if no dispute is raised." :
-              isReleased ? "Funds have been released to the landlord." :
-                isDisputed ? "This payment is under review by our support team." :
-                  isRefunded ? "This payment has been refunded." : ""}
+            {isCompleted ? "Funds have been sent to the landlord." :
+             isRefunded  ? "This payment has been refunded." :
+             isOnHold    ? "This payment is under review by our support team." : ""}
           </p>
         </div>
 
         {/* Status banner */}
-        <div className={"receipt__status-banner " + (isDisputed ? "receipt__status-banner--disputed" : isReleased ? "receipt__status-banner--released" : isRefunded ? "receipt__status-banner--refunded" : "receipt__status-banner--holding")}>
+        <div className={"receipt__status-banner " + (isOnHold ? "receipt__status-banner--disputed" : isRefunded ? "receipt__status-banner--refunded" : "receipt__status-banner--released")}>
           <HiOutlineShieldCheck />
           <div>
             <p className="receipt__status-title">
-              {isHolding ? "Payment secured in escrow" :
-                isReleased ? "Funds released to landlord" :
-                  isDisputed ? "Escrow frozen — dispute in review" :
-                    isRefunded ? "Refund processed" : "Payment secured"}
+              {isCompleted ? "Payment sent to landlord" :
+               isRefunded  ? "Refund processed" :
+                             "Payment under review"}
             </p>
-            {isHolding && tx.escrowReleaseAt && (
-              <p className="receipt__status-sub">
-                {formatEscrowRelease(tx.escrowReleaseAt)}
-              </p>
-            )}
-            {isReleased && tx.releasedAt && (
-              <p className="receipt__status-sub">Released on {formatDate(tx.releasedAt)}</p>
+            {isCompleted && tx.completedAt && (
+              <p className="receipt__status-sub">Completed on {formatDate(tx.completedAt)}</p>
             )}
           </div>
-          <EscrowBadge escrowStatus={tx.escrowStatus} status={tx.status} />
+          <StatusBadge status={tx.status} />
         </div>
 
-        {/* Main receipt */}
+        {/* Main receipt card */}
         <div className="receipt__card">
           <div className="receipt__card-header">
-            <HiOutlineShieldCheck />
+            <HiOutlineReceiptPercent />
             <span>Official Payment Receipt</span>
             <span className="receipt__card-header-id">#{tx.reference?.slice(-8).toUpperCase()}</span>
           </div>
@@ -130,6 +105,10 @@ export default function ReceiptClient({ tx }) {
             <div className="receipt__row">
               <span>Payment Type</span>
               <strong>{tx.type === "rent" ? "Rent Payment" : "Reservation Fee"}</strong>
+            </div>
+            <div className="receipt__row">
+              <span>Status</span>
+              <StatusBadge status={tx.status} />
             </div>
 
             <div className="receipt__section-label">Property</div>
@@ -160,39 +139,24 @@ export default function ReceiptClient({ tx }) {
               <strong>₦{Number(tx.amount).toLocaleString()}</strong>
             </div>
             <div className="receipt__row receipt__row--fee">
-              <span>rezidence Service Fee (5%)</span>
+              <span>Rezidence Service Fee (5%)</span>
               <strong>₦{Number(tx.serviceFee).toLocaleString()}</strong>
             </div>
             <div className="receipt__row receipt__row--total">
               <span>Total Charged</span>
               <strong>₦{Number(tx.totalCharged).toLocaleString()}</strong>
             </div>
-
-            <div className="receipt__section-label">Escrow Status</div>
-
             <div className="receipt__row">
-              <span>Escrow Status</span>
-              <EscrowBadge escrowStatus={tx.escrowStatus} status={tx.status} />
+              <span>Landlord Received</span>
+              <strong>₦{Number(tx.landlordPayout || tx.amount).toLocaleString()}</strong>
             </div>
-            {isHolding && tx.escrowReleaseAt && (
-              <div className="receipt__row">
-                <span>Scheduled Release</span>
-                <strong>{formatDate(tx.escrowReleaseAt)}</strong>
-              </div>
-            )}
-            {isReleased && tx.releasedAt && (
-              <div className="receipt__row">
-                <span>Released On</span>
-                <strong>{formatDate(tx.releasedAt)}</strong>
-              </div>
-            )}
           </div>
 
           {/* Trust footer */}
           <div className="receipt__trust-footer">
             <span><HiOutlineShieldCheck /> Secured by Paystack</span>
-            <span><HiOutlineClock /> 48hr escrow protection</span>
-            <span><HiOutlineCheckCircle /> rezidence verified</span>
+            <span><HiOutlineCheckCircle /> Rezidence verified</span>
+            <span><HiOutlineReceiptPercent /> Instant receipt</span>
           </div>
         </div>
 
@@ -208,22 +172,17 @@ export default function ReceiptClient({ tx }) {
           </Link>
         </div>
 
-        {/* Dispute prompt */}
-        {isHolding && (
+        {/* Support prompt for on_hold */}
+        {isOnHold && (
           <div className="receipt__dispute-prompt">
             <HiOutlineExclamationTriangle />
             <div>
-              <p className="receipt__dispute-title">Have an issue?</p>
+              <p className="receipt__dispute-title">Payment under review</p>
               <p className="receipt__dispute-sub">
-                Raise a dispute before funds are released. Once released, refunds require manual review.
+                Our support team is reviewing this payment. Contact us if you need urgent assistance.
               </p>
               <div className="pay-page__support-links" style={{ marginTop: 8 }}>
-
-                <a href="https://wa.me/2349015117668"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="pay-page__support-btn"
-                >
+                <a href="https://wa.me/2349015117668" target="_blank" rel="noreferrer" className="pay-page__support-btn">
                   WhatsApp Support
                 </a>
                 <a href="tel:09015117668" className="pay-page__support-btn pay-page__support-btn--ghost">

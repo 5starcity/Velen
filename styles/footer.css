@@ -166,17 +166,33 @@
 
 @media (max-width: 640px) {
   .footer__container {
-    padding: 48px 24px 28px;
+    padding: 40px 20px 24px;
   }
 
   .footer__top {
     grid-template-columns: 1fr 1fr;
-    gap: 28px;
+    gap: 24px 20px;
+    margin-bottom: 32px;
   }
 
   .footer__brand {
     grid-column: 1 / -1;
     flex-direction: column;
+    gap: 10px;
+  }
+
+  .footer__tagline {
+    max-width: 100%;
+  }
+
+  .footer__badges {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .footer__logo {
+    font-size: 1.6rem;
   }
 
   .footer__bottom {
@@ -186,8 +202,4 @@
   }
 }
 
-@media (max-width: 400px) {
-  .footer__top {
-    grid-template-columns: 1fr;
-  }
-}
+/* Remove the 400px single-column breakpoint entirely — 2col works fine on small phones */

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -33,17 +33,41 @@ export default function Navbar() {
   const [mounted, setMounted]     = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [scrolled, setScrolled]   = useState(false);
+  const [hidden, setHidden]       = useState(false);
+
+  const lastScrollY = useRef(0);
 
   useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
-    function onScroll() { setScrolled(window.scrollY > 20); }
+    function onScroll() {
+      const currentY = window.scrollY;
+      const diff = currentY - lastScrollY.current;
+
+      // Mark as scrolled (for background style) once past 20px
+      setScrolled(currentY > 20);
+
+      // Hide when scrolling down more than 8px, show when scrolling up
+      if (diff > 8 && currentY > 80) {
+        setHidden(true);
+      } else if (diff < -8) {
+        setHidden(false);
+      }
+
+      lastScrollY.current = currentY;
+    }
+
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   // Close drawer on route change
   useEffect(() => { setMenuOpen(false); }, [pathname]);
+
+  // Always show navbar when drawer is open
+  useEffect(() => {
+    if (menuOpen) setHidden(false);
+  }, [menuOpen]);
 
   if (!mounted || loading) return null;
 
@@ -74,9 +98,15 @@ export default function Navbar() {
     return link.roles.includes(userRole);
   });
 
+  const navClasses = [
+    "navbar",
+    scrolled ? "navbar--scrolled" : "",
+    hidden    ? "navbar--hidden"   : "",
+  ].filter(Boolean).join(" ");
+
   return (
     <>
-      <nav className={"navbar" + (scrolled ? " navbar--scrolled" : "")}>
+      <nav className={navClasses}>
         <div className="navbar__container">
 
           {/* Logo */}
@@ -151,7 +181,7 @@ export default function Navbar() {
 
         <div className="navbar__drawer-header">
           <Link href="/" className="navbar__drawer-logo" onClick={() => setMenuOpen(false)}>
-            Vel<em>en</em>
+            Rezi<em>dence</em>
           </Link>
           <div className="navbar__drawer-header-right">
             {user && <NotificationBell />}

@@ -76,7 +76,6 @@ export default function ListingsPage() {
     loadListings();
   }, []);
 
-  // Reset to page 1 when filters change
   useEffect(() => {
     setPage(1);
   }, [search, location, type, priceMin, priceMax, verified, availability, sharedOnly, university, furnishing, sortBy]);
@@ -153,7 +152,6 @@ export default function ListingsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  // Page number array with ellipsis
   function getPageNumbers() {
     return Array.from({ length: totalPages }, (_, i) => i + 1)
       .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
@@ -267,7 +265,7 @@ export default function ListingsPage() {
           key={`${page}-${sortBy}-${search}`}
         >
           {paginatedList.map((listing) => (
-            <motion.div key={listing.id} variants={itemVariants}>
+            <motion.div key={listing.id} variants={itemVariants} style={{ height: "100%" }}>
               <ListingCard listing={listing} />
             </motion.div>
           ))}

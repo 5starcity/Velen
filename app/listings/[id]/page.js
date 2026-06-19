@@ -1,17 +1,13 @@
-// app/listings/[id]/page.js
 "use client";
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import "@/styles/inspect.css";
 import {
   HiOutlineCheckBadge,
   HiOutlineMapPin,
   HiOutlineHomeModern,
-  HiOutlinePhone,
-  HiOutlineChatBubbleLeftRight,
   HiOutlineHeart,
   HiHeart,
   HiOutlinePencilSquare,
@@ -30,11 +26,13 @@ import {
   HiOutlineBuildingOffice,
   HiOutlineCog6Tooth,
   HiOutlineClipboardDocumentCheck,
-  HiOutlineUserGroup,
   HiOutlineUserCircle,
   HiOutlineXMark,
   HiOutlineExclamationTriangle,
   HiOutlineCheckCircle,
+  HiOutlinePhoto,
+  HiOutlineCreditCard,
+  HiOutlinePresentationChartBar,
 } from "react-icons/hi2";
 import {
   fetchListingById,
@@ -42,10 +40,7 @@ import {
   deleteListing,
   incrementViewCount,
   reportListing,
-  expressInterest,
 } from "@/lib/firestoreListings";
-import { createNotification } from "@/lib/firestoreNotifications";
-import { fetchRoommatePostsByListing } from "@/lib/firestoreRoommates";
 import { getFavorites, toggleFavorite } from "@/lib/favorites";
 import { useAuth } from "@/context/AuthContext";
 import { isLandlordVerified } from "@/lib/verification";
@@ -57,22 +52,24 @@ import {
 import "@/styles/details-page.css";
 
 const REPORT_CATEGORIES = [
-  { value: "fake_listing", label: "🚫 Fake listing", desc: "This property doesn't exist or is misleading" },
-  { value: "scam", label: "⚠️ Scam / Fraud", desc: "Suspicious activity or fraudulent intent" },
-  { value: "wrong_price", label: "💰 Wrong price", desc: "Price is significantly different from reality" },
-  { value: "already_rented", label: "🔒 Already rented", desc: "This property is no longer available" },
-  { value: "bad_photos", label: "📷 Misleading photos", desc: "Photos don't match the actual property" },
-  { value: "inappropriate", label: "🔞 Inappropriate content", desc: "Content violates community guidelines" },
-  { value: "other", label: "📝 Other", desc: "Something else is wrong" },
+  { value: "fake_listing", label: "Fake listing", desc: "This property doesn't exist or is misleading" },
+  { value: "scam", label: "Scam / Fraud", desc: "Suspicious activity or fraudulent intent" },
+  { value: "wrong_price", label: "Wrong price", desc: "Price is significantly different from reality" },
+  { value: "already_rented", label: "Already rented", desc: "This property is no longer available" },
+  { value: "bad_photos", label: "Misleading photos", desc: "Photos don't match the actual property" },
+  { value: "inappropriate", label: "Inappropriate content", desc: "Content violates community guidelines" },
+  { value: "other", label: "Other", desc: "Something else is wrong" },
 ];
+
+const TABS = ["overview", "costs", "amenities", "location"];
 
 export default function ListingDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const listingId = params?.id;
   const { user } = useAuth();
-
   const searchParams = useSearchParams();
+
   const [listing, setListing] = useState(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -84,15 +81,11 @@ export default function ListingDetailsPage() {
   const [copied, setCopied] = useState(false);
   const [activeMedia, setActiveMedia] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
-  const [interestSent, setInterestSent] = useState(false);
-  const [sendingInterest, setSendingInterest] = useState(false);
-  const [roommatePost, setRoommatePost] = useState(null);
+  const [activeTab, setActiveTab] = useState("overview");
 
-  // Reservation status
   const [listingReserved, setListingReserved] = useState(false);
   const [studentHasReservation, setStudentHasReservation] = useState(false);
 
-  // Report state
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportCategory, setReportCategory] = useState("");
   const [reportDetail, setReportDetail] = useState("");
@@ -134,17 +127,6 @@ export default function ListingDetailsPage() {
   }, [listingId]);
 
   useEffect(() => {
-    if (!listingId) return;
-    async function checkRoommate() {
-      try {
-        const posts = await fetchRoommatePostsByListing(listingId);
-        if (posts.length > 0) setRoommatePost(posts[0]);
-      } catch (e) { }
-    }
-    checkRoommate();
-  }, [listingId]);
-
-  useEffect(() => {
     if (!listing) return;
     async function checkReservationStatus() {
       try {
@@ -159,18 +141,15 @@ export default function ListingDetailsPage() {
     checkReservationStatus();
   }, [listing, user]);
 
-  // Close report modal on Escape
   useEffect(() => {
     function handleKey(e) { if (e.key === "Escape") setShowReportModal(false); }
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
   }, []);
 
-  // Show success toast when redirected back from payment
   useEffect(() => {
     if (searchParams.get("payment") === "success") {
       setPaymentSuccess(true);
-      // Clean the URL so refreshing doesn't re-trigger the toast
       const url = new URL(window.location.href);
       url.searchParams.delete("payment");
       url.searchParams.delete("reference");
@@ -182,23 +161,23 @@ export default function ListingDetailsPage() {
 
   if (loading) {
     return (
-      <main className="details-page">
-        <motion.div className="details-page__not-found" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <p className="details-page__tag">Loading</p>
-          <h1>Loading property...</h1>
-          <p>Please wait a moment.</p>
-        </motion.div>
+      <main className="dp">
+        <div className="dp__state-wrap">
+          <div className="dp__state-spinner" />
+          <p className="dp__state-label">Loading property...</p>
+        </div>
       </main>
     );
   }
 
   if (!listing) {
     return (
-      <main className="details-page">
-        <motion.div className="details-page__not-found" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-          <p className="details-page__tag">Listing Not Found</p>
-          <h1>Property not found</h1>
-          <p>This property may have been removed or the link is invalid.</p>
+      <main className="dp">
+        <motion.div className="dp__state-wrap" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+          <HiOutlineHomeModern className="dp__state-icon" />
+          <h1 className="dp__state-title">Property not found</h1>
+          <p className="dp__state-sub">This listing may have been removed or the link is invalid.</p>
+          <Link href="/listings" className="dp__state-back">Browse all listings</Link>
         </motion.div>
       </main>
     );
@@ -208,13 +187,7 @@ export default function ListingDetailsPage() {
   const isOwner = user && user.uid === listing.landlordId;
   const saved = favorites.includes(listing.id);
 
-  const whatsappNumber = typeof listing.contact === "string" && listing.contact.startsWith("0")
-    ? "234" + listing.contact.slice(1)
-    : listing.contact;
-  const whatsappHref = "https://wa.me/" + whatsappNumber;
-  const telHref = "tel:" + listing.contact;
-
-  const hasCostBreakdown = listing.cautionFee || listing.legalFee || listing.agencyFee || listing.serviceCharge;
+  const hasCostBreakdown = listing.cautionFee !== undefined || listing.legalFee !== undefined || listing.agencyFee !== undefined || listing.serviceCharge;
   const totalMoveInCost = listing.totalMoveInCost ||
     (Number(listing.price) || 0) + (Number(listing.cautionFee) || 0) +
     (Number(listing.legalFee) || 0) + (Number(listing.agencyFee) || 0) +
@@ -274,10 +247,7 @@ export default function ListingDetailsPage() {
   }
 
   async function handleReport() {
-    if (!reportCategory) {
-      setReportError("Please select a reason for reporting.");
-      return;
-    }
+    if (!reportCategory) { setReportError("Please select a reason."); return; }
     setReportError("");
     setSubmittingReport(true);
     try {
@@ -291,34 +261,8 @@ export default function ListingDetailsPage() {
       } else {
         setReportError("Something went wrong. Please try again.");
       }
-      console.error("Error reporting listing:", error);
     } finally {
       setSubmittingReport(false);
-    }
-  }
-
-  async function handleExpressInterest() {
-    if (!user) { router.push("/login"); return; }
-    setSendingInterest(true);
-    try {
-      await expressInterest(listingId, user.uid, user.displayName || "A prospective tenant");
-      try {
-        await createNotification({
-          userId: listing.landlordId,
-          type: "listing_interest",
-          title: "New interest on your listing",
-          message: `${user.displayName || "Someone"} is interested in "${listing.title}"`,
-          listingId,
-          senderId: user.uid,
-          senderName: user.displayName || "Someone",
-        });
-      } catch (e) { console.warn("Notification failed silently:", e); }
-      setInterestSent(true);
-      trackEvent("express_interest", { listingId, listingTitle: listing.title, location: listing.location, price: listing.price });
-    } catch (error) {
-      console.error("Error expressing interest:", error);
-    } finally {
-      setSendingInterest(false);
     }
   }
 
@@ -328,11 +272,10 @@ export default function ListingDetailsPage() {
     router.push("/inspect/" + listingId);
   }
 
-  function handleReserve() {
-    if (listingReserved || studentHasReservation) return;
+  function handlePayRent() {
     if (!user) { router.push("/login"); return; }
-    trackEvent("reserve_click", { listingId, listingTitle: listing.title });
-    router.push("/reserve/" + listingId);
+    trackEvent("pay_click", { listingId, listingTitle: listing.title });
+    router.push("/pay/" + listingId);
   }
 
   function formatDate(ts) {
@@ -341,33 +284,38 @@ export default function ListingDetailsPage() {
     return date.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" });
   }
 
-  const costIcons = {
-    rent: <HiOutlineBanknotes />,
-    caution: <HiOutlineShieldCheck />,
-    legal: <HiOutlineReceiptPercent />,
-    agency: <HiOutlineBuildingOffice />,
-    service: <HiOutlineCog6Tooth />,
-  };
+  function getDaysAgo(ts) {
+    if (!ts) return null;
+    const date = ts.toDate ? ts.toDate() : new Date(ts);
+    const diff = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24));
+    if (diff === 0) return "Today";
+    if (diff === 1) return "1d ago";
+    return diff + "d ago";
+  }
+
+  const amenityList = listing.amenities
+    ? (typeof listing.amenities === "string" ? listing.amenities.split(",").map(a => a.trim()) : listing.amenities)
+    : [];
 
   return (
-    <main className="details-page">
+    <main className="dp">
 
       {/* ── Payment Success Toast ── */}
       <AnimatePresence>
         {paymentSuccess && (
           <motion.div
-            className="payment-toast"
-            initial={{ opacity: 0, y: -32 }}
+            className="dp__toast dp__toast--success"
+            initial={{ opacity: 0, y: -40 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -32 }}
+            exit={{ opacity: 0, y: -40 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
           >
-            <HiOutlineCheckCircle className="payment-toast__icon" />
-            <div className="payment-toast__text">
-              <p className="payment-toast__title">Payment successful!</p>
-              <p className="payment-toast__sub">Your rent has been paid and sent to the landlord.</p>
+            <HiOutlineCheckCircle className="dp__toast-icon" />
+            <div>
+              <p className="dp__toast-title">Payment successful!</p>
+              <p className="dp__toast-sub">Your rent has been submitted to the landlord.</p>
             </div>
-            <button className="payment-toast__close" onClick={() => setPaymentSuccess(false)}>
+            <button className="dp__toast-close" onClick={() => setPaymentSuccess(false)}>
               <HiOutlineXMark />
             </button>
           </motion.div>
@@ -378,76 +326,70 @@ export default function ListingDetailsPage() {
       <AnimatePresence>
         {showReportModal && (
           <motion.div
-            className="report-modal__overlay"
+            className="dp__modal-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowReportModal(false)}
           >
             <motion.div
-              className="report-modal"
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="dp__modal"
+              initial={{ opacity: 0, scale: 0.96, y: 16 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              transition={{ duration: 0.22 }}
+              exit={{ opacity: 0, scale: 0.96, y: 8 }}
+              transition={{ duration: 0.2 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="report-modal__header">
-                <div className="report-modal__header-left">
-                  <HiOutlineFlag className="report-modal__header-icon" />
+              <div className="dp__modal-header">
+                <div className="dp__modal-header-left">
+                  <HiOutlineFlag className="dp__modal-flag-icon" />
                   <div>
                     <h2>Report this listing</h2>
-                    <p>Help us keep rezidence safe for everyone.</p>
+                    <p>Help us keep Rezidence safe for everyone.</p>
                   </div>
                 </div>
-                <button className="report-modal__close" onClick={() => setShowReportModal(false)}>
+                <button className="dp__modal-close" onClick={() => setShowReportModal(false)}>
                   <HiOutlineXMark />
                 </button>
               </div>
-
-              <div className="report-modal__body">
-                <p className="report-modal__label">What&apos;s wrong with this listing?</p>
-                <div className="report-modal__categories">
+              <div className="dp__modal-body">
+                <p className="dp__modal-question">What&apos;s wrong with this listing?</p>
+                <div className="dp__report-cats">
                   {REPORT_CATEGORIES.map((cat) => (
                     <button
                       key={cat.value}
-                      className={"report-modal__cat" + (reportCategory === cat.value ? " active" : "")}
+                      className={"dp__report-cat" + (reportCategory === cat.value ? " active" : "")}
                       onClick={() => setReportCategory(cat.value)}
                     >
-                      <span className="report-modal__cat-label">{cat.label}</span>
-                      <span className="report-modal__cat-desc">{cat.desc}</span>
+                      <span className="dp__report-cat-label">{cat.label}</span>
+                      <span className="dp__report-cat-desc">{cat.desc}</span>
                     </button>
                   ))}
                 </div>
-
-                <div className="report-modal__detail-wrap">
-                  <label className="report-modal__detail-label">
+                <div className="dp__report-detail-wrap">
+                  <label className="dp__report-detail-label">
                     Additional details <span>(optional)</span>
                   </label>
                   <textarea
-                    className="report-modal__detail"
+                    className="dp__report-textarea"
                     placeholder="Tell us more about the issue..."
                     value={reportDetail}
                     onChange={(e) => setReportDetail(e.target.value)}
                     maxLength={400}
                     rows={3}
                   />
-                  <span className="report-modal__char-count">{reportDetail.length}/400</span>
+                  <span className="dp__report-char">{reportDetail.length}/400</span>
                 </div>
-
                 {reportError && (
-                  <div className="report-modal__error">
+                  <div className="dp__report-error">
                     <HiOutlineExclamationTriangle /> {reportError}
                   </div>
                 )}
               </div>
-
-              <div className="report-modal__footer">
-                <button className="report-modal__cancel" onClick={() => setShowReportModal(false)}>
-                  Cancel
-                </button>
+              <div className="dp__modal-footer">
+                <button className="dp__modal-cancel" onClick={() => setShowReportModal(false)}>Cancel</button>
                 <button
-                  className="report-modal__submit"
+                  className="dp__modal-submit"
                   onClick={handleReport}
                   disabled={submittingReport || !reportCategory}
                 >
@@ -459,302 +401,519 @@ export default function ListingDetailsPage() {
         )}
       </AnimatePresence>
 
-      <section className="details-page__grid">
+      <div className="dp__inner">
 
-        {/* Left — Media */}
-        <motion.div className="details-page__media-col" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.45, ease: "easeOut" }}>
-          <div className="details-page__media">
-            {showVideo && listing.videoUrl ? (
-              <video src={listing.videoUrl} controls autoPlay className="details-page__video" />
-            ) : images.length > 0 ? (
-              <img src={images[activeMedia]} alt={listing.title} className="details-page__image" />
-            ) : (
-              <div className="details-page__no-media"><HiOutlineHomeModern /><p>No photos available</p></div>
-            )}
+        {/* ── Breadcrumb ── */}
+        <nav className="dp__breadcrumb">
+          <Link href="/listings">Listings</Link>
+          <span>/</span>
+          <span>{listing.location}</span>
+          <span>/</span>
+          <span className="dp__breadcrumb-current">{listing.title}</span>
+        </nav>
+
+        {/* ── Owner edit/delete bar ── */}
+        {isOwner && !isEditing && (
+          <div className="dp__owner-bar">
+            <span className="dp__owner-bar-label">You own this listing</span>
+            <div className="dp__owner-bar-actions">
+              <button className="dp__owner-edit" onClick={() => setIsEditing(true)}>
+                <HiOutlinePencilSquare /> Edit
+              </button>
+              <button className="dp__owner-delete" onClick={handleDelete} disabled={deleting}>
+                <HiOutlineTrash /> {deleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
           </div>
-          {(images.length > 1 || listing.videoUrl) && (
-            <div className="details-page__thumbnails">
-              {images.map((src, i) => (
-                <button key={i} className={"details-page__thumb" + (activeMedia === i && !showVideo ? " active" : "")} onClick={() => { setActiveMedia(i); setShowVideo(false); }}>
-                  <img src={src} alt={"Photo " + (i + 1)} />
-                </button>
-              ))}
-              {listing.videoUrl && (
-                <button className={"details-page__thumb details-page__thumb--video" + (showVideo ? " active" : "")} onClick={() => setShowVideo(true)}>
-                  <HiOutlinePlayCircle /><span>Video</span>
-                </button>
-              )}
-            </div>
-          )}
-        </motion.div>
+        )}
 
-        {/* Right — Content */}
-        <motion.div className="details-page__content" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.45, ease: "easeOut", delay: 0.1 }}>
-          {isOwner && !isEditing && (
-            <div className="details-page__owner-actions">
-              <button className="details-page__edit-btn" onClick={() => setIsEditing(true)}><HiOutlinePencilSquare /> Edit Listing</button>
-              <button className="details-page__delete-btn" onClick={handleDelete} disabled={deleting}><HiOutlineTrash /> {deleting ? "Deleting..." : "Delete"}</button>
+        {isEditing ? (
+          /* ── Edit Form ── */
+          <motion.div className="dp__edit-wrap" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
+            <h2 className="dp__edit-title">Edit listing</h2>
+            <div className="dp__edit-grid">
+              <div className="dp__edit-field dp__edit-field--full">
+                <label>Title</label>
+                <input name="title" value={editForm.title || ""} onChange={handleEditChange} />
+              </div>
+              <div className="dp__edit-field">
+                <label>Price (₦ / yr)</label>
+                <input type="number" name="price" value={editForm.price || ""} onChange={handleEditChange} />
+              </div>
+              <div className="dp__edit-field">
+                <label>Type</label>
+                <input name="type" value={editForm.type || ""} onChange={handleEditChange} />
+              </div>
+              <div className="dp__edit-field">
+                <label>Location / Area</label>
+                <input name="location" value={editForm.location || ""} onChange={handleEditChange} />
+              </div>
+              <div className="dp__edit-field">
+                <label>Availability</label>
+                <input name="availability" value={editForm.availability || ""} onChange={handleEditChange} />
+              </div>
+              <div className="dp__edit-field dp__edit-field--full">
+                <label>Full Address</label>
+                <input name="address" value={editForm.address || ""} onChange={handleEditChange} placeholder="e.g. No. 5 Alakahia Road, Choba" />
+              </div>
+              <div className="dp__edit-field">
+                <label>Bedrooms</label>
+                <input type="number" name="beds" value={editForm.beds || ""} onChange={handleEditChange} />
+              </div>
+              <div className="dp__edit-field">
+                <label>Bathrooms</label>
+                <input type="number" name="baths" value={editForm.baths || ""} onChange={handleEditChange} />
+              </div>
+              <div className="dp__edit-field">
+                <label>Furnishing</label>
+                <input name="furnishing" value={editForm.furnishing || ""} onChange={handleEditChange} />
+              </div>
+              <div className="dp__edit-field">
+                <label>Payment Terms</label>
+                <input name="paymentTerms" value={editForm.paymentTerms || ""} onChange={handleEditChange} />
+              </div>
+              <div className="dp__edit-field">
+                <label>Caution Fee (₦)</label>
+                <input type="number" name="cautionFee" value={editForm.cautionFee || ""} onChange={handleEditChange} />
+              </div>
+              <div className="dp__edit-field">
+                <label>Legal Fee (₦)</label>
+                <input type="number" name="legalFee" value={editForm.legalFee || ""} onChange={handleEditChange} />
+              </div>
+              <div className="dp__edit-field">
+                <label>Agency Fee (₦)</label>
+                <input type="number" name="agencyFee" value={editForm.agencyFee || ""} onChange={handleEditChange} />
+              </div>
+              <div className="dp__edit-field">
+                <label>Service Charge (₦)</label>
+                <input type="number" name="serviceCharge" value={editForm.serviceCharge || ""} onChange={handleEditChange} />
+              </div>
+              <div className="dp__edit-field dp__edit-field--full">
+                <label>Amenities (comma separated)</label>
+                <input name="amenities" value={editForm.amenities || ""} onChange={handleEditChange} />
+              </div>
+              <div className="dp__edit-field dp__edit-field--full">
+                <label>Contact</label>
+                <input name="contact" value={editForm.contact || ""} onChange={handleEditChange} />
+              </div>
+              <div className="dp__edit-field dp__edit-field--full">
+                <label>Description</label>
+                <textarea rows={4} name="description" value={editForm.description || ""} onChange={handleEditChange} />
+              </div>
             </div>
-          )}
+            <div className="dp__edit-actions">
+              <button className="dp__edit-save" onClick={handleSave} disabled={saving}>
+                {saving ? "Saving..." : "Save Changes"}
+              </button>
+              <button className="dp__edit-cancel" onClick={() => { setIsEditing(false); setEditForm(listing); }}>
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        ) : (
+          /* ── Main Content ── */
+          <motion.div className="dp__layout" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }}>
 
-          {isEditing ? (
-            <motion.div className="details-page__edit-form" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-              <p className="details-page__tag">Editing Listing</p>
-              <h2>Update Property Details</h2>
-              <div className="edit-form__grid">
-                <div className="edit-form__field edit-form__field--full"><label>Title</label><input name="title" value={editForm.title || ""} onChange={handleEditChange} /></div>
-                <div className="edit-form__field"><label>Price (₦)</label><input type="number" name="price" value={editForm.price || ""} onChange={handleEditChange} /></div>
-                <div className="edit-form__field"><label>Type</label><input name="type" value={editForm.type || ""} onChange={handleEditChange} /></div>
-                <div className="edit-form__field"><label>Location / Area</label><input name="location" value={editForm.location || ""} onChange={handleEditChange} /></div>
-                <div className="edit-form__field edit-form__field--full"><label>Full Address (for map)</label><input name="address" value={editForm.address || ""} onChange={handleEditChange} placeholder="e.g. No. 5 Alakahia Road, Choba" /></div>
-                <div className="edit-form__field"><label>Bedrooms</label><input type="number" name="beds" value={editForm.beds || ""} onChange={handleEditChange} /></div>
-                <div className="edit-form__field"><label>Bathrooms</label><input type="number" name="baths" value={editForm.baths || ""} onChange={handleEditChange} /></div>
-                <div className="edit-form__field"><label>Furnishing</label><input name="furnishing" value={editForm.furnishing || ""} onChange={handleEditChange} /></div>
-                <div className="edit-form__field"><label>Availability</label><input name="availability" value={editForm.availability || ""} onChange={handleEditChange} /></div>
-                <div className="edit-form__field edit-form__field--full"><label>Payment Terms</label><input name="paymentTerms" value={editForm.paymentTerms || ""} onChange={handleEditChange} /></div>
-                <div className="edit-form__field"><label>Caution Fee (₦)</label><input type="number" name="cautionFee" value={editForm.cautionFee || ""} onChange={handleEditChange} /></div>
-                <div className="edit-form__field"><label>Legal Fee (₦)</label><input type="number" name="legalFee" value={editForm.legalFee || ""} onChange={handleEditChange} /></div>
-                <div className="edit-form__field"><label>Agency Fee (₦)</label><input type="number" name="agencyFee" value={editForm.agencyFee || ""} onChange={handleEditChange} /></div>
-                <div className="edit-form__field"><label>Service Charge (₦)</label><input type="number" name="serviceCharge" value={editForm.serviceCharge || ""} onChange={handleEditChange} /></div>
-                <div className="edit-form__field edit-form__field--full"><label>Amenities</label><input name="amenities" value={editForm.amenities || ""} onChange={handleEditChange} /></div>
-                <div className="edit-form__field edit-form__field--full"><label>Contact</label><input name="contact" value={editForm.contact || ""} onChange={handleEditChange} /></div>
-                <div className="edit-form__field edit-form__field--full"><label>Description</label><textarea rows="4" name="description" value={editForm.description || ""} onChange={handleEditChange} /></div>
-              </div>
-              <div className="edit-form__actions">
-                <button className="edit-form__save" onClick={handleSave} disabled={saving}>{saving ? "Saving..." : "Save Changes"}</button>
-                <button className="edit-form__cancel" onClick={() => { setIsEditing(false); setEditForm(listing); }}>Cancel</button>
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }}>
-              <div className="details-page__header">
-                <div>
-                  <p className="details-page__tag">Property Details</p>
-                  <h1>{listing.title}</h1>
-                  {listing.landlordId && (listing.landlordName || listing.agentName) && (
-                    <Link href={"/agent/" + listing.landlordId} className="details-page__agent-link">
-                      <HiOutlineUserCircle />
-                      Listed by {listing.landlordName || listing.agentName}
-                    </Link>
+            {/* ── LEFT COLUMN ── */}
+            <div className="dp__left">
+
+              {/* Gallery */}
+              <div className="dp__gallery">
+                <div className="dp__gallery-main">
+                  {showVideo && listing.videoUrl ? (
+                    <video src={listing.videoUrl} controls autoPlay className="dp__gallery-video" />
+                  ) : images.length > 0 ? (
+                    <img src={images[activeMedia]} alt={listing.title} className="dp__gallery-img" />
+                  ) : (
+                    <div className="dp__gallery-empty">
+                      <HiOutlinePhoto />
+                      <p>No photos available</p>
+                    </div>
                   )}
-                  <p className="details-page__location"><HiOutlineMapPin /><span>{listing.location}</span></p>
-                  {listing.address && <p className="details-page__address-text">{listing.address}</p>}
-                  <div className="details-page__meta">
-                    {listing.createdAt && <span><HiOutlineCalendarDays />{formatDate(listing.createdAt)}</span>}
-                    {listing.views > 0 && <span><HiOutlineEye />{listing.views} {listing.views === 1 ? "view" : "views"}</span>}
-                  </div>
+
+                  {/* Overlaid badges */}
+                  {listing.type && (
+                    <span className="dp__gallery-badge dp__gallery-badge--type">{listing.type}</span>
+                  )}
+                  {listing.availability && (
+                    <span className={"dp__gallery-badge dp__gallery-badge--avail " + (
+                      listing.availability === "Available Now" ? "avail-now" :
+                      listing.availability === "Available Soon" ? "avail-soon" : "avail-no"
+                    )}>
+                      <span className="dp__avail-dot" />
+                      {listing.availability}
+                    </span>
+                  )}
+                  {images.length > 1 && (
+                    <span className="dp__gallery-count">
+                      <HiOutlinePhoto /> {activeMedia + 1} / {images.length}
+                    </span>
+                  )}
                 </div>
-                <div className="details-page__price-wrap">
-                  <p className="details-page__price">₦{Number(listing.price).toLocaleString()}</p>
-                  <p className="details-page__price-label">per year</p>
-                  <div className="details-page__top-actions">
-                    <button type="button" onClick={handleToggleFavorite} className={"details-page__favorite-icon" + (saved ? " active" : "")}>
-                      {saved ? <HiHeart /> : <HiOutlineHeart />}
-                    </button>
-                    <button type="button" className="details-page__share-btn" onClick={handleShare}><HiOutlineShare /></button>
-                    {listing.verified && <span className="details-page__verified"><HiOutlineCheckBadge /> Verified</span>}
-                    {listing.availability && (
-                      <span className={"details-page__availability " + (listing.availability === "Available Now" ? "available" : listing.availability === "Available Soon" ? "soon" : "unavailable")}>
-                        {listing.availability}
-                      </span>
+
+                {(images.length > 1 || listing.videoUrl) && (
+                  <div className="dp__gallery-thumbs">
+                    {images.map((src, i) => (
+                      <button
+                        key={i}
+                        className={"dp__gallery-thumb" + (activeMedia === i && !showVideo ? " active" : "")}
+                        onClick={() => { setActiveMedia(i); setShowVideo(false); }}
+                      >
+                        <img src={src} alt={"Photo " + (i + 1)} />
+                        {i === 3 && images.length > 4 && (
+                          <div className="dp__gallery-thumb-more">+{images.length - 4}</div>
+                        )}
+                      </button>
+                    ))}
+                    {listing.videoUrl && (
+                      <button
+                        className={"dp__gallery-thumb dp__gallery-thumb--video" + (showVideo ? " active" : "")}
+                        onClick={() => setShowVideo(true)}
+                      >
+                        <HiOutlinePlayCircle />
+                        <span>Video</span>
+                      </button>
                     )}
                   </div>
-                  {copied && <p className="details-page__copied">Link copied!</p>}
+                )}
+              </div>
+
+              {/* Title + meta */}
+              <div className="dp__title-row">
+                <div className="dp__title-left">
+                  <h1 className="dp__title">{listing.title}</h1>
+                  <div className="dp__location">
+                    <HiOutlineMapPin />
+                    <span>{listing.location}</span>
+                  </div>
+                  {listing.address && (
+                    <p className="dp__address">{listing.address}</p>
+                  )}
+                </div>
+                <div className="dp__title-actions">
+                  <button
+                    className={"dp__icon-btn" + (saved ? " dp__icon-btn--saved" : "")}
+                    onClick={handleToggleFavorite}
+                    title={saved ? "Remove from saved" : "Save listing"}
+                  >
+                    {saved ? <HiHeart /> : <HiOutlineHeart />}
+                  </button>
+                  <button className="dp__icon-btn" onClick={handleShare} title="Share">
+                    <HiOutlineShare />
+                  </button>
                 </div>
               </div>
 
-              <div className="details-page__facts">
-                <div className="details-page__fact"><HiOutlineHomeModern /><div><span>Type</span><strong>{listing.type}</strong></div></div>
-                <div className="details-page__fact"><HiOutlineHomeModern /><div><span>Bedrooms</span><strong>{listing.beds || 1} Bed</strong></div></div>
-                <div className="details-page__fact"><HiOutlineHomeModern /><div><span>Bathrooms</span><strong>{listing.baths || 1} Bath</strong></div></div>
-                {listing.furnishing && <div className="details-page__fact"><HiOutlineSparkles /><div><span>Furnishing</span><strong>{listing.furnishing}</strong></div></div>}
-                {listing.paymentTerms && <div className="details-page__fact"><HiOutlineBanknotes /><div><span>Payment</span><strong>{listing.paymentTerms}</strong></div></div>}
+              {/* Verified + meta row */}
+              <div className="dp__meta-row">
+                {listing.verified && (
+                  <span className="dp__verified-pill">
+                    <HiOutlineCheckBadge /> Verified
+                  </span>
+                )}
+                {listing.createdAt && (
+                  <span className="dp__meta-chip">
+                    <HiOutlineCalendarDays /> {formatDate(listing.createdAt)}
+                  </span>
+                )}
+                {listing.views > 0 && (
+                  <span className="dp__meta-chip">
+                    <HiOutlineEye /> {listing.views} views
+                  </span>
+                )}
+                {listing.interests > 0 && (
+                  <span className="dp__meta-chip dp__meta-chip--interest">
+                    <HiOutlinePresentationChartBar /> {listing.interests} interested
+                  </span>
+                )}
+                {copied && <span className="dp__copied-flash">Link copied!</span>}
               </div>
 
-              {mapsUrl && (
-                <div className="details-page__map-btn-wrap">
-                  <a href={mapsUrl} target="_blank" rel="noreferrer" className="details-page__map-btn">
-                    <HiOutlineMapPin /> View Location on Google Maps
-                  </a>
+              {/* Fact chips */}
+              <div className="dp__facts">
+                <div className="dp__fact">
+                  <HiOutlineHomeModern />
+                  <span>{listing.type}</span>
                 </div>
+                <div className="dp__fact">
+                  <HiOutlineHomeModern />
+                  <span>{listing.beds || 1} bed{(listing.beds || 1) > 1 ? "s" : ""}</span>
+                </div>
+                <div className="dp__fact">
+                  <HiOutlineHomeModern />
+                  <span>{listing.baths || 1} bath{(listing.baths || 1) > 1 ? "s" : ""}</span>
+                </div>
+                {listing.furnishing && (
+                  <div className="dp__fact">
+                    <HiOutlineSparkles />
+                    <span>{listing.furnishing}</span>
+                  </div>
+                )}
+                {listing.paymentTerms && (
+                  <div className="dp__fact">
+                    <HiOutlineBanknotes />
+                    <span>{listing.paymentTerms}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Landlord card */}
+              {listing.landlordId && (listing.landlordName || listing.agentName) && (
+                <Link href={"/agent/" + listing.landlordId} className="dp__landlord-card">
+                  <div className="dp__landlord-avatar">
+                    <HiOutlineUserCircle />
+                  </div>
+                  <div className="dp__landlord-info">
+                    <p className="dp__landlord-name">{listing.landlordName || listing.agentName}</p>
+                    <p className="dp__landlord-sub">
+                      <HiOutlineShieldCheck /> Direct landlord
+                    </p>
+                  </div>
+                  <span className="dp__landlord-link">View profile →</span>
+                </Link>
               )}
 
-              {hasCostBreakdown && (
-                <div className="details-page__section">
-                  <div className="cost-card">
-                    <div className="cost-card__header">
-                      <div className="cost-card__title-row">
-                        <div className="cost-card__icon-wrap"><HiOutlineCalculator /></div>
+              {/* Tabs */}
+              <div className="dp__tabs">
+                {TABS.map((tab) => (
+                  <button
+                    key={tab}
+                    className={"dp__tab" + (activeTab === tab ? " active" : "")}
+                    onClick={() => setActiveTab(tab)}
+                  >
+                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  </button>
+                ))}
+              </div>
+
+              {/* Tab: Overview */}
+              {activeTab === "overview" && (
+                <motion.div key="overview" className="dp__tab-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+                  <p className="dp__section-label">About this property</p>
+                  <p className="dp__description">{listing.description || "No description provided."}</p>
+                  {mapsUrl && (
+                    <a href={mapsUrl} target="_blank" rel="noreferrer" className="dp__map-link">
+                      <HiOutlineMapPin /> View on Google Maps
+                    </a>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Tab: Costs */}
+              {activeTab === "costs" && (
+                <motion.div key="costs" className="dp__tab-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+                  {hasCostBreakdown ? (
+                    <div className="dp__cost-card">
+                      <div className="dp__cost-header">
+                        <div className="dp__cost-header-icon"><HiOutlineCalculator /></div>
                         <div>
-                          <h2 className="cost-card__title">Move-in Cost Breakdown</h2>
-                          <p className="cost-card__subtitle">Full upfront cost to move into this property</p>
+                          <p className="dp__cost-header-title">Move-in cost breakdown</p>
+                          <p className="dp__cost-header-sub">Full upfront cost to secure this property</p>
                         </div>
                       </div>
-                    </div>
-                    <div className="cost-card__rows">
-                      <div className="cost-card__row">
-                        <div className="cost-card__row-left"><span className="cost-card__row-icon cost-card__row-icon--rent">{costIcons.rent}</span><span className="cost-card__row-label">Annual Rent</span></div>
-                        <span className="cost-card__row-value">₦{Number(listing.price).toLocaleString()}</span>
+                      <div className="dp__cost-rows">
+                        <div className="dp__cost-row">
+                          <div className="dp__cost-row-left">
+                            <HiOutlineBanknotes className="dp__cost-icon dp__cost-icon--rent" />
+                            <span>Annual rent</span>
+                          </div>
+                          <span className="dp__cost-val">₦{Number(listing.price).toLocaleString()}</span>
+                        </div>
+                        {listing.cautionFee !== undefined && (
+                          <div className="dp__cost-row">
+                            <div className="dp__cost-row-left">
+                              <HiOutlineShieldCheck className="dp__cost-icon dp__cost-icon--caution" />
+                              <span>Caution fee</span>
+                            </div>
+                            {Number(listing.cautionFee) === 0
+                              ? <span className="dp__cost-free">None ✓</span>
+                              : <span className="dp__cost-val">₦{Number(listing.cautionFee).toLocaleString()}</span>}
+                          </div>
+                        )}
+                        {listing.legalFee !== undefined && (
+                          <div className="dp__cost-row">
+                            <div className="dp__cost-row-left">
+                              <HiOutlineReceiptPercent className="dp__cost-icon dp__cost-icon--legal" />
+                              <span>Legal fee</span>
+                            </div>
+                            {Number(listing.legalFee) === 0
+                              ? <span className="dp__cost-free">None ✓</span>
+                              : <span className="dp__cost-val">₦{Number(listing.legalFee).toLocaleString()}</span>}
+                          </div>
+                        )}
+                        {listing.agencyFee !== undefined && (
+                          <div className="dp__cost-row">
+                            <div className="dp__cost-row-left">
+                              <HiOutlineBuildingOffice className="dp__cost-icon dp__cost-icon--agency" />
+                              <span>Agency fee</span>
+                            </div>
+                            {Number(listing.agencyFee) === 0
+                              ? <span className="dp__cost-free">No agent ✓</span>
+                              : <span className="dp__cost-val">₦{Number(listing.agencyFee).toLocaleString()}</span>}
+                          </div>
+                        )}
+                        {Number(listing.serviceCharge) > 0 && (
+                          <div className="dp__cost-row">
+                            <div className="dp__cost-row-left">
+                              <HiOutlineCog6Tooth className="dp__cost-icon dp__cost-icon--service" />
+                              <span>Service charge</span>
+                            </div>
+                            <span className="dp__cost-val">₦{Number(listing.serviceCharge).toLocaleString()}</span>
+                          </div>
+                        )}
                       </div>
-                      {listing.cautionFee !== undefined && (
-                        <div className={"cost-card__row" + (Number(listing.cautionFee) === 0 ? " cost-card__row--free" : "")}>
-                          <div className="cost-card__row-left"><span className="cost-card__row-icon cost-card__row-icon--caution">{costIcons.caution}</span><span className="cost-card__row-label">Caution Fee</span></div>
-                          {Number(listing.cautionFee) === 0 ? <span className="cost-card__row-free">None ✓</span> : <span className="cost-card__row-value">₦{Number(listing.cautionFee).toLocaleString()}</span>}
+                      <div className="dp__cost-total">
+                        <div>
+                          <p className="dp__cost-total-label">Total move-in</p>
+                          <p className="dp__cost-total-note">One-time payment to secure this property</p>
                         </div>
-                      )}
-                      {listing.legalFee !== undefined && (
-                        <div className={"cost-card__row" + (Number(listing.legalFee) === 0 ? " cost-card__row--free" : "")}>
-                          <div className="cost-card__row-left"><span className="cost-card__row-icon cost-card__row-icon--legal">{costIcons.legal}</span><span className="cost-card__row-label">Legal Fee</span></div>
-                          {Number(listing.legalFee) === 0 ? <span className="cost-card__row-free">None ✓</span> : <span className="cost-card__row-value">₦{Number(listing.legalFee).toLocaleString()}</span>}
-                        </div>
-                      )}
-                      {listing.agencyFee !== undefined && (
-                        <div className={"cost-card__row" + (Number(listing.agencyFee) === 0 ? " cost-card__row--free" : "")}>
-                          <div className="cost-card__row-left"><span className="cost-card__row-icon cost-card__row-icon--agency">{costIcons.agency}</span><span className="cost-card__row-label">Agency Fee</span></div>
-                          {Number(listing.agencyFee) === 0 ? <span className="cost-card__row-free">No Agent ✓</span> : <span className="cost-card__row-value">₦{Number(listing.agencyFee).toLocaleString()}</span>}
-                        </div>
-                      )}
-                      {Number(listing.serviceCharge) > 0 && (
-                        <div className="cost-card__row">
-                          <div className="cost-card__row-left"><span className="cost-card__row-icon cost-card__row-icon--service">{costIcons.service}</span><span className="cost-card__row-label">Service Charge</span></div>
-                          <span className="cost-card__row-value">₦{Number(listing.serviceCharge).toLocaleString()}</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="cost-card__total">
-                      <div className="cost-card__total-left">
-                        <span className="cost-card__total-label">Total Move-in Cost</span>
-                        <span className="cost-card__total-note">One-time payment to secure this property</span>
-                      </div>
-                      <strong className="cost-card__total-value">₦{totalMoveInCost.toLocaleString()}</strong>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {listing.amenities && (
-                <div className="details-page__section">
-                  <h2>Amenities</h2>
-                  <div className="details-page__amenities">
-                    {(typeof listing.amenities === "string" ? listing.amenities.split(",") : listing.amenities).map((item, i) => (
-                      <span key={i} className="details-page__amenity-tag">
-                        <HiOutlineWrenchScrewdriver />{item.trim ? item.trim() : item}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="details-page__section">
-                <h2>Description</h2>
-                <p>{listing.description}</p>
-              </div>
-
-              <div className="details-page__section">
-                <h2>Quick Actions</h2>
-                <div className="details-page__actions">
-                  <a href={whatsappHref} target="_blank" rel="noreferrer" className="details-page__button details-page__button--primary">
-                    <HiOutlineChatBubbleLeftRight /> Chat on WhatsApp
-                  </a>
-                  <a href={telHref} className="details-page__button details-page__button--secondary">
-                    <HiOutlinePhone /> Call Now
-                  </a>
-                </div>
-
-                {!isOwner && (
-                  <button className="details-page__inspect-btn" onClick={handleBookInspection}>
-                    <HiOutlineClipboardDocumentCheck /> Book Inspection
-                  </button>
-                )}
-
-                {!isOwner && (
-                  <button
-                    className={"details-page__reserve-btn" + (listingReserved ? " reserved" : "") + (studentHasReservation ? " mine" : "")}
-                    onClick={handleReserve}
-                    disabled={listingReserved || studentHasReservation}
-                  >
-                    <HiOutlineShieldCheck />
-                    {listingReserved ? "Room Already Reserved" : studentHasReservation ? "You Reserved This Room" : "Reserve this Room"}
-                  </button>
-                )}
-
-                {!isOwner && (
-                  <button
-                    className="details-page__pay-btn"
-                    onClick={() => {
-                      if (!user) { router.push("/login"); return; }
-                      trackEvent("pay_click", { listingId, listingTitle: listing.title });
-                      router.push("/pay/" + listingId);
-                    }}
-                  >
-                    <HiOutlineBanknotes /> Pay Rent Now
-                  </button>
-                )}
-
-                {roommatePost && !isOwner && (
-                  <div className="details-page__roommate-cta">
-                    <div className="details-page__roommate-cta-left">
-                      <span className="details-page__roommate-cta-icon">🤝</span>
-                      <div>
-                        <p className="details-page__roommate-cta-title">Split the rent</p>
-                        <p className="details-page__roommate-cta-sub">
-                          {roommatePost.posterName} is looking for a roommate — ₦{(roommatePost.splitCost || 0).toLocaleString()}/yr each
-                        </p>
+                        <strong className="dp__cost-total-val">₦{totalMoveInCost.toLocaleString()}</strong>
                       </div>
                     </div>
-                    <Link href="/roommates" className="details-page__roommate-cta-btn">
-                      <HiOutlineUserGroup /> View post
-                    </Link>
-                  </div>
-                )}
-
-                <div className="details-page__interest">
-                  {!interestSent ? (
-                    <button className="details-page__interest-btn" onClick={handleExpressInterest} disabled={sendingInterest || isOwner}>
-                      {sendingInterest ? "Sending..." : "⚡ Express Interest"}
-                    </button>
                   ) : (
-                    <div className="details-page__interest-sent">
-                      <p>✅ Interest sent! The property owner has been notified.</p>
+                    <p className="dp__description">No cost breakdown provided for this listing.</p>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Tab: Amenities */}
+              {activeTab === "amenities" && (
+                <motion.div key="amenities" className="dp__tab-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+                  {amenityList.length > 0 ? (
+                    <>
+                      <p className="dp__section-label">Included in this property</p>
+                      <div className="dp__amenities">
+                        {amenityList.map((item, i) => (
+                          <span key={i} className="dp__amenity">
+                            <HiOutlineWrenchScrewdriver /> {item}
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <p className="dp__description">No amenities listed.</p>
+                  )}
+                </motion.div>
+              )}
+
+              {/* Tab: Location */}
+              {activeTab === "location" && (
+                <motion.div key="location" className="dp__tab-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+                  <p className="dp__section-label">Address</p>
+                  <p className="dp__description">{listing.address || listing.location || "No address provided."}</p>
+                  {mapsUrl && (
+                    <a href={mapsUrl} target="_blank" rel="noreferrer" className="dp__map-link">
+                      <HiOutlineMapPin /> Open full map
+                    </a>
+                  )}
+                </motion.div>
+              )}
+
+            </div>
+
+            {/* ── RIGHT SIDEBAR ── */}
+            <aside className="dp__sidebar">
+              <div className="dp__sidebar-card">
+
+                {/* Price */}
+                <div className="dp__price-block">
+                  <p className="dp__price">₦{Number(listing.price).toLocaleString()}</p>
+                  <p className="dp__price-label">per year · {listing.paymentTerms || "annually"}</p>
+                </div>
+
+                {/* Stats row */}
+                <div className="dp__stats-row">
+                  <div className="dp__stat">
+                    <span className="dp__stat-val">{listing.views || 0}</span>
+                    <span className="dp__stat-label">Views</span>
+                  </div>
+                  <div className="dp__stat">
+                    <span className="dp__stat-val">{listing.interests || 0}</span>
+                    <span className="dp__stat-label">Interested</span>
+                  </div>
+                  <div className="dp__stat">
+                    <span className="dp__stat-val">{getDaysAgo(listing.createdAt) || "—"}</span>
+                    <span className="dp__stat-label">Listed</span>
+                  </div>
+                </div>
+
+                <div className="dp__sidebar-divider" />
+
+                {/* Key facts */}
+                <div className="dp__sidebar-facts">
+                  <div className="dp__sidebar-fact">
+                    <span className="dp__sidebar-fact-label"><HiOutlineHomeModern /> Type</span>
+                    <span className="dp__sidebar-fact-val">{listing.type || "—"}</span>
+                  </div>
+                  <div className="dp__sidebar-fact">
+                    <span className="dp__sidebar-fact-label"><HiOutlineHomeModern /> Beds</span>
+                    <span className="dp__sidebar-fact-val">{listing.beds || 1}</span>
+                  </div>
+                  <div className="dp__sidebar-fact">
+                    <span className="dp__sidebar-fact-label"><HiOutlineHomeModern /> Baths</span>
+                    <span className="dp__sidebar-fact-val">{listing.baths || 1}</span>
+                  </div>
+                  <div className="dp__sidebar-fact">
+                    <span className="dp__sidebar-fact-label"><HiOutlineCalendarDays /> Availability</span>
+                    <span className={"dp__sidebar-fact-val" + (listing.availability === "Available Now" ? " dp__sidebar-fact-val--green" : "")}>
+                      {listing.availability || "—"}
+                    </span>
+                  </div>
+                  {hasCostBreakdown && (
+                    <div className="dp__sidebar-fact">
+                      <span className="dp__sidebar-fact-label"><HiOutlineCalculator /> Move-in total</span>
+                      <span className="dp__sidebar-fact-val">₦{totalMoveInCost.toLocaleString()}</span>
                     </div>
                   )}
-                  {!user && <p className="details-page__interest-note"><a href="/login">Log in</a> to express interest in this property.</p>}
-                  {isOwner && <p className="details-page__interest-note">This is your listing.</p>}
-                  {listing.interests > 0 && (
-                    <p className="details-page__interest-count">⚡ {listing.interests} {listing.interests === 1 ? "person has" : "people have"} expressed interest</p>
-                  )}
                 </div>
-              </div>
 
-              <div className="details-page__section">
-                <h2>Contact</h2>
-                <p className="details-page__contact-text">Reach out directly to the property owner or manager.</p>
-                <p className="details-page__phone">{listing.contact}</p>
-              </div>
+                <div className="dp__sidebar-divider" />
 
-              {/* ── Report section ── */}
-              <div className="details-page__section">
-                {!reportSent ? (
-                  <div className="details-page__report">
-                    <button className="details-page__report-btn" onClick={() => { if (!user) { router.push("/login"); return; } setShowReportModal(true); }}>
+                {/* CTAs — only for non-owners */}
+                {!isOwner && (
+                  <div className="dp__ctas">
+                    <button className="dp__cta dp__cta--primary" onClick={handleBookInspection}>
+                      <HiOutlineClipboardDocumentCheck /> Book Inspection
+                    </button>
+                    <button className="dp__cta dp__cta--secondary" onClick={handlePayRent}>
+                      <HiOutlineCreditCard /> Pay Rent
+                    </button>
+                  </div>
+                )}
+
+                {/* Trust strip */}
+                {listing.verified && (
+                  <div className="dp__trust-strip">
+                    <HiOutlineShieldCheck className="dp__trust-icon" />
+                    <p>
+                      <strong>Verified landlord.</strong> This property has been field-checked by the Rezidence team.
+                    </p>
+                  </div>
+                )}
+
+                {/* Report */}
+                <div className="dp__sidebar-report">
+                  {!reportSent ? (
+                    <button
+                      className="dp__report-btn"
+                      onClick={() => { if (!user) { router.push("/login"); return; } setShowReportModal(true); }}
+                    >
                       <HiOutlineFlag /> Report this listing
                     </button>
-                  </div>
-                ) : (
-                  <div className="details-page__report-sent-card">
-                    <HiOutlineCheckCircle className="details-page__report-sent-icon" />
-                    <div>
-                      <p className="details-page__report-sent-title">Report submitted</p>
-                      <p className="details-page__report-sent-sub">Thank you — our team will review this listing shortly.</p>
+                  ) : (
+                    <div className="dp__report-sent">
+                      <HiOutlineCheckCircle />
+                      <span>Report submitted — thank you.</span>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
 
-            </motion.div>
-          )}
-        </motion.div>
-      </section>
+              </div>
+            </aside>
+
+          </motion.div>
+        )}
+      </div>
     </main>
   );
 }
