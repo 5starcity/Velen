@@ -162,7 +162,7 @@ export default function LoginPage() {
           transition={{ duration: 0.4 }}
         >
           <div className="auth-header">
-            <div className="auth-logo">Vel<span>en</span></div>
+            <div className="auth-logo">Rezi<span>dence</span></div>
             <h1>Welcome back</h1>
             <p>Sign in to your account</p>
           </div>

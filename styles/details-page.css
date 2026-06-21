@@ -597,7 +597,7 @@
 
 .dp__gallery-main {
   position: relative;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   background: #1a2e1a;
   overflow: hidden;
 }
