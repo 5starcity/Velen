@@ -8,6 +8,7 @@ import { createListing } from "@/lib/firestoreListings";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import { LOCATIONS, UST_GATE_AREAS, OTHER_PH_AREAS } from "@/lib/locations";
 import { trackEvent } from "@/lib/posthog";
+import { extractVideoThumbnail } from "@/lib/videoThumbnail";
 import "@/styles/add-listing.css";
 
 const initialForm = {
@@ -33,6 +34,9 @@ const initialForm = {
 export default function AddListingPage() {
   const router = useRouter();
   const { user, userRole } = useAuth();
+
+  const [videoThumbnail, setVideoThumbnail] = useState(null); // blob
+  const [videoThumbnailPreview, setVideoThumbnailPreview] = useState(null); // object URL
 
   const [formData, setFormData]         = useState(initialForm);
   const [imageFiles, setImageFiles]     = useState([]);
@@ -79,17 +83,26 @@ export default function AddListingPage() {
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   }
 
-  function handleVideoChange(e) {
+  async function handleVideoChange(e) {
     const file = e.target.files[0];
-    if (file) {
-      setVideoFile(file);
-      setVideoPreview(URL.createObjectURL(file));
+    if (!file) return;
+    setVideoFile(file);
+    setVideoPreview(URL.createObjectURL(file));
+  
+    try {
+      const thumbBlob = await extractVideoThumbnail(file);
+      setVideoThumbnail(thumbBlob);
+      setVideoThumbnailPreview(URL.createObjectURL(thumbBlob));
+    } catch (err) {
+      console.warn("Could not extract video thumbnail:", err);
     }
   }
 
   function removeVideo() {
     setVideoFile(null);
     setVideoPreview(null);
+    setVideoThumbnail(null);
+    setVideoThumbnailPreview(null);
   }
 
   function validateForm() {
@@ -139,9 +152,16 @@ export default function AddListingPage() {
       }
 
       let videoUrl = null;
+      let videoThumbnailUrl = null;
       if (videoFile) {
         setUploadProgress("Uploading video...");
         videoUrl = await uploadToCloudinary(videoFile);
+      
+        if (videoThumbnail) {
+          setUploadProgress("Uploading video thumbnail...");
+          const thumbFile = new File([videoThumbnail], "thumb.jpg", { type: "image/jpeg" });
+          videoThumbnailUrl = await uploadToCloudinary(thumbFile);
+        }
       }
 
       setUploadProgress("Saving listing...");
@@ -177,6 +197,8 @@ export default function AddListingPage() {
         featured:       false,
         landlordId:     user.uid,
         landlordName:   user.displayName,
+        videoThumbnailUrl: videoThumbnailUrl || null,
+        image: imageUrls[0] || videoThumbnailUrl || null,
       });
 
       trackEvent("listing_created", {
@@ -464,11 +486,19 @@ export default function AddListingPage() {
               <input type="file" accept="video/*" className="file-input" onChange={handleVideoChange} />
               <p className="form-hint">A short walkthrough video works best. Max 50MB recommended.</p>
               {videoPreview && (
-                <div className="media-preview__video">
-                  <video src={videoPreview} controls />
-                  <button type="button" className="media-preview__remove-video" onClick={removeVideo}>Remove Video</button>
-                </div>
-              )}
+  <div className="media-preview__video">
+    {videoThumbnailPreview && (
+      <div className="media-preview__video-thumb">
+        <img src={videoThumbnailPreview} alt="Video thumbnail" />
+        <span className="media-preview__thumb-tag">Thumbnail</span>
+      </div>
+    )}
+    <video src={videoPreview} controls />
+    <button type="button" className="media-preview__remove-video" onClick={removeVideo}>
+      Remove Video
+    </button>
+  </div>
+)}
             </div>
             {errors.media && <p className="form-error">{errors.media}</p>}
           </div>

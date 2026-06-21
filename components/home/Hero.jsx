@@ -1,4 +1,3 @@
-// components/home/Hero.jsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -8,34 +7,39 @@ import { collection, query, where, getDocs, limit, orderBy } from "firebase/fire
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
 import {
-  HiOutlineShieldCheck,
-  HiOutlineBanknotes,
-  HiOutlineUserGroup,
-  HiOutlineArrowRight,
   HiOutlineMapPin,
+  HiOutlineArrowRight,
   HiOutlineHeart,
   HiOutlineStar,
   HiCheckBadge,
   HiOutlineClock,
+  HiMagnifyingGlass,
 } from "react-icons/hi2";
 import "@/styles/hero.css";
 
 const rise = (delay = 0) => ({
-  initial: { opacity: 0, y: 32 },
+  initial: { opacity: 0, y: 28 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] },
+  transition: { duration: 0.65, delay, ease: [0.16, 1, 0.3, 1] },
 });
 
 const fade = (delay = 0) => ({
   initial: { opacity: 0 },
   animate: { opacity: 1 },
-  transition: { duration: 0.6, delay },
+  transition: { duration: 0.55, delay },
 });
 
 function naira(n) {
   if (!n && n !== 0) return "—";
   return "₦" + Number(n).toLocaleString("en-NG");
 }
+
+const QUICK_CHIPS = [
+  { label: "Near RSU",      href: "/listings?school=RSU" },
+  { label: "Near UniPort",  href: "/listings?school=UniPort" },
+  { label: "Self-con",      href: "/listings?type=self-con" },
+  { label: "Under ₦80k",   href: "/listings?maxPrice=80000" },
+];
 
 // ── Featured listing card ─────────────────────────────────
 function FeaturedCard({ listing, index, total }) {
@@ -66,42 +70,46 @@ function FeaturedCard({ listing, index, total }) {
     <motion.div
       key={listing.id}
       className="hero__card"
-      initial={{ opacity: 0, y: 24, scale: 0.97 }}
+      initial={{ opacity: 0, y: 20, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -16, scale: 0.97 }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      exit={{ opacity: 0, y: -12, scale: 0.97 }}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
     >
-      {/* Location chip — sits outside the link so it doesn't get styled as one */}
+      {/* Featured ribbon */}
+      <div className="hero__card-ribbon">
+        <HiOutlineStar aria-hidden="true" />
+        Featured
+      </div>
+
+      {/* Location chip */}
       {(school || location) && (
         <div className="hero__card-chip">
-          <HiOutlineMapPin />
+          <HiOutlineMapPin aria-hidden="true" />
           <div>
             <span className="hero__card-chip-title">
               {school ? `Near ${school} Gate` : location}
             </span>
             {distanceToGate && (
               <span className="hero__card-chip-sub">
-                <HiOutlineClock /> {distanceToGate}
+                <HiOutlineClock aria-hidden="true" /> {distanceToGate}
               </span>
             )}
           </div>
         </div>
       )}
 
-      {/* Clickable area — everything except the heart button navigates to the listing */}
       <Link href={`/listings/${listing.id}`} className="hero__card-link">
 
         {/* Image */}
-        <div className="hero__card-image-wrap">
+        <div className="hero__card-img-wrap">
           {image ? (
-            <img src={image} alt={title} className="hero__card-image" />
+            <img src={image} alt={title} className="hero__card-img" />
           ) : (
-            <div className="hero__card-image-empty">
-              <HiOutlineMapPin />
+            <div className="hero__card-img-empty">
+              <HiOutlineMapPin aria-hidden="true" />
             </div>
           )}
 
-          {/* Heart — stopPropagation so it doesn't trigger the Link */}
           <button
             className="hero__card-heart"
             aria-label="Save listing"
@@ -122,8 +130,8 @@ function FeaturedCard({ listing, index, total }) {
         {/* Body */}
         <div className="hero__card-body">
           {available !== false && (
-            <div className="hero__card-available">
-              <span className="hero__card-available-dot" />
+            <div className="hero__card-avail">
+              <span className="hero__card-avail-dot" />
               Available Now
             </div>
           )}
@@ -135,15 +143,15 @@ function FeaturedCard({ listing, index, total }) {
           <div className="hero__card-fees">
             <div className="hero__card-fee-row">
               <span>Caution fee</span>
-              <span className={cautionFee === 0 ? "hero__card-fee-zero" : ""}>{naira(cautionFee)}</span>
+              <span className={cautionFee === 0 ? "zero" : ""}>{naira(cautionFee)}</span>
             </div>
             <div className="hero__card-fee-row">
               <span>Agency fee</span>
-              <span className={agencyFee === 0 ? "hero__card-fee-zero" : ""}>{naira(agencyFee)}</span>
+              <span className={agencyFee === 0 ? "zero" : ""}>{naira(agencyFee)}</span>
             </div>
             <div className="hero__card-fee-row">
               <span>Legal fee</span>
-              <span className={legalFee === 0 ? "hero__card-fee-zero" : ""}>{naira(legalFee)}</span>
+              <span className={legalFee === 0 ? "zero" : ""}>{naira(legalFee)}</span>
             </div>
             <div className="hero__card-fee-row hero__card-fee-row--total">
               <span>Move-in total</span>
@@ -153,15 +161,14 @@ function FeaturedCard({ listing, index, total }) {
 
           {verified && (
             <div className="hero__card-verified">
-              <HiCheckBadge />
+              <HiCheckBadge aria-hidden="true" />
               Verified property
             </div>
           )}
         </div>
 
-        {/* No hidden fees */}
         <div className="hero__card-nohidden">
-          <HiCheckBadge />
+          <HiCheckBadge aria-hidden="true" />
           <div>
             <strong>No hidden fees</strong>
             <span>What you see is what you pay</span>
@@ -169,12 +176,6 @@ function FeaturedCard({ listing, index, total }) {
         </div>
 
       </Link>
-
-      {/* Premium ribbon — outside link so hover styles stay clean */}
-      <div className="hero__card-premium">
-        <HiOutlineStar />
-        Featured
-      </div>
     </motion.div>
   );
 }
@@ -184,28 +185,23 @@ export default function Hero() {
   const { user, userRole } = useAuth();
   const [featuredListings, setFeaturedListings] = useState([]);
   const [activeIndex, setActiveIndex]           = useState(0);
-  const [status, setStatus]                     = useState("loading"); // loading | ok | empty | error
+  const [status, setStatus]                     = useState("loading");
 
   useEffect(() => {
     async function fetchFeatured() {
       setStatus("loading");
       try {
-        // ── Query: featured listings, ordered by most recent featuredAt ──
-        // Firestore index needed: featured ASC + featuredExpiry ASC
-        // Create at: Firebase Console → Firestore → Indexes → Add
-        // Collection: listings  |  featured: Ascending  |  featuredExpiry: Ascending
         const now = new Date();
         const q = query(
           collection(db, "listings"),
           where("featured", "==", true),
-          where("featuredExpiry", ">", now),  // only show non-expired featured slots
+          where("featuredExpiry", ">", now),
           orderBy("featuredExpiry", "asc"),
           limit(6)
         );
         const snap = await getDocs(q);
 
         if (snap.empty) {
-          // Fallback: show any 3 verified listings as placeholder preview
           const fallback = query(
             collection(db, "listings"),
             where("verified", "==", true),
@@ -220,10 +216,7 @@ export default function Hero() {
           setFeaturedListings(data);
           setStatus("ok");
         }
-      } catch (err) {
-        console.error("[Hero] Featured listings fetch failed:", err.code, err.message);
-        // Graceful fallback — try reading without the expiry filter
-        // (happens when Firestore index isn't created yet)
+      } catch {
         try {
           const simpleQ = query(
             collection(db, "listings"),
@@ -234,8 +227,7 @@ export default function Hero() {
           const data = snap2.docs.map((d) => ({ id: d.id, ...d.data() }));
           setFeaturedListings(data);
           setStatus(data.length > 0 ? "ok" : "empty");
-        } catch (err2) {
-          console.error("[Hero] Fallback fetch also failed:", err2.message);
+        } catch {
           setStatus("error");
         }
       }
@@ -243,7 +235,6 @@ export default function Hero() {
     fetchFeatured();
   }, []);
 
-  // Auto-rotate every 4 s
   useEffect(() => {
     if (featuredListings.length <= 1) return;
     const t = setInterval(
@@ -257,62 +248,86 @@ export default function Hero() {
 
   return (
     <section className="hero">
-
-      <div className="hero__atmosphere">
-        <div className="hero__orb hero__orb--amber" />
-        <div className="hero__orb hero__orb--blue" />
-        <div className="hero__noise" />
-      </div>
-
       <div className="hero__inner">
 
         {/* ── Left ── */}
         <div className="hero__left">
-          <motion.div className="hero__location-tag" {...fade(0.1)}>
-            <HiOutlineMapPin />
+          <motion.div className="hero__eyebrow" {...fade(0.05)}>
+            <HiOutlineMapPin aria-hidden="true" />
             <span>Port Harcourt, Nigeria</span>
           </motion.div>
 
-          <motion.h1 className="hero__headline" {...rise(0.15)}>
-            Your next
-            <br />
-            <em className="hero__headline-em">student home</em>
-            <br />
-            starts here.
+          <motion.h1 className="hero__headline" {...rise(0.12)}>
+            Find your next place
+            <em> near campus</em>
           </motion.h1>
 
-          <motion.p className="hero__body" {...rise(0.28)}>
-            Verified rooms near RSU, UniPort, IAUE and more.
-            See full costs upfront, contact landlords directly —
-            no agents, no nonsense.
+          <motion.p className="hero__sub" {...rise(0.22)}>
+            Verified listings across Port Harcourt universities —
+            no agent fees, full costs upfront.
           </motion.p>
 
-          <motion.div className="hero__actions" {...rise(0.38)}>
-            <Link href="/listings" className="hero__btn hero__btn--primary">
-              Browse Rooms <HiOutlineArrowRight />
+          {/* Search bar */}
+          <motion.div className="hero__search" {...rise(0.30)}>
+            <HiMagnifyingGlass className="hero__search-icon" aria-hidden="true" />
+            <input
+              className="hero__search-input"
+              type="text"
+              placeholder="Search by location or school…"
+              readOnly
+              onClick={() => window.location.href = "/listings"}
+            />
+            <Link href="/listings" className="hero__search-btn">
+              Search
             </Link>
-            {!user && (
-              <Link href="/signup" className="hero__btn hero__btn--ghost">Join Free</Link>
-            )}
-            {userRole === "student" && (
-              <Link href="/roommates" className="hero__btn hero__btn--ghost">Find Roommate</Link>
-            )}
-            {userRole === "landlord" && (
-              <Link href="/add-listing" className="hero__btn hero__btn--ghost">List Property</Link>
-            )}
           </motion.div>
 
-          <motion.div className="hero__trust" {...fade(0.55)}>
-            <div className="hero__trust-item"><HiOutlineShieldCheck /><span>Verified listings</span></div>
-            <span className="hero__trust-sep">·</span>
-            <div className="hero__trust-item"><HiOutlineBanknotes /><span>Moderate agent fees</span></div>
-            <span className="hero__trust-sep">·</span>
-            <div className="hero__trust-item"><HiOutlineUserGroup /><span>Split rent board</span></div>
+          {/* Quick chips */}
+          <motion.div className="hero__chips" {...fade(0.42)}>
+            {QUICK_CHIPS.map((c) => (
+              <Link key={c.label} href={c.href} className="hero__chip">
+                {c.label}
+              </Link>
+            ))}
+          </motion.div>
+
+          {/* Auth CTAs */}
+          <motion.div className="hero__actions" {...fade(0.50)}>
+            {!user && (
+              <>
+                <Link href="/listings" className="hero__btn hero__btn--primary">
+                  Browse Rooms <HiOutlineArrowRight aria-hidden="true" />
+                </Link>
+                <Link href="/signup" className="hero__btn hero__btn--ghost">
+                  Join Free
+                </Link>
+              </>
+            )}
+            {userRole === "student" && (
+              <>
+                <Link href="/listings" className="hero__btn hero__btn--primary">
+                  Browse Rooms <HiOutlineArrowRight aria-hidden="true" />
+                </Link>
+                <Link href="/roommates" className="hero__btn hero__btn--ghost">
+                  Find Roommate
+                </Link>
+              </>
+            )}
+            {userRole === "landlord" && (
+              <>
+                <Link href="/listings" className="hero__btn hero__btn--primary">
+                  Browse Rooms <HiOutlineArrowRight aria-hidden="true" />
+                </Link>
+                <Link href="/add-listing" className="hero__btn hero__btn--ghost">
+                  List Property
+                </Link>
+              </>
+            )}
           </motion.div>
         </div>
 
-        {/* ── Right ── */}
-        <motion.div className="hero__right" {...fade(0.45)}>
+        {/* ── Right — Featured card ── */}
+        <motion.div className="hero__right" {...fade(0.40)}>
           <AnimatePresence mode="wait">
             {status === "loading" ? (
               <motion.div
@@ -322,11 +337,11 @@ export default function Hero() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <div className="hero__card-image-wrap hero__card-image-wrap--skeleton" />
+                <div className="hero__card-img-wrap hero__card-img-wrap--skeleton" />
                 <div className="hero__card-body">
-                  <div className="hero__skeleton-line hero__skeleton-line--short" />
-                  <div className="hero__skeleton-line" />
-                  <div className="hero__skeleton-line hero__skeleton-line--med" />
+                  <div className="hero__skel-line hero__skel-line--short" />
+                  <div className="hero__skel-line" />
+                  <div className="hero__skel-line hero__skel-line--med" />
                 </div>
               </motion.div>
             ) : activeListing ? (
@@ -339,10 +354,12 @@ export default function Hero() {
             ) : null}
           </AnimatePresence>
 
-          <motion.div className="hero__feature-cta" {...fade(0.9)}>
-            <HiOutlineStar />
+          <motion.div className="hero__feature-cta" {...fade(0.85)}>
+            <HiOutlineStar aria-hidden="true" />
             <span>
-              {status === "ok" ? "Also want your listing here?" : "Be the first featured listing!"}{" "}
+              {status === "ok"
+                ? "Want your listing here? "
+                : "Be the first featured listing! "}
               <Link href="/landlord/feature">Get featured →</Link>
             </span>
           </motion.div>
@@ -350,11 +367,28 @@ export default function Hero() {
 
       </div>
 
-      <motion.div className="hero__scroll" {...fade(1.1)}>
-        <div className="hero__scroll-line" />
-        <span>Scroll to explore</span>
+      {/* Stats bar */}
+      <motion.div className="hero__stats" {...fade(0.60)}>
+        <div className="hero__stat">
+          <span className="hero__stat-num">120+</span>
+          <span className="hero__stat-lbl">Listings</span>
+        </div>
+        <div className="hero__stat-divider" />
+        <div className="hero__stat">
+          <span className="hero__stat-num">4</span>
+          <span className="hero__stat-lbl">Universities</span>
+        </div>
+        <div className="hero__stat-divider" />
+        <div className="hero__stat">
+          <span className="hero__stat-num">100%</span>
+          <span className="hero__stat-lbl">Verified</span>
+        </div>
+        <div className="hero__stat-divider" />
+        <div className="hero__stat">
+          <span className="hero__stat-num">₦0</span>
+          <span className="hero__stat-lbl">Agent fee</span>
+        </div>
       </motion.div>
-
     </section>
   );
 }

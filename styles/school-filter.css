@@ -1,0 +1,103 @@
+/* ═══════════════════════════════════════════
+   SCHOOL FILTER  —  Rezidence
+   BEM: .sf__*
+═══════════════════════════════════════════ */
+
+.sf {
+    background: #f5f4f0;
+    padding: 72px 24px;
+    border-bottom: 0.5px solid #e0ddd5;
+  }
+  
+  .sf__inner {
+    max-width: 1140px;
+    margin: 0 auto;
+  }
+  
+  .sf__header {
+    margin-bottom: 32px;
+  }
+  
+  .sf__eyebrow {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    color: var(--accent, #2d5a28);
+    margin-bottom: 10px;
+  }
+  
+  .sf__heading {
+    font-size: 28px;
+    font-weight: 500;
+    color: #111;
+    letter-spacing: -0.3px;
+    margin-bottom: 8px;
+  }
+  
+  .sf__sub {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.55;
+  }
+  
+  /* Pills row */
+  .sf__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .sf__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: 0.5px solid #c0d9be;
+    border-radius: 24px;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--accent, #2d5a28);
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  
+  .sf__pill:hover {
+    background: #eaf3de;
+    border-color: var(--accent, #2d5a28);
+  }
+  
+  .sf__pill--active {
+    background: var(--accent, #2d5a28);
+    color: #fff;
+    border-color: var(--accent, #2d5a28);
+  }
+  
+  .sf__pill-full {
+    font-size: 12px;
+    font-weight: 400;
+    opacity: 0.7;
+  }
+  
+  .sf__pill--active .sf__pill-full {
+    opacity: 0.8;
+    color: #c2dbbf;
+  }
+  
+  /* Responsive */
+  @media (max-width: 560px) {
+    .sf {
+      padding: 52px 16px;
+    }
+  
+    .sf__pill-full {
+      display: none;
+    }
+  
+    .sf__pill {
+      font-size: 13px;
+      padding: 9px 16px;
+    }
+  }

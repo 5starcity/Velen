@@ -958,7 +958,9 @@
   .lp__hero-headline { font-size: 1.75rem; }
   .lp__hero-stats    { padding: 16px; }
   .lp__hero-stat-num { font-size: 1.35rem; }
-  .lp__grid          { grid-template-columns: 1fr; }
+  .lp__grid          { grid-template-columns: repeat(2,1fr); }
+  .lp__grid > * {min-width: 0; }
+  .lp__grid{padding: 0 12px 60px;}
 
   .lp__results-bar {
     flex-direction: column;

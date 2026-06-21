@@ -1,0 +1,116 @@
+/* ═══════════════════════════════════════════
+   TESTIMONIAL  —  Rezidence
+   BEM: .testi__*
+═══════════════════════════════════════════ */
+
+.testi {
+    background: #fff;
+    padding: 72px 24px;
+    border-bottom: 0.5px solid #e8ede7;
+  }
+  
+  .testi__inner {
+    max-width: 1140px;
+    margin: 0 auto;
+  }
+  
+  .testi__header {
+    margin-bottom: 40px;
+  }
+  
+  .testi__eyebrow {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    color: var(--accent, #2d5a28);
+    margin-bottom: 10px;
+  }
+  
+  .testi__heading {
+    font-size: 28px;
+    font-weight: 500;
+    color: #111;
+    letter-spacing: -0.3px;
+  }
+  
+  /* Grid */
+  .testi__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  
+  .testi__card {
+    background: #f8faf7;
+    border: 0.5px solid #e0eadf;
+    border-radius: 14px;
+    padding: 24px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  /* Stars */
+  .testi__stars {
+    display: flex;
+    gap: 3px;
+    color: #e9a020;
+    font-size: 14px;
+  }
+  
+  /* Quote */
+  .testi__quote {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.7;
+    flex: 1;
+    font-style: italic;
+  }
+  
+  /* Author row */
+  .testi__author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .testi__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #eaf3de;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent, #2d5a28);
+    flex-shrink: 0;
+  }
+  
+  .testi__name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #111;
+  }
+  
+  .testi__tag {
+    font-size: 11px;
+    color: #888;
+    margin-top: 2px;
+  }
+  
+  /* Responsive */
+  @media (max-width: 780px) {
+    .testi__grid {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .testi {
+      padding: 52px 16px;
+    }
+  }

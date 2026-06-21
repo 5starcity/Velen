@@ -22,6 +22,7 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import "@/styles/listing-card.css";
 import "@/styles/listing-tag.css";
+import "@/styles/listing-card-compact.css";
 
 // Listings below this price are flagged as suspiciously cheap
 const SCAM_PRICE_THRESHOLD = 50000;
@@ -70,7 +71,7 @@ export default function ListingCard({ listing }) {
     }
   }
 
-  const thumb = listing.images?.[0] || listing.image || null;
+  const thumb = listing.images?.[0] || listing.image || listing.videoThumbnailUrl || null;
   const hasVideo = !!listing.videoUrl;
   const tags = getListingTags(listing, { max: 3 });
   const isScamRisk =
