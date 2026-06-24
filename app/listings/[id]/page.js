@@ -629,34 +629,6 @@ export default function ListingDetailsPage() {
                 {copied && <span className="dp__copied-flash">Link copied!</span>}
               </div>
 
-              {/* Fact chips */}
-              <div className="dp__facts">
-                <div className="dp__fact">
-                  <HiOutlineHomeModern />
-                  <span>{listing.type}</span>
-                </div>
-                <div className="dp__fact">
-                  <HiOutlineHomeModern />
-                  <span>{listing.beds || 1} bed{(listing.beds || 1) > 1 ? "s" : ""}</span>
-                </div>
-                <div className="dp__fact">
-                  <HiOutlineHomeModern />
-                  <span>{listing.baths || 1} bath{(listing.baths || 1) > 1 ? "s" : ""}</span>
-                </div>
-                {listing.furnishing && (
-                  <div className="dp__fact">
-                    <HiOutlineSparkles />
-                    <span>{listing.furnishing}</span>
-                  </div>
-                )}
-                {listing.paymentTerms && (
-                  <div className="dp__fact">
-                    <HiOutlineBanknotes />
-                    <span>{listing.paymentTerms}</span>
-                  </div>
-                )}
-              </div>
-
               {/* Landlord card */}
               {listing.landlordId && (listing.landlordName || listing.agentName) && (
                 <Link href={"/agent/" + listing.landlordId} className="dp__landlord-card">
@@ -821,22 +793,6 @@ export default function ListingDetailsPage() {
                   <p className="dp__price-label">per year · {listing.paymentTerms || "annually"}</p>
                 </div>
 
-                {/* Stats row */}
-                <div className="dp__stats-row">
-                  <div className="dp__stat">
-                    <span className="dp__stat-val">{listing.views || 0}</span>
-                    <span className="dp__stat-label">Views</span>
-                  </div>
-                  <div className="dp__stat">
-                    <span className="dp__stat-val">{listing.interests || 0}</span>
-                    <span className="dp__stat-label">Interested</span>
-                  </div>
-                  <div className="dp__stat">
-                    <span className="dp__stat-val">{getDaysAgo(listing.createdAt) || "—"}</span>
-                    <span className="dp__stat-label">Listed</span>
-                  </div>
-                </div>
-
                 <div className="dp__sidebar-divider" />
 
                 {/* Key facts */}
@@ -844,14 +800,6 @@ export default function ListingDetailsPage() {
                   <div className="dp__sidebar-fact">
                     <span className="dp__sidebar-fact-label"><HiOutlineHomeModern /> Type</span>
                     <span className="dp__sidebar-fact-val">{listing.type || "—"}</span>
-                  </div>
-                  <div className="dp__sidebar-fact">
-                    <span className="dp__sidebar-fact-label"><HiOutlineHomeModern /> Beds</span>
-                    <span className="dp__sidebar-fact-val">{listing.beds || 1}</span>
-                  </div>
-                  <div className="dp__sidebar-fact">
-                    <span className="dp__sidebar-fact-label"><HiOutlineHomeModern /> Baths</span>
-                    <span className="dp__sidebar-fact-val">{listing.baths || 1}</span>
                   </div>
                   <div className="dp__sidebar-fact">
                     <span className="dp__sidebar-fact-label"><HiOutlineCalendarDays /> Availability</span>

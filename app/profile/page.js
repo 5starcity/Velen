@@ -514,8 +514,7 @@ export default function ProfilePage() {
             <button
               key={opt.value || opt}
               className={`profile-page__pref-pill${roommatePrefs[prefKey] === (opt.value || opt) ? " profile-page__pref-pill--active" : ""}`}
-              onClick={() => prefsEditing && setRoommatePrefs(prev => ({ ...prev, [prefKey]: opt.value || opt }))}
-              disabled={!prefsEditing}
+              onClick={() => setRoommatePrefs(prev => ({ ...prev, [prefKey]: opt.value || opt }))}
             >
               {opt.label || opt}
               {opt.desc && <span>{opt.desc}</span>}
@@ -580,18 +579,6 @@ export default function ProfilePage() {
           <div className="profile-page__hero-info">
             <h1>{profileData.displayName || "Your Profile"}</h1>
             {profileData.bio && <p className="profile-page__hero-bio">{profileData.bio}</p>}
-            <div className="profile-page__hero-badges">
-              <span className={`profile-page__role-badge ${isStudent ? "tenant" : "landlord"}`}>
-                <HiOutlineShieldCheck />
-                {isStudent ? "Student" : "Property Owner"}
-              </span>
-              {profileData.university && (
-                <span className="profile-page__uni-badge">
-                  <HiOutlineAcademicCap />
-                  {profileData.university.replace(" (type below)", "")}
-                </span>
-              )}
-            </div>
           </div>
         </div>
 
@@ -683,10 +670,19 @@ export default function ProfilePage() {
                 <HiOutlineUserGroup /> I&apos;m looking for a roommate
               </span>
               <button
-                className={`profile-page__toggle${roommatePrefs.lookingForRoommate ? " profile-page__toggle--on" : ""}`}
-                onClick={() => prefsEditing && setRoommatePrefs(prev => ({ ...prev, lookingForRoommate: !prev.lookingForRoommate }))}
-                disabled={!prefsEditing}
-              >
+  className={`profile-page__toggle${roommatePrefs.lookingForRoommate ? " profile-page__toggle--on" : ""}`}
+  onClick={async () => {
+    const updated = { ...roommatePrefs, lookingForRoommate: !roommatePrefs.lookingForRoommate };
+    setRoommatePrefs(updated);
+    try {
+      await updateDoc(doc(db, "users", user.uid), { roommatePrefs: updated });
+    } catch (e) {
+      console.error(e);
+      setRoommatePrefs(roommatePrefs); // revert on fail
+      showToast("Failed to save. Try again.", "error");
+    }
+  }}
+>
                 <span className="profile-page__toggle-knob" />
               </button>
             </div>
@@ -704,7 +700,7 @@ export default function ProfilePage() {
                   <textarea
                     className="profile-page__pref-notes"
                     value={roommatePrefs.extraNotes}
-                    onChange={e => prefsEditing && setRoommatePrefs(prev => ({ ...prev, extraNotes: e.target.value }))}
+                    onChange={e => setRoommatePrefs(prev => ({ ...prev, extraNotes: e.target.value }))}
                     placeholder="Anything else a potential roommate should know..."
                     maxLength={300}
                     readOnly={!prefsEditing}
