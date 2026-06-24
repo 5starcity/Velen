@@ -58,9 +58,6 @@ export default function FeaturedListings() {
               Available now
             </span>
             <h2 className="featured__heading">Featured listings</h2>
-            <p className="featured__sub">
-              Verified properties with transparent pricing and direct contact to owners.
-            </p>
           </div>
           <Link href="/listings" className="featured__see-all">
             See all listings <HiOutlineArrowRight aria-hidden="true" />
