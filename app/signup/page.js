@@ -175,7 +175,7 @@ export default function SignupPage() {
           transition={{ duration: 0.4 }}
         >
           <div className="auth-header">
-            <div className="auth-logo">Vel<span>en</span></div>
+            <div className="auth-logo">Rezi<span>dence</span></div>
             <h1>Create account</h1>
             <p>Find or list properties stress-free</p>
           </div>
