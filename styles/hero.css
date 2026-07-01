@@ -1,13 +1,8 @@
-/* ═══════════════════════════════════════════
-   HERO  —  Rezidence
-   BEM: .hero__*
-   Layout: centered single-column, search-first
-═══════════════════════════════════════════ */
 
 /* ── Section ── */
 .hero {
   background: var(--accent, #2d5a28);
-  padding: 72px 24px 0;
+  padding: 10px 5px 0;
   overflow: hidden;
 }
 
@@ -238,7 +233,7 @@
 /* ── Tablet ── */
 @media (max-width: 768px) {
   .hero {
-    padding: 56px 20px 0;
+    padding: 36px 20px 0;
   }
 
   .hero__inner {
@@ -266,7 +261,7 @@
 /* ── Mobile ── */
 @media (max-width: 480px) {
   .hero {
-    padding: 44px 16px 0;
+    padding: 10px 16px 0;
   }
 
   .hero__inner {

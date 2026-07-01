@@ -30,13 +30,13 @@ const sections = [
   },
   {
     id: "payments",
-    title: "6. Payments & Escrow",
-    content: `Payments made through rezidence are processed via Paystack and held in escrow for 48 hours after a reservation is confirmed. Funds are released to the landlord after the escrow period unless a dispute is raised. By making a payment, you agree to Paystack's terms of service in addition to ours. rezidence charges a platform fee on successful transactions, which will be disclosed at checkout.`,
+    title: "6. Payments",
+    content: `Payments made through rezidence are processed via Paystack. Using Paystack's Split Payment feature, funds are automatically divided between the landlord and rezidence at the time of payment — rezidence does not hold funds in escrow. By making a payment, you agree to Paystack's terms of service in addition to ours. rezidence charges a platform fee on successful transactions, which will be disclosed at checkout.`,
   },
   {
     id: "disputes",
     title: "7. Disputes",
-    content: `If a dispute is raised within the 48-hour escrow window, the transaction will be frozen and reviewed by rezidence's support team. Both parties will be contacted for evidence. rezidence's decision on disputes is final within the scope of the platform. We are not liable for disputes arising outside of transactions processed through the Platform.`,
+    content: `Since payments are split and disbursed at the time of transaction, rezidence does not hold funds to resolve disputes. If a dispute is raised, rezidence's support team will review the matter using available evidence from both parties and mediate a resolution directly with the landlord. rezidence's decision on disputes is final within the scope of the platform. We are not liable for disputes arising outside of transactions processed through the Platform.`,
   },
   {
     id: "prohibited",
@@ -71,7 +71,7 @@ export default function TermsPage() {
       {/* Navbar */}
       <nav className={styles.nav}>
         <Link href="/" className={styles.logo}>
-          Vel<em>en</em>
+          Rezi<em>dence</em>
         </Link>
         <div className={styles.navLinks}>
           <Link href="/browse">Browse</Link>
@@ -88,7 +88,7 @@ export default function TermsPage() {
           <p className={styles.subtitle}>
             Please read these terms carefully before using rezidence.
           </p>
-          <p className={styles.lastUpdated}>Last updated: May 2026</p>
+          <p className={styles.lastUpdated}>Last updated: July 2026</p>
         </div>
 
         <div className={styles.layout}>

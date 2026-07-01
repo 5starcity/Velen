@@ -21,7 +21,7 @@ const sections = [
   {
     id: "how-we-use",
     title: "4. How We Use Your Information",
-    content: `We use your information to: operate and improve the Platform; verify your identity as a student, landlord, or agent; process payments and manage escrow; send you transactional notifications (reservation confirmations, payment receipts, dispute updates); display your profile to other users where relevant (e.g. agent profiles are public); and analyse usage patterns to improve features and detect fraud. We do not use your data for targeted advertising.`,
+    content: `We use your information to: operate and improve the Platform; verify your identity as a student, landlord, or agent; process payments; send you transactional notifications (reservation confirmations, payment receipts, dispute updates); display your profile to other users where relevant (e.g. agent profiles are public); and analyse usage patterns to improve features and detect fraud. We do not use your data for targeted advertising.`,
   },
   {
     id: "sharing",

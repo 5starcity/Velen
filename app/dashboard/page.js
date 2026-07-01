@@ -27,7 +27,6 @@ import {
   HiOutlinePhone,
   HiOutlineXCircle,
   HiOutlineCheck,
-  HiOutlineShieldCheck,
 } from "react-icons/hi2";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -38,13 +37,10 @@ import {
 } from "@/lib/firestoreListings";
 import {
   fetchInspectionsByLandlord,
-  updateInspectionStatus,
 } from "@/lib/firestoreInspections";
 import {
   fetchReservationsByLandlord,
-  updateReservationStatus,
 } from "@/lib/firestoreReservations";
-import { createNotification } from "@/lib/firestoreNotifications";
 import "@/styles/dashboard.css";
 
 /* ─────────────────────────── constants ─────────────────────────── */
@@ -52,6 +48,7 @@ import "@/styles/dashboard.css";
 const AVAILABILITY_OPTIONS = ["Available Now", "Available Soon", "Not Available"];
 const EXPIRY_DAYS = 90;
 const WARN_DAYS   = 75;
+
 
 /* ─────────────────────────── helpers ───────────────────────────── */
 
@@ -128,11 +125,8 @@ export default function DashboardPage() {
   const [inspFilter, setInspFilter]               = useState("pending");
   const [updatingInspId, setUpdatingInspId]       = useState(null);
 
-  /* reservations */
-  const [reservations, setReservations]           = useState([]);
-  const [resLoading, setResLoading]               = useState(true);
-  const [resFilter, setResFilter]                 = useState("pending");
-  const [updatingResId, setUpdatingResId]         = useState(null);
+  const [reservations, setReservations] = useState([]);
+  const [resLoading, setResLoading]     = useState(false);
 
   /* toast */
   const [toast, setToast] = useState(null);
@@ -181,38 +175,20 @@ export default function DashboardPage() {
   async function handleInspectionStatus(id, status) {
     setUpdatingInspId(id);
     try {
-      await updateInspectionStatus(id, status);
+      const res = await fetch("/api/inspections/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ inspectionId: id, status }),
+      });
+  
+      if (!res.ok) throw new Error("Update failed");
+  
       setInspections(prev => prev.map(i => i.id === id ? { ...i, status } : i));
       showToast(status === "confirmed" ? "Visit confirmed." : "Visit declined.");
     } catch {
       showToast("Something went wrong.", "error");
     } finally {
       setUpdatingInspId(null);
-    }
-  }
-
-  async function handleReservationStatus(id, status) {
-    setUpdatingResId(id);
-    try {
-      await updateReservationStatus(id, status);
-      setReservations(prev => prev.map(r => r.id === id ? { ...r, status } : r));
-
-      const res = reservations.find(r => r.id === id);
-      if (res) {
-        try {
-          const notif = status === "confirmed"
-            ? { type: "reservation_confirmed", title: "Your reservation was confirmed! 🎉",
-                message: `Your reservation for "${res.listingTitle}" has been confirmed. Contact the landlord to arrange your move-in.` }
-            : { type: "reservation_declined", title: "Reservation update",
-                message: `Your reservation for "${res.listingTitle}" was not confirmed this time. You can browse other available listings.` };
-          await createNotification({ ...notif, userId: res.studentId, listingId: res.listingId, senderId: user.uid, senderName: user.displayName || "Landlord" });
-        } catch { /* notification failure is non-blocking */ }
-      }
-      showToast(status === "confirmed" ? "Reservation confirmed." : "Reservation declined.");
-    } catch {
-      showToast("Something went wrong.", "error");
-    } finally {
-      setUpdatingResId(null);
     }
   }
 
@@ -284,7 +260,7 @@ export default function DashboardPage() {
     : null;
 
   const pendingInspCount = inspections.filter(i => i.status === "pending").length;
-  const pendingResCount  = reservations.filter(r => r.status === "pending").length;
+
 
   /* filtered / sorted listings */
   const filtered = listings
@@ -345,14 +321,6 @@ export default function DashboardPage() {
       tip:     "Review pending visits",
     },
     {
-      label:   "Reservations to confirm",
-      value:   pendingResCount,
-      icon:    <HiOutlineShieldCheck />,
-      accent:  pendingResCount > 0 ? "teal" : "gray",
-      onClick: () => setResFilter("pending"),
-      tip:     "Review pending reservations",
-    },
-    {
       label:    "Avg conversion",
       value:    avgConversion !== null ? `${avgConversion}%` : "—",
       icon:     <HiOutlineArrowTrendingUp />,
@@ -376,9 +344,8 @@ export default function DashboardPage() {
     { key: "Expiring",       label: "Needs attention", alert: needsAttention > 0 },
   ];
 
-  /* inspection / reservation display */
+  
   const visibleInspections  = inspections.filter(i => inspFilter === "all" || i.status === inspFilter);
-  const visibleReservations = reservations.filter(r => resFilter === "all" || r.status === resFilter);
 
   /* ─────────────────────────── render ─────────────────────────── */
 
@@ -568,106 +535,8 @@ export default function DashboardPage() {
             </div>
           )}
         </motion.div>
-
-        {/* ══════════════════ RESERVATIONS ══════════════════ */}
-        <motion.div
-          className="db__section"
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.18 }}
-        >
-          <div className="db__section-head">
-            <div className="db__section-title">
-              <HiOutlineShieldCheck />
-              <h2>Reservations</h2>
-              {pendingResCount > 0 && (
-                <span className="db__badge db__badge--teal">{pendingResCount} pending</span>
-              )}
-            </div>
-            <div className="db__tabs">
-              {[
-                { key: "pending",   label: "Pending",   count: pendingResCount },
-                { key: "confirmed", label: "Confirmed", count: reservations.filter(r => r.status === "confirmed").length },
-                { key: "declined",  label: "Declined",  count: reservations.filter(r => r.status === "declined").length },
-                { key: "all",       label: "All",       count: reservations.length },
-              ].map(tab => (
-                <button
-                  key={tab.key}
-                  className={`db__tab${resFilter === tab.key ? " active" : ""}`}
-                  onClick={() => setResFilter(tab.key)}
-                >
-                  {tab.label}
-                  {tab.count > 0 && <span className="db__tab-count">{tab.count}</span>}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {resLoading ? (
-            <div className="db__section-loading">
-              <span className="db__mini-spin" /> Loading reservations…
-            </div>
-          ) : visibleReservations.length === 0 ? (
-            <div className="db__section-empty">
-              <HiOutlineShieldCheck />
-              <p>{resFilter === "pending" ? "No pending reservations." : "Nothing here yet."}</p>
-            </div>
-          ) : (
-            <div className="db__req-list">
-              <AnimatePresence>
-                {visibleReservations.map(res => (
-                  <motion.div
-                    key={res.id}
-                    className={`db__req-card db__req-card--${res.status}`}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -12 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <div className="db__req-left">
-                      <div className="db__req-avatar">
-                        {(res.studentName || "?")[0].toUpperCase()}
-                      </div>
-                      <div className="db__req-info">
-                        <p className="db__req-name">
-                          {res.studentName}
-                          <span className={`db__status db__status--${res.status}`}>{res.status}</span>
-                        </p>
-                        <p className="db__req-listing">{res.listingTitle}</p>
-                        <div className="db__req-meta">
-                          {res.moveInDate && <span><HiOutlineCalendarDays />Move in: {res.moveInDate}</span>}
-                          {res.studentPhone && <span><HiOutlinePhone />{res.studentPhone}</span>}
-                        </div>
-                      </div>
-                    </div>
-
-                    {res.status === "pending" && (
-                      <div className="db__req-actions">
-                        <button
-                          className="db__btn-confirm"
-                          onClick={() => handleReservationStatus(res.id, "confirmed")}
-                          disabled={updatingResId === res.id}
-                        >
-                          {updatingResId === res.id ? <span className="db__mini-spin" /> : <HiOutlineCheck />}
-                          Confirm
-                        </button>
-                        <button
-                          className="db__btn-decline"
-                          onClick={() => handleReservationStatus(res.id, "declined")}
-                          disabled={updatingResId === res.id}
-                        >
-                          <HiOutlineXCircle /> Decline
-                        </button>
-                      </div>
-                    )}
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          )}
-        </motion.div>
-
-        {/* ══════════════════ LISTINGS ══════════════════ */}
+        
+         {/* ══════════════════ LISTINGS ══════════════════ */}
 
         {/* Controls */}
         <motion.div

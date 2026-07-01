@@ -1,255 +1,150 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { logOut } from "@/lib/auth";
-import {
-  HiOutlineHome,
-  HiOutlineBookmark,
-  HiOutlineUser,
-  HiOutlinePlus,
-  HiOutlineArrowRightOnRectangle,
-  HiOutlineArrowLeftOnRectangle,
-  HiOutlineUserPlus,
-  HiOutlineChartBarSquare,
-  HiOutlineUserGroup,
-  HiOutlineBuildingOffice2,
-  HiOutlineShieldCheck,
-  HiOutlineBanknotes,
-  HiXMark,
-  HiBars3,
-} from "react-icons/hi2";
-import NotificationBell from "@/components/notifications/NotificationBell";
 import "@/styles/navbar.css";
 
 export default function Navbar() {
-  const { user, userRole, loading } = useAuth();
-  const router   = useRouter();
-  const pathname = usePathname();
+  const { user, userRole } = useAuth();
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const [menuOpen, setMenuOpen]   = useState(false);
-  const [mounted, setMounted]     = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
-  const [scrolled, setScrolled]   = useState(false);
-  const [hidden, setHidden]       = useState(false);
-
-  const lastScrollY = useRef(0);
-
-  useEffect(() => { setMounted(true); }, []);
-
-  useEffect(() => {
-    function onScroll() {
-      const currentY = window.scrollY;
-      const diff = currentY - lastScrollY.current;
-
-      // Mark as scrolled (for background style) once past 20px
-      setScrolled(currentY > 20);
-
-      // Hide when scrolling down more than 8px, show when scrolling up
-      if (diff > 8 && currentY > 80) {
-        setHidden(true);
-      } else if (diff < -8) {
-        setHidden(false);
-      }
-
-      lastScrollY.current = currentY;
-    }
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  // Close drawer on route change
-  useEffect(() => { setMenuOpen(false); }, [pathname]);
-
-  // Always show navbar when drawer is open
-  useEffect(() => {
-    if (menuOpen) setHidden(false);
-  }, [menuOpen]);
-
-  if (!mounted || loading) return null;
-
-  const firstName = user?.displayName?.split(" ")[0] || "You";
-  const isActive  = (href) => href === "/" ? pathname === "/" : pathname.startsWith(href);
-
-  async function handleLogout() {
-    if (loggingOut) return;
-    setLoggingOut(true);
-    await logOut();
-    setMenuOpen(false);
-    router.push("/");
-  }
-
-  const navLinks = [
-    { href: "/",              label: "Home",         icon: <HiOutlineHome />,            roles: ["all"] },
-    { href: "/listings",      label: "Browse",       icon: <HiOutlineBuildingOffice2 />, roles: ["all"] },
-    { href: "/roommates",     label: "Roommates",    icon: <HiOutlineUserGroup />,       roles: ["student"] },
-    { href: "/add-listing",   label: "Add Listing",  icon: <HiOutlinePlus />,            roles: ["landlord"] },
-    { href: "/dashboard",     label: "Dashboard",    icon: <HiOutlineChartBarSquare />,  roles: ["landlord"] },
-    { href: "/saved-listings",label: "Saved",        icon: <HiOutlineBookmark />,        roles: ["all"] },
-    { href: "/transactions",  label: "Transactions", icon: <HiOutlineBanknotes />,       roles: ["all"], auth: true },
-  ];
-
-  const filtered = navLinks.filter(link => {
-    if (link.auth && !user) return false;
-    if (link.roles.includes("all")) return true;
-    return link.roles.includes(userRole);
-  });
-
-  const navClasses = [
-    "navbar",
-    scrolled ? "navbar--scrolled" : "",
-    hidden    ? "navbar--hidden"   : "",
-  ].filter(Boolean).join(" ");
+  const isStudent = user && userRole === "student";
+  const isLandlord = user && userRole === "landlord";
 
   return (
     <>
-      <nav className={navClasses}>
-        <div className="navbar__container">
+      <nav className="navbar">
 
-          {/* Logo */}
-          <Link href="/" className="navbar__logo">
-            Rezi<em>dence</em>
-          </Link>
+        {/* Logo — always links home */}
+        <Link href="/" className="navbar__logo" aria-label="Rezidence home">
+          <div className="navbar__logo-mark">R</div>
+          <span className="navbar__logo-text">Rezidence</span>
+        </Link>
 
-          {/* Desktop links */}
-          <div className="navbar__links">
-            {filtered.map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={"navbar__link" + (isActive(link.href) ? " active" : "")}
-              >
-                {link.label}
-                {isActive(link.href) && <span className="navbar__link-dot" />}
-              </Link>
-            ))}
-          </div>
+        {/* ── Desktop actions ── */}
+        <div className="navbar__actions">
 
-          {/* Desktop auth */}
-          <div className="navbar__auth">
-            {user ? (
-              <div className="navbar__user">
-                <NotificationBell />
-                <Link
-                  href="/profile"
-                  className={"navbar__profile-btn" + (isActive("/profile") ? " active" : "")}
-                >
-                  <span className="navbar__profile-avatar">
-                    {firstName[0].toUpperCase()}
-                  </span>
-                  <span className="navbar__profile-name">{firstName}</span>
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="navbar__logout"
-                  disabled={loggingOut}
-                >
-                  {loggingOut ? "Leaving..." : "Log Out"}
-                </button>
-              </div>
-            ) : (
-              <div className="navbar__guest">
-                <Link href="/login"  className="navbar__login">Log In</Link>
-                <Link href="/signup" className="navbar__signup">Get Started</Link>
-              </div>
-            )}
-          </div>
+          {/* Everyone sees Browse */}
+          <Link href="/listings" className="navbar__link">Browse</Link>
 
-          {/* Hamburger */}
+          {/* Only logged-in users see Roommates */}
+          {user && (
+            <Link href="/roommates" className="navbar__link">Roommates</Link>
+          )}
+
+          {/* Notification bell — logged in only */}
+          {user && (
+            <Link href="/notifications" className="navbar__notif" aria-label="Notifications">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+            </Link>
+          )}
+
+          {/* List a room — students + landlords only */}
+          {(isStudent || isLandlord) && (
+            <Link href="/add-listing" className="navbar__btn-post">+ List a room</Link>
+          )}
+
+          {/* Avatar or Sign in */}
+          {user ? (
+            <Link href="/dashboard" className="navbar__avatar" aria-label="Dashboard">
+              {user.displayName?.slice(0, 2).toUpperCase() || "ME"}
+            </Link>
+          ) : (
+            <Link href="/login" className="navbar__btn-login">Sign in</Link>
+          )}
+        </div>
+
+        {/* ── Mobile actions ── */}
+        <div className="navbar__mobile-actions">
+
+          {user && (
+            <Link href="/notifications" className="navbar__icon-btn" aria-label="Notifications">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+            </Link>
+          )}
+
           <button
             className="navbar__hamburger"
-            onClick={() => setMenuOpen(v => !v)}
-            aria-label="Toggle menu"
-            aria-expanded={menuOpen}
+            aria-label={drawerOpen ? "Close menu" : "Open menu"}
+            onClick={() => setDrawerOpen(!drawerOpen)}
           >
-            {menuOpen ? <HiXMark /> : <HiBars3 />}
+            {drawerOpen ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 6 6 18M6 6l12 12"/>
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 12h18M3 6h18M3 18h18"/>
+              </svg>
+            )}
           </button>
-
         </div>
       </nav>
 
-      {/* Mobile overlay */}
-      {menuOpen && (
-        <div className="navbar__overlay" onClick={() => setMenuOpen(false)} />
+      {/* ── Mobile drawer ── */}
+      {drawerOpen && (
+        <div className="drawer">
+          <nav className="drawer__links">
+
+            <Link href="/" className="drawer__link" onClick={() => setDrawerOpen(false)}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              Home
+            </Link>
+
+            <Link href="/listings" className="drawer__link" onClick={() => setDrawerOpen(false)}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              Browse rooms
+            </Link>
+
+            {user && (
+              <Link href="/roommates" className="drawer__link" onClick={() => setDrawerOpen(false)}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Find roommates
+              </Link>
+            )}
+
+            {user && (
+              <Link href="/notifications" className="drawer__link" onClick={() => setDrawerOpen(false)}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                Notifications
+              </Link>
+            )}
+
+            <hr className="drawer__divider" />
+
+            {user ? (
+              <>
+                <Link href="/dashboard" className="drawer__link" onClick={() => setDrawerOpen(false)}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="4"/><rect x="14" y="11" width="7" height="10"/><rect x="3" y="14" width="7" height="7"/></svg>
+                  My dashboard
+                </Link>
+                <Link href="/settings" className="drawer__link" onClick={() => setDrawerOpen(false)}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                  Settings
+                </Link>
+              </>
+            ) : (
+              <Link href="/login" className="drawer__link" onClick={() => setDrawerOpen(false)}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                Sign in
+              </Link>
+            )}
+          </nav>
+
+          {(isStudent || isLandlord) && (
+            <Link href="/add-listing" className="drawer__post-btn" onClick={() => setDrawerOpen(false)}>
+              + List a room
+            </Link>
+          )}
+        </div>
       )}
-
-      {/* Mobile drawer */}
-      <div className={"navbar__drawer" + (menuOpen ? " open" : "")}>
-
-        <div className="navbar__drawer-header">
-          <Link href="/" className="navbar__drawer-logo" onClick={() => setMenuOpen(false)}>
-            Rezi<em>dence</em>
-          </Link>
-          <div className="navbar__drawer-header-right">
-            {user && <NotificationBell />}
-            <button className="navbar__drawer-close" onClick={() => setMenuOpen(false)}>
-              <HiXMark />
-            </button>
-          </div>
-        </div>
-
-        {user && (
-          <div className="navbar__drawer-user-row">
-            <div className="navbar__drawer-avatar">
-              {firstName[0].toUpperCase()}
-            </div>
-            <div>
-              <p className="navbar__drawer-name">Hey, {firstName} 👋</p>
-              <p className="navbar__drawer-email">{user.email}</p>
-            </div>
-          </div>
-        )}
-
-        <div className="navbar__drawer-links">
-          {filtered.map(link => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={"navbar__drawer-link" + (isActive(link.href) ? " active" : "")}
-              onClick={() => setMenuOpen(false)}
-            >
-              <span className="navbar__drawer-link-icon">{link.icon}</span>
-              <span>{link.label}</span>
-              {isActive(link.href) && <span className="navbar__drawer-active-dot" />}
-            </Link>
-          ))}
-
-          {user && (
-            <Link
-              href="/profile"
-              className={"navbar__drawer-link" + (isActive("/profile") ? " active" : "")}
-              onClick={() => setMenuOpen(false)}
-            >
-              <span className="navbar__drawer-link-icon"><HiOutlineUser /></span>
-              <span>My Profile</span>
-            </Link>
-          )}
-        </div>
-
-        <div className="navbar__drawer-footer">
-          {user ? (
-            <button className="navbar__drawer-logout" onClick={handleLogout} disabled={loggingOut}>
-              <HiOutlineArrowRightOnRectangle />
-              <span>{loggingOut ? "Logging out..." : "Log Out"}</span>
-            </button>
-          ) : (
-            <div className="navbar__drawer-guest">
-              <Link href="/login" className="navbar__drawer-login" onClick={() => setMenuOpen(false)}>
-                <HiOutlineArrowLeftOnRectangle />
-                <span>Log In</span>
-              </Link>
-              <Link href="/signup" className="navbar__drawer-signup" onClick={() => setMenuOpen(false)}>
-                <HiOutlineUserPlus />
-                <span>Get Started</span>
-              </Link>
-            </div>
-          )}
-        </div>
-
-      </div>
     </>
   );
 }

@@ -18,8 +18,6 @@ import {
 } from "react-icons/hi2";
 import { useAuth } from "@/context/AuthContext";
 import { fetchListingById } from "@/lib/firestoreListings";
-import { bookInspection } from "@/lib/firestoreInspections";
-import { createNotification } from "@/lib/firestoreNotifications";
 import { trackEvent } from "@/lib/posthog";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -80,15 +78,22 @@ export default function InspectionBookingPage() {
     loadPhone();
   }, [user]);
 
-  async function handleSubmit() {
-    setError("");
-    if (!date)         { setError("Please select a date."); return; }
-    if (!time)         { setError("Please select a time slot."); return; }
-    if (!phone.trim()) { setError("Please enter your phone number."); return; }
+  // Remove these imports
+// import { bookInspection } from "@/lib/firestoreInspections";
+// import { createNotification } from "@/lib/firestoreNotifications";
 
-    setSubmitting(true);
-    try {
-      await bookInspection({
+async function handleSubmit() {
+  setError("");
+  if (!date)         { setError("Please select a date."); return; }
+  if (!time)         { setError("Please select a time slot."); return; }
+  if (!phone.trim()) { setError("Please enter your phone number."); return; }
+
+  setSubmitting(true);
+  try {
+    const res = await fetch("/api/inspections/book", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         listingId,
         listingTitle: listing.title,
         landlordId:   listing.landlordId,
@@ -98,38 +103,27 @@ export default function InspectionBookingPage() {
         date,
         time,
         note: note.trim(),
-      });
+      }),
+    });
 
-      try {
-        await createNotification({
-          userId:     listing.landlordId,
-          type:       "inspection_booked",
-          title:      "Inspection booked",
-          message:    `${user.displayName || "Someone"} has booked an inspection for "${listing.title}" on ${date} at ${time}`,
-          listingId,
-          senderId:   user.uid,
-          senderName: user.displayName || "Someone",
-        });
-      } catch (e) {
-        console.warn("Notification failed silently:", e);
-      }
+    if (!res.ok) throw new Error("Booking failed");
 
-      trackEvent("inspection_booked", {
-        listingId,
-        listingTitle: listing.title,
-        location:     listing.location,
-        date,
-        time,
-      });
+    trackEvent("inspection_booked", {
+      listingId,
+      listingTitle: listing.title,
+      location:     listing.location,
+      date,
+      time,
+    });
 
-      setSubmitted(true);
-    } catch (e) {
-      console.error("Booking error:", e);
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
+    setSubmitted(true);
+  } catch (e) {
+    console.error("Booking error:", e);
+    setError("Something went wrong. Please try again.");
+  } finally {
+    setSubmitting(false);
   }
+}
 
   const minDate = new Date();
   minDate.setDate(minDate.getDate() + 1);

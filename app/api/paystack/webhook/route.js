@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { adminDb } from "@/lib/firebase-admin";
+import { sendSMS } from "@/lib/termii";
 
 export const runtime = "nodejs";
 
@@ -75,7 +76,7 @@ async function handleChargeSuccess(data) {
 
   const listing      = listingSnap.data();
   const listingPrice = Number(listing.price);
-  const paidAmount   = amount / 100; // convert from kobo
+  const paidAmount   = amount / 100;
 
   // Always recalculate server-side — never trust frontend amounts
   const expectedFee   = Math.round(listingPrice * (SERVICE_FEE_PERCENT / 100));
@@ -91,7 +92,12 @@ async function handleChargeSuccess(data) {
     throw new Error("Landlord not found: " + landlordId);
   }
 
-  const landlordName = landlordSnap.data().name || landlordSnap.data().displayName || "";
+  const landlordData = landlordSnap.data();
+  const landlordName = landlordData.name || landlordData.displayName || "";
+
+  // Fetch student for phone number
+  const studentSnap = await adminDb.collection("users").doc(studentId).get();
+  const studentData = studentSnap.exists ? studentSnap.data() : {};
 
   // ── 4. Create transaction record ──
   await txRef.set({
@@ -115,7 +121,7 @@ async function handleChargeSuccess(data) {
     reference,
     paystackSubaccount: listing.paystackSubaccount || "",
 
-    // Status — payment is complete, Paystack splits automatically
+    // Status
     status:      "completed",
     completedAt: new Date(),
 
@@ -124,7 +130,7 @@ async function handleChargeSuccess(data) {
     updatedAt: new Date(),
   });
 
-  // ── 5. Notify both parties ──
+  // ── 5. In-app notifications ──
   const batch = adminDb.batch();
 
   batch.set(adminDb.collection("notifications").doc(), {
@@ -134,6 +140,7 @@ async function handleChargeSuccess(data) {
     message:   `Your rent payment of ₦${listingPrice.toLocaleString()} for "${listing.title}" was received and sent to the landlord.`,
     listingId,
     reference,
+    read:      false,
     createdAt: new Date(),
   });
 
@@ -144,10 +151,23 @@ async function handleChargeSuccess(data) {
     message:   `${studentName || "A student"} paid ₦${listingPrice.toLocaleString()} for "${listing.title}". Payment has been sent to your account.`,
     listingId,
     reference,
+    read:      false,
     createdAt: new Date(),
   });
 
   await batch.commit();
+
+  // ── 6. SMS notifications ──
+  await Promise.allSettled([
+    studentData.phone && sendSMS(
+      studentData.phone,
+      `Rezidence: Your rent payment of N${listingPrice.toLocaleString()} for "${listing.title}" was successful. Ref: ${reference}`
+    ),
+    landlordData.phone && sendSMS(
+      landlordData.phone,
+      `Rezidence: ${studentName || "A student"} paid N${listingPrice.toLocaleString()} for "${listing.title}". Payment sent to your account. Ref: ${reference}`
+    ),
+  ]);
 
   console.log("Transaction completed:", reference);
 }
@@ -164,6 +184,35 @@ async function handleRefundProcessed(data) {
     refundedAt: new Date(),
     updatedAt:  new Date(),
   });
+
+  // Fetch transaction to notify parties
+  const tx = snap.data();
+
+  const batch = adminDb.batch();
+
+  batch.set(adminDb.collection("notifications").doc(), {
+    userId:    tx.studentId,
+    type:      "refund_processed",
+    title:     "Refund processed",
+    message:   `Your refund of ₦${tx.amount.toLocaleString()} for "${tx.listingTitle}" has been processed.`,
+    listingId: tx.listingId,
+    reference,
+    read:      false,
+    createdAt: new Date(),
+  });
+
+  await batch.commit();
+
+  // SMS for refund
+  const studentSnap = await adminDb.collection("users").doc(tx.studentId).get();
+  const studentPhone = studentSnap.exists ? studentSnap.data().phone : null;
+
+  if (studentPhone) {
+    await sendSMS(
+      studentPhone,
+      `Rezidence: Your refund of N${tx.amount.toLocaleString()} for "${tx.listingTitle}" has been processed. Ref: ${reference}`
+    );
+  }
 }
 
 async function logWebhookEvent({ event, error, data, body }) {
