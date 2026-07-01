@@ -68,19 +68,7 @@ const sections = [
 export default function TermsPage() {
   return (
     <div className={styles.page}>
-      {/* Navbar */}
-      <nav className={styles.nav}>
-        <Link href="/" className={styles.logo}>
-          Rezi<em>dence</em>
-        </Link>
-        <div className={styles.navLinks}>
-          <Link href="/browse">Browse</Link>
-          <Link href="/roommates">Roommates</Link>
-          <Link href="/privacy" className={styles.navActive}>Privacy Policy</Link>
-        </div>
-      </nav>
-
-      <main className={styles.main}>
+         <main className={styles.main}>
         {/* Hero */}
         <div className={styles.hero}>
           <span className={styles.badge}>Legal</span>

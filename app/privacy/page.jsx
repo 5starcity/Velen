@@ -72,19 +72,7 @@ const sections = [
 
 export default function PrivacyPage() {
   return (
-    <div className={styles.page}>
-      {/* Navbar */}
-      <nav className={styles.nav}>
-        <Link href="/" className={styles.logo}>
-          Vel<em>en</em>
-        </Link>
-        <div className={styles.navLinks}>
-          <Link href="/browse">Browse</Link>
-          <Link href="/roommates">Roommates</Link>
-          <Link href="/terms" className={styles.navActive}>Terms of Service</Link>
-        </div>
-      </nav>
-
+    <div>
       <main className={styles.main}>
         {/* Hero */}
         <div className={styles.hero}>
