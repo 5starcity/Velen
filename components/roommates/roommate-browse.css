@@ -1,0 +1,329 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&display=swap');
+
+/* ==========================================================================
+   Tokens (scoped to this feature — merge into your global BEM sheet as
+   you see fit, or keep isolated)
+   ========================================================================== */
+.roommate-browse {
+  --rz-forest: #2d5a28;
+  --rz-forest-dark: #1c3a19;
+  --rz-parchment: #faf8f2;
+  --rz-ink: #23241f;
+  --rz-ink-muted: #6b6a62;
+  --rz-gold: #b98b2e;
+  --rz-gold-track: #e9dfc8;
+  --rz-mist: #e7e3d8;
+  --rz-white: #ffffff;
+
+  background: var(--rz-parchment);
+  color: var(--rz-ink);
+  font-family: 'Inter', sans-serif;
+  padding: 2.5rem 1.5rem 4rem;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+.roommate-browse__header {
+  margin-bottom: 1.75rem;
+}
+
+.roommate-browse__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--rz-forest-dark);
+  margin: 0 0 0.35rem;
+}
+
+.roommate-browse__subtitle {
+  font-size: 0.95rem;
+  color: var(--rz-ink-muted);
+  margin: 0;
+}
+
+/* ==========================================================================
+   Filter / sort bar
+   ========================================================================== */
+.roommate-browse__filters {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding: 1rem 0 1.5rem;
+  border-bottom: 1px solid var(--rz-mist);
+  margin-bottom: 2rem;
+  position: sticky;
+  top: 0;
+  background: var(--rz-parchment);
+  z-index: 5;
+}
+
+.roommate-browse__filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.roommate-browse__filter-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--rz-ink-muted);
+}
+
+.roommate-browse__select {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  color: var(--rz-ink);
+  background: var(--rz-white);
+  border: 1px solid var(--rz-mist);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  min-width: 180px;
+  cursor: pointer;
+}
+
+.roommate-browse__select:focus-visible {
+  outline: 2px solid var(--rz-forest);
+  outline-offset: 1px;
+}
+
+.roommate-browse__count {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: var(--rz-ink-muted);
+  align-self: center;
+}
+
+/* ==========================================================================
+   Grid + empty state
+   ========================================================================== */
+.roommate-browse__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.roommate-browse__empty {
+  text-align: center;
+  padding: 4rem 1rem;
+  border: 1px dashed var(--rz-mist);
+  border-radius: 12px;
+}
+
+.roommate-browse__empty-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--rz-forest-dark);
+  margin: 0 0 0.35rem;
+}
+
+.roommate-browse__empty-body {
+  font-size: 0.9rem;
+  color: var(--rz-ink-muted);
+  margin: 0 0 1.25rem;
+}
+
+.roommate-browse__empty-cta {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #fff;
+  background: var(--rz-forest);
+  border: none;
+  border-radius: 8px;
+  padding: 0.65rem 1.25rem;
+  cursor: pointer;
+}
+
+.roommate-browse__empty-cta:hover {
+  opacity: 0.9;
+}
+
+/* ==========================================================================
+   Roommate card
+   ========================================================================== */
+.roommate-card {
+  background: var(--rz-white, #fff);
+  border: 1px solid var(--rz-mist, #e7e3d8);
+  border-radius: 14px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.roommate-card:hover {
+  border-color: var(--rz-forest, #2d5a28);
+  transform: translateY(-2px);
+}
+
+.roommate-card__top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.roommate-card__identity {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.roommate-card__avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--rz-forest, #2d5a28);
+  color: var(--rz-white, #fff);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.roommate-card__name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--rz-ink, #23241f);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.roommate-card__meta {
+  font-size: 0.8rem;
+  color: var(--rz-ink-muted, #6b6a62);
+  margin: 0.1rem 0 0;
+}
+
+.roommate-card__budget {
+  font-size: 0.85rem;
+  color: var(--rz-ink, #23241f);
+  margin: 0;
+}
+
+.roommate-card__reasons {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0;
+  margin: 0;
+}
+
+.roommate-card__reason-chip {
+  font-size: 0.75rem;
+  color: var(--rz-forest-dark, #1c3a19);
+  background: #eaf1e8;
+  border-radius: 999px;
+  padding: 0.3rem 0.65rem;
+}
+
+.roommate-card__actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+}
+
+.roommate-card__btn {
+  flex: 1;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: opacity 0.15s ease;
+}
+
+.roommate-card__btn--secondary {
+  background: transparent;
+  border-color: var(--rz-mist, #e7e3d8);
+  color: var(--rz-ink, #23241f);
+}
+
+.roommate-card__btn--secondary:hover {
+  border-color: var(--rz-forest, #2d5a28);
+}
+
+.roommate-card__btn--primary {
+  background: var(--rz-forest, #2d5a28);
+  color: #fff;
+}
+
+.roommate-card__btn--primary:hover {
+  opacity: 0.9;
+}
+
+/* ==========================================================================
+   Compatibility ring (signature element)
+   ========================================================================== */
+.compat-ring {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.compat-ring__svg {
+  transform: rotate(0deg);
+}
+
+.compat-ring__track {
+  stroke: #e7e3d8;
+}
+
+.compat-ring__arc {
+  stroke: #b98b2e;
+}
+
+.compat-ring__center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1px;
+}
+
+.compat-ring__score {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: #1c3a19;
+}
+
+.compat-ring__percent {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  color: #6b6a62;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width: 480px) {
+  .roommate-browse {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .roommate-browse__title {
+    font-size: 1.6rem;
+  }
+
+  .roommate-browse__count {
+    margin-left: 0;
+    width: 100%;
+  }
+}

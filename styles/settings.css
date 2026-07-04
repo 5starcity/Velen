@@ -1,0 +1,589 @@
+/* ============================================
+   Settings Page — settings.css
+   Light mode, forest green accent (#2d5a28), BEM
+   ============================================ */
+
+   .settings-page {
+    min-height: 100vh;
+    background: #f7f8f6;
+    color: #1f2924;
+    padding: 32px 16px 80px;
+  }
+  
+  .settings-page__inner {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  
+  /* ── Loading ── */
+  .settings-page__loading {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .settings-page__spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(45, 90, 40, 0.15);
+    border-top-color: #2d5a28;
+    border-radius: 50%;
+    animation: settings-spin 0.8s linear infinite;
+  }
+  
+  .settings-page__mini-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: settings-spin 0.7s linear infinite;
+  }
+  
+  @keyframes settings-spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  /* ── Toast ── */
+  .settings-page__toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #eaf5e8;
+    color: #1e4a1a;
+    border: 1px solid #b7dbb0;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  }
+  
+  .settings-page__toast.error {
+    background: #fdeaea;
+    color: #7f1d1d;
+    border-color: #f3c2c2;
+  }
+  
+  /* ── Header ── */
+  .settings-page__header {
+    margin-bottom: 24px;
+  }
+  
+  .settings-page__back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: #6b7280;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 14px;
+    transition: color 0.15s ease;
+  }
+  
+  .settings-page__back-btn:hover {
+    color: #2d5a28;
+  }
+  
+  .settings-page__header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #14201a;
+    margin: 0;
+  }
+  
+  /* ── Card ── */
+  .settings-page__card {
+    background: #ffffff;
+    border: 1px solid #e5e9e3;
+    border-radius: 16px;
+    padding: 22px 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  }
+  
+  .settings-page__card--danger {
+    border-color: #f3d4d4;
+  }
+  
+  .settings-page__card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #14201a;
+    margin: 0 0 6px;
+  }
+  
+  .settings-page__card-title svg {
+    width: 18px;
+    height: 18px;
+    color: #2d5a28;
+  }
+  
+  .settings-page__card-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  
+  .settings-page__card-subtitle {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0 0 16px;
+    line-height: 1.5;
+  }
+  
+  /* ── Field rows ── */
+  .settings-page__field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid #eef1ec;
+  }
+  
+  .settings-page__field--last {
+    border-bottom: none;
+  }
+  
+  .settings-page__field-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #6b7280;
+    min-width: 120px;
+  }
+  
+  .settings-page__field-label svg {
+    width: 16px;
+    height: 16px;
+    color: #2d5a28;
+    flex-shrink: 0;
+  }
+  
+  .settings-page__field-value {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #1f2924;
+    flex: 1;
+    justify-content: flex-end;
+  }
+  
+  .settings-page__field-value em {
+    color: #9ca3af;
+    font-style: normal;
+  }
+  
+  .settings-page__edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(45, 90, 40, 0.08);
+    border: 1px solid rgba(45, 90, 40, 0.25);
+    color: #2d5a28;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  
+  .settings-page__edit-btn:hover {
+    background: rgba(45, 90, 40, 0.15);
+  }
+  
+  .settings-page__edit-btn--save {
+    background: #2d5a28;
+    border-color: #2d5a28;
+    color: #fff;
+  }
+  
+  .settings-page__edit-btn--save:hover {
+    background: #356b2f;
+  }
+  
+  .settings-page__edit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  /* ── Password form ── */
+  .settings-page__password-form-inner {
+    padding-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .settings-page__pw-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .settings-page__pw-field label {
+    font-size: 12.5px;
+    color: #6b7280;
+  }
+  
+  .settings-page__pw-field input,
+  .settings-page__field-edit-block input {
+    background: #fbfcfa;
+    border: 1px solid #dfe4da;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    color: #14201a;
+    outline: none;
+    transition: border-color 0.15s ease;
+    width: 100%;
+  }
+  
+  .settings-page__pw-field input:focus,
+  .settings-page__field-edit-block input:focus {
+    border-color: #2d5a28;
+  }
+  
+  .settings-page__pw-error {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #b91c1c;
+    font-size: 13px;
+    background: #fdeaea;
+    border: 1px solid #f3c2c2;
+    border-radius: 8px;
+    padding: 8px 12px;
+  }
+  
+  .settings-page__pw-error svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+  
+  .settings-page__pw-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  
+  .settings-page__pw-save {
+    flex: 1;
+    background: #2d5a28;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  
+  .settings-page__pw-save:hover {
+    background: #356b2f;
+  }
+  
+  .settings-page__pw-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .settings-page__pw-cancel {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: 1px solid #dfe4da;
+    color: #6b7280;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  
+  .settings-page__pw-cancel:hover {
+    border-color: #b5bdae;
+    color: #374151;
+  }
+  
+  /* ── Toggle switch ── */
+  .settings-page__toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid #eef1ec;
+  }
+  
+  .settings-page__toggle-row:last-child {
+    border-bottom: none;
+  }
+  
+  .settings-page__toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #1f2924;
+  }
+  
+  .settings-page__toggle-label svg {
+    width: 16px;
+    height: 16px;
+    color: #2d5a28;
+  }
+  
+  .settings-page__toggle {
+    position: relative;
+    width: 44px;
+    height: 26px;
+    border-radius: 999px;
+    border: none;
+    background: #dfe4da;
+    cursor: pointer;
+    padding: 3px;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+  }
+  
+  .settings-page__toggle--on {
+    background: #2d5a28;
+  }
+  
+  .settings-page__toggle:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .settings-page__toggle-knob {
+    display: block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease;
+    transform: translateX(0);
+  }
+  
+  .settings-page__toggle--on .settings-page__toggle-knob {
+    transform: translateX(18px);
+  }
+  
+  /* ── Payout section ── */
+  .settings-page__payout-actions {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .settings-page__payout-status {
+    margin-bottom: 12px;
+  }
+  
+  .settings-page__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 999px;
+  }
+  
+  .settings-page__badge svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .settings-page__badge--verified {
+    background: #eaf5e8;
+    color: #1e4a1a;
+    border: 1px solid #b7dbb0;
+  }
+  
+  .settings-page__badge--pending {
+    background: #fef3e2;
+    color: #92400e;
+    border: 1px solid #f5d9a8;
+  }
+  
+  .settings-page__payout-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 6px;
+  }
+  
+  .settings-page__field-edit-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .settings-page__field-edit-block label {
+    font-size: 12.5px;
+    color: #6b7280;
+  }
+  
+  .settings-page__payout-summary {
+    padding-top: 4px;
+  }
+  
+  /* ── Danger zone ── */
+  .settings-page__logout-btn,
+  .settings-page__delete-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  
+  .settings-page__logout-btn {
+    background: #f7f8f6;
+    border: 1px solid #dfe4da;
+    color: #1f2924;
+  }
+  
+  .settings-page__logout-btn:hover {
+    border-color: #b5bdae;
+  }
+  
+  .settings-page__delete-btn {
+    background: #fdeaea;
+    border: 1px solid #f3c2c2;
+    color: #b91c1c;
+  }
+  
+  .settings-page__delete-btn:hover {
+    background: #fbdada;
+  }
+  
+  /* ── Delete modal ── */
+  .settings-page__modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 32, 26, 0.45);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 200;
+  }
+  
+  .settings-page__modal {
+    background: #ffffff;
+    border: 1px solid #f3d4d4;
+    border-radius: 16px;
+    padding: 28px 24px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  }
+  
+  .settings-page__modal-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #fdeaea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+  
+  .settings-page__modal-icon svg {
+    width: 22px;
+    height: 22px;
+    color: #b91c1c;
+  }
+  
+  .settings-page__modal h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #14201a;
+    margin: 0 0 8px;
+  }
+  
+  .settings-page__modal p {
+    font-size: 13.5px;
+    color: #6b7280;
+    line-height: 1.5;
+    margin: 0 0 18px;
+  }
+  
+  .settings-page__modal .settings-page__field-edit-block {
+    margin-bottom: 14px;
+  }
+  
+  .settings-page__modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+  }
+  
+  .settings-page__delete-confirm-btn {
+    flex: 1;
+    background: #b91c1c;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  
+  .settings-page__delete-confirm-btn:hover {
+    background: #991b1b;
+  }
+  
+  .settings-page__delete-confirm-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  /* ── Responsive ── */
+  @media (max-width: 480px) {
+    .settings-page {
+      padding: 24px 12px 64px;
+    }
+  
+    .settings-page__field {
+      flex-wrap: wrap;
+    }
+  
+    .settings-page__field-value {
+      justify-content: flex-start;
+      width: 100%;
+    }
+  }

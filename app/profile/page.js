@@ -8,11 +8,8 @@ import {
   HiOutlinePencilSquare,
   HiOutlineCheck,
   HiOutlineXMark,
-  HiOutlineKey,
   HiOutlineEnvelope,
   HiOutlinePhone,
-  HiOutlineShieldCheck,
-  HiOutlineArrowRightOnRectangle,
   HiOutlineChartBarSquare,
   HiOutlineExclamationTriangle,
   HiOutlineChatBubbleBottomCenterText,
@@ -24,20 +21,15 @@ import {
   HiOutlineIdentification,
   HiOutlineCamera,
   HiOutlineSparkles,
-  HiOutlineMoon,
-  HiOutlineSun,
   HiOutlineHeart,
+  HiOutlineCog6Tooth,
 } from "react-icons/hi2";
 import {
   updateProfile,
-  updatePassword,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
 } from "firebase/auth";
 import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
-import { logOut } from "@/lib/auth";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import "@/styles/profile.css";
 
@@ -147,14 +139,6 @@ export default function ProfilePage() {
   const [roommatePrefs, setRoommatePrefs] = useState(null);
   const [savingPrefs, setSavingPrefs] = useState(false);
   const [prefsEditing, setPrefsEditing] = useState(false);
-
-  // Password
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [savingPassword, setSavingPassword] = useState(false);
 
   const [toast, setToast] = useState(null);
 
@@ -287,45 +271,6 @@ export default function ProfilePage() {
     } finally {
       setSavingPrefs(false);
     }
-  }
-
-  // ── Password change ──
-  async function handleChangePassword() {
-    setPasswordError("");
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      setPasswordError("All fields are required.");
-      return;
-    }
-    if (newPassword.length < 6) {
-      setPasswordError("New password must be at least 6 characters.");
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setPasswordError("New passwords do not match.");
-      return;
-    }
-    setSavingPassword(true);
-    try {
-      const credential = EmailAuthProvider.credential(user.email, currentPassword);
-      await reauthenticateWithCredential(auth.currentUser, credential);
-      await updatePassword(auth.currentUser, newPassword);
-      setCurrentPassword(""); setNewPassword(""); setConfirmPassword("");
-      setShowPasswordForm(false);
-      showToast("Password changed successfully.");
-    } catch (e) {
-      if (e.code === "auth/wrong-password" || e.code === "auth/invalid-credential") {
-        setPasswordError("Current password is incorrect.");
-      } else {
-        setPasswordError("Something went wrong. Please try again.");
-      }
-    } finally {
-      setSavingPassword(false);
-    }
-  }
-
-  async function handleLogout() {
-    await logOut();
-    router.push("/");
   }
 
   // ── Loading / guard ──
@@ -580,6 +525,11 @@ export default function ProfilePage() {
             <h1>{profileData.displayName || "Your Profile"}</h1>
             {profileData.bio && <p className="profile-page__hero-bio">{profileData.bio}</p>}
           </div>
+
+          {/* Link to Settings */}
+          <a href="/settings" className="profile-page__settings-link" title="Account settings">
+            <HiOutlineCog6Tooth /> Settings
+          </a>
         </div>
 
         {/* ── Profile Completeness ── */}
@@ -717,57 +667,6 @@ export default function ProfilePage() {
           </motion.div>
         )}
 
-        {/* ── Security ── */}
-        <motion.div className="profile-page__card" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-          <h2 className="profile-page__card-title">Security</h2>
-          <div className="profile-page__field profile-page__field--last">
-            <div className="profile-page__field-label"><HiOutlineKey /><span>Password</span></div>
-            <div className="profile-page__field-value">
-              <span>••••••••</span>
-              <button className="profile-page__edit-btn" onClick={() => setShowPasswordForm(v => !v)}>
-                <HiOutlinePencilSquare /> Change
-              </button>
-            </div>
-          </div>
-          <AnimatePresence>
-            {showPasswordForm && (
-              <motion.div
-                className="profile-page__password-form"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                style={{ overflow: "hidden" }}
-              >
-                <div style={{ paddingTop: 16 }}>
-                  {["currentPassword", "newPassword", "confirmPassword"].map((field, i) => (
-                    <div className="profile-page__pw-field" key={field} style={{ marginBottom: 12 }}>
-                      <label>{["Current Password", "New Password", "Confirm New Password"][i]}</label>
-                      <input
-                        type="password"
-                        value={[currentPassword, newPassword, confirmPassword][i]}
-                        onChange={e => [setCurrentPassword, setNewPassword, setConfirmPassword][i](e.target.value)}
-                      />
-                    </div>
-                  ))}
-                  {passwordError && (
-                    <div className="profile-page__pw-error">
-                      <HiOutlineExclamationTriangle /> {passwordError}
-                    </div>
-                  )}
-                  <div className="profile-page__pw-actions">
-                    <button className="profile-page__pw-save" onClick={handleChangePassword} disabled={savingPassword}>
-                      {savingPassword ? "Saving..." : "Update Password"}
-                    </button>
-                    <button className="profile-page__pw-cancel" onClick={() => { setShowPasswordForm(false); setPasswordError(""); }}>
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-
         {/* ── Quick Links ── */}
         <motion.div className="profile-page__card profile-page__card--links" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.22 }}>
           <h2 className="profile-page__card-title">Quick Links</h2>
@@ -802,15 +701,11 @@ export default function ProfilePage() {
               <HiOutlineHome />
               <div><strong>Browse Properties</strong><span>Find your next home</span></div>
             </a>
+            <a href="/settings" className="profile-page__link">
+              <HiOutlineCog6Tooth />
+              <div><strong>Account Settings</strong><span>Password, notifications, payout & more</span></div>
+            </a>
           </div>
-        </motion.div>
-
-        {/* ── Danger Zone ── */}
-        <motion.div className="profile-page__card profile-page__card--danger" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.24 }}>
-          <h2 className="profile-page__card-title">Account</h2>
-          <button className="profile-page__logout-btn" onClick={handleLogout}>
-            <HiOutlineArrowRightOnRectangle /> Sign Out
-          </button>
         </motion.div>
 
       </motion.div>
