@@ -1,5 +1,5 @@
-import RoommateBrowse from '../../components/roommates/RoommateBrowse';
+import RoommatePreferencesForm from '../../../components/roommates/RoommatePreferencesForm';
 
-export default function RoommatesPage() {
-  return <RoommateBrowse />;
+export default function RoommatePreferencesPage() {
+  return <RoommatePreferencesForm />;
 }
