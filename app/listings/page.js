@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import ListingCard from "@/components/listings/ListingCard";
 import { fetchListings } from "@/lib/firestoreListings";
 import { LOCATION_FILTER_OPTIONS, UNIVERSITY_AREA_MAP } from "@/lib/locations";
+import { parseSearchQuery, TYPE_OPTIONS as PARSER_TYPE_OPTIONS } from "@/lib/searchParser";
 import "@/styles/listings-page.css";
 
 const PAGE_SIZE = 12;
@@ -17,10 +19,11 @@ const SORT_OPTIONS = [
   { value: "most_viewed", label: "Most viewed"        },
 ];
 
-const TYPE_OPTIONS    = ["All", "Self Contain", "Flat", "Room", "Shared Room", "Mini Flat", "Duplex"];
-const FURNISH_OPTIONS = ["All", "Furnished", "Unfurnished", "Semi-furnished"];
-const AVAIL_OPTIONS   = ["All", "Available Now", "Available Soon", "Not Available"];
-const UNI_OPTIONS     = ["All", "RSU", "UniPort", "IAUE", "KSU"];
+const TYPE_OPTIONS     = ["All", ...PARSER_TYPE_OPTIONS];
+const BED_OPTIONS      = ["All", "1", "2", "3", "4"];
+const FURNISH_OPTIONS  = ["All", "Furnished", "Unfurnished", "Semi-furnished"];
+const AVAIL_OPTIONS    = ["All", "Available Now", "Available Soon", "Not Available"];
+const UNI_OPTIONS      = ["All", "RSU", "UniPort", "IAUE", "KSU"];
 
 const PRICE_PRESETS = [
   { label: "Under ₦200k",   min: "",       max: "200000"  },
@@ -208,10 +211,13 @@ function getPageNumbers(page, totalPages) {
 }
 
 export default function ListingsPage() {
+  const searchParams = useSearchParams();
+
   const [search, setSearch]             = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [location, setLocation]         = useState("All");
   const [type, setType]                 = useState("All");
+  const [beds, setBeds]                 = useState("All");
   const [priceMin, setPriceMin]         = useState("");
   const [priceMax, setPriceMax]         = useState("");
   const [verified, setVerified]         = useState(false);
@@ -235,6 +241,18 @@ export default function ListingsPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Prefill filters from URL params (e.g. coming from homepage search)
+  useEffect(() => {
+    const urlType = searchParams.get("type");
+    const urlBeds = searchParams.get("beds");
+    const urlQ    = searchParams.get("q");
+
+    if (urlType && PARSER_TYPE_OPTIONS.includes(urlType)) setType(urlType);
+    if (urlBeds) setBeds(urlBeds);
+    if (urlQ) setSearch(urlQ);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     clearTimeout(searchDebounceRef.current);
     searchDebounceRef.current = setTimeout(() => {
@@ -245,29 +263,36 @@ export default function ListingsPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch, location, type, priceMin, priceMax, verified, availability, sharedOnly, university, furnishing, sortBy]);
+  }, [debouncedSearch, location, type, beds, priceMin, priceMax, verified, availability, sharedOnly, university, furnishing, sortBy]);
 
   const filteredAndSorted = useMemo(() => {
     const min      = priceMin !== "" ? Number(priceMin) : null;
     const max      = priceMax !== "" ? Number(priceMax) : null;
     const uniAreas = university !== "All" ? (UNIVERSITY_AREA_MAP[university] || []) : [];
-    const q        = debouncedSearch.toLowerCase();
+
+    // Parse the search box for type/bed hints (e.g. "self con", "one bed").
+    // Explicit chip/dropdown selections always take priority over parsed guesses.
+    const parsed = parseSearchQuery(debouncedSearch);
+    const effectiveType = type !== "All" ? type : parsed.type;
+    const effectiveBeds = beds !== "All" ? beds : (parsed.beds ? String(parsed.beds) : null);
+    const q = parsed.text; // leftover free text after stripping type/bed words
 
     const filtered = allListings.filter((l) => {
-      const title    = l.title?.toLowerCase()    || "";
-      const loc      = l.location?.toLowerCase() || "";
-      const price    = Number(l.price)           || 0;
+      const title = l.title?.toLowerCase()    || "";
+      const loc   = l.location?.toLowerCase() || "";
+      const price = Number(l.price)           || 0;
 
       return (
-        (!q             || title.includes(q) || loc.includes(q))                           &&
-        (location === "All"     || l.location    === location)                             &&
-        (type     === "All"     || l.type        === type)                                 &&
-        (furnishing === "All"   || l.furnishing  === furnishing)                           &&
-        (min === null           || price >= min)                                            &&
-        (max === null           || price <= max)                                            &&
-        (!verified              || l.verified    === true)                                  &&
-        (availability === "All" || l.availability === availability)                         &&
-        (!sharedOnly            || l.type        === "Shared Room")                         &&
+        (!q                     || title.includes(q) || loc.includes(q))              &&
+        (location === "All"     || l.location    === location)                        &&
+        (!effectiveType         || l.type         === effectiveType)                   &&
+        (!effectiveBeds         || String(l.beds) === effectiveBeds)                   &&
+        (furnishing === "All"   || l.furnishing  === furnishing)                       &&
+        (min === null           || price >= min)                                        &&
+        (max === null           || price <= max)                                        &&
+        (!verified              || l.verified    === true)                              &&
+        (availability === "All" || l.availability === availability)                     &&
+        (!sharedOnly            || l.type        === "Shared Room")                     &&
         (university === "All"   || l.nearSchool  === university ||
           (uniAreas.length > 0  && uniAreas.includes(l.location)))
       );
@@ -281,32 +306,34 @@ export default function ListingsPage() {
       const bt = b.createdAt?.toDate?.() ?? new Date(b.createdAt ?? 0);
       return sortBy === "oldest" ? at - bt : bt - at;
     });
-  }, [allListings, debouncedSearch, location, type, priceMin, priceMax, verified, availability, sharedOnly, university, furnishing, sortBy]);
+  }, [allListings, debouncedSearch, location, type, beds, priceMin, priceMax, verified, availability, sharedOnly, university, furnishing, sortBy]);
 
   const totalPages    = Math.ceil(filteredAndSorted.length / PAGE_SIZE);
   const paginatedList = filteredAndSorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const pills = useMemo(() => {
     const p = [];
-    if (debouncedSearch)       p.push({ key: "search",       label: `"${debouncedSearch}"` });
-    if (location !== "All")    p.push({ key: "location",     label: location });
-    if (type !== "All")        p.push({ key: "type",         label: type });
-    if (furnishing !== "All")  p.push({ key: "furnishing",   label: furnishing });
+    if (debouncedSearch)        p.push({ key: "search",       label: `"${debouncedSearch}"` });
+    if (location !== "All")     p.push({ key: "location",     label: location });
+    if (type !== "All")         p.push({ key: "type",         label: type });
+    if (beds !== "All")         p.push({ key: "beds",         label: `${beds} Bed${beds !== "1" ? "s" : ""}` });
+    if (furnishing !== "All")   p.push({ key: "furnishing",   label: furnishing });
     if (availability !== "All") p.push({ key: "availability", label: availability });
-    if (university !== "All")  p.push({ key: "university",   label: university });
-    if (priceMin)              p.push({ key: "priceMin",     label: `Min ₦${Number(priceMin).toLocaleString()}` });
-    if (priceMax)              p.push({ key: "priceMax",     label: `Max ₦${Number(priceMax).toLocaleString()}` });
-    if (verified)              p.push({ key: "verified",     label: "Verified only" });
-    if (sharedOnly)            p.push({ key: "sharedOnly",   label: "Shared rooms" });
-    if (sortBy !== "newest")   p.push({ key: "sortBy",       label: SORT_OPTIONS.find((s) => s.value === sortBy)?.label });
+    if (university !== "All")   p.push({ key: "university",   label: university });
+    if (priceMin)                p.push({ key: "priceMin",     label: `Min ₦${Number(priceMin).toLocaleString()}` });
+    if (priceMax)                p.push({ key: "priceMax",     label: `Max ₦${Number(priceMax).toLocaleString()}` });
+    if (verified)                p.push({ key: "verified",     label: "Verified only" });
+    if (sharedOnly)               p.push({ key: "sharedOnly",   label: "Shared rooms" });
+    if (sortBy !== "newest")     p.push({ key: "sortBy",       label: SORT_OPTIONS.find((s) => s.value === sortBy)?.label });
     return p;
-  }, [debouncedSearch, location, type, priceMin, priceMax, verified, availability, sharedOnly, university, furnishing, sortBy]);
+  }, [debouncedSearch, location, type, beds, priceMin, priceMax, verified, availability, sharedOnly, university, furnishing, sortBy]);
 
   const removePill = useCallback((key) => {
     const map = {
       search:       () => { setSearch(""); setDebouncedSearch(""); },
       location:     () => setLocation("All"),
       type:         () => setType("All"),
+      beds:         () => setBeds("All"),
       furnishing:   () => setFurnishing("All"),
       availability: () => setAvailability("All"),
       university:   () => setUniversity("All"),
@@ -321,7 +348,7 @@ export default function ListingsPage() {
 
   const clearAll = useCallback(() => {
     setSearch(""); setDebouncedSearch(""); setLocation("All"); setType("All");
-    setPriceMin(""); setPriceMax(""); setVerified(false); setAvailability("All");
+    setBeds("All"); setPriceMin(""); setPriceMax(""); setVerified(false); setAvailability("All");
     setSharedOnly(false); setUniversity("All"); setFurnishing("All"); setSortBy("newest");
   }, []);
 
@@ -344,7 +371,7 @@ export default function ListingsPage() {
         <input
           className="lp__search"
           type="text"
-          placeholder="Search by name or area…"
+          placeholder="Try 'self con' or 'one bed'…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           aria-label="Search listings"
@@ -373,48 +400,36 @@ export default function ListingsPage() {
         </label>
       </AccordionSection>
 
+      <AccordionSection title="Bedrooms" icon={
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <rect x="1" y="6" width="12" height="6" rx="1" stroke="currentColor" strokeWidth="1.3" />
+          <path d="M1 6V4a1 1 0 011-1h10a1 1 0 011 1v2" stroke="currentColor" strokeWidth="1.3" />
+        </svg>
+      } defaultOpen>
+        <ChipGroup options={BED_OPTIONS} value={beds} onChange={setBeds} />
+      </AccordionSection>
+
       <AccordionSection
-  title="Location"
-  icon={
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 14 14"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M7 1.5a4 4 0 014 4c0 3-4 7-4 7S3 8.5 3 5.5a4 4 0 014-4z"
-        stroke="currentColor"
-        strokeWidth="1.4"
-      />
-      <circle
-        cx="7"
-        cy="5.5"
-        r="1.2"
-        stroke="currentColor"
-        strokeWidth="1.2"
-      />
-    </svg>
-  }
-  defaultOpen
->
-  <select
-    className="lp__select"
-    value={location}
-    onChange={(e) => setLocation(e.target.value)}
-    aria-label="Filter by location"
-  >
-    {LOCATION_FILTER_OPTIONS.map((opt) => (
-      <option
-        key={opt.value}
-        value={opt.value}
+        title="Location"
+        icon={
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M7 1.5a4 4 0 014 4c0 3-4 7-4 7S3 8.5 3 5.5a4 4 0 014-4z" stroke="currentColor" strokeWidth="1.4" />
+            <circle cx="7" cy="5.5" r="1.2" stroke="currentColor" strokeWidth="1.2" />
+          </svg>
+        }
+        defaultOpen
       >
-        {opt.label}
-      </option>
-    ))}
-  </select>
-</AccordionSection>
+        <select
+          className="lp__select"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          aria-label="Filter by location"
+        >
+          {LOCATION_FILTER_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </AccordionSection>
 
       <AccordionSection title="Near university" icon={
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -517,61 +532,8 @@ export default function ListingsPage() {
 
   return (
     <main className="lp">
-      {/* ── Hero ─────────────────────────────────────────────── */}
-      <section className="lp__hero">
-        <div className="lp__hero-inner">
-          <div className="lp__hero-text">
-            <p className="lp__hero-eyebrow">Port Harcourt Student Housing</p>
-            <h1 className="lp__hero-headline">Find your next home,<br />without the stress.</h1>
-            <p className="lp__hero-sub">
-              Every listing is field-verified directly with landlords.
-              No agents, no inflated fees.
-            </p>
-          </div>
-          {!loading && (
-            <div className="lp__hero-stats">
-              <div className="lp__hero-stat">
-                <span className="lp__hero-stat-num">{allListings.length}</span>
-                <span className="lp__hero-stat-label">Total listings</span>
-              </div>
-              <div className="lp__hero-stat-divider" />
-              <div className="lp__hero-stat">
-                <span className="lp__hero-stat-num">
-                  {allListings.filter((l) => l.verified).length}
-                </span>
-                <span className="lp__hero-stat-label">Verified</span>
-              </div>
-              <div className="lp__hero-stat-divider" />
-              <div className="lp__hero-stat">
-                <span className="lp__hero-stat-num">
-                  {[...new Set(allListings.map((l) => l.location).filter(Boolean))].length}
-                </span>
-                <span className="lp__hero-stat-label">Areas covered</span>
-              </div>
-            </div>
-          )}
-        </div>
-        <div className="lp__hero-ticker" aria-hidden="true">
-          <span>Field-verified</span>
-          <span className="lp__ticker-dot">·</span>
-          <span>Landlord-direct</span>
-          <span className="lp__ticker-dot">·</span>
-          <span>Near RSU · UniPort · IAUE</span>
-          <span className="lp__ticker-dot">·</span>
-          <span>No hidden agent fees</span>
-          <span className="lp__ticker-dot">·</span>
-          <span>Field-verified</span>
-          <span className="lp__ticker-dot">·</span>
-          <span>Landlord-direct</span>
-          <span className="lp__ticker-dot">·</span>
-          <span>Near RSU · UniPort · IAUE</span>
-          <span className="lp__ticker-dot">·</span>
-          <span>No hidden agent fees</span>
-        </div>
-      </section>
-
       {/* ── Body ─────────────────────────────────────────────── */}
-      <div className="lp__body">
+      <div className="lp__body lp__body--no-hero">
         {/* Sidebar — desktop */}
         <aside className="lp__sidebar" aria-label="Listing filters">
           <div className="lp__sidebar-inner">

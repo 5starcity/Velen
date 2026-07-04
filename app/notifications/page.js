@@ -1,4 +1,3 @@
-// app/notifications/page.js
 "use client";
 
 import { useEffect, useState } from "react";
@@ -14,10 +13,8 @@ import {
   HiOutlineBanknotes,
   HiOutlineUserGroup,
   HiOutlineXMark,
-  HiOutlineTrash,
   HiOutlineArrowLeft,
   HiOutlineCheck,
-  HiOutlineExclamationCircle,
   HiOutlineStar,
 } from "react-icons/hi2";
 import { useAuth } from "@/context/AuthContext";
@@ -25,12 +22,8 @@ import {
   subscribeToNotifications,
   markNotificationRead,
   markAllNotificationsRead,
-  deleteNotification,
-  deleteAllNotifications,
 } from "@/lib/firestoreNotifications";
 import "@/styles/notifications-page.css";
-
-// ── Helpers ───────────────────────────────────────────────
 
 function timeAgo(ts) {
   if (!ts) return "";
@@ -96,15 +89,12 @@ function matchesFilter(n, filter) {
   return true;
 }
 
-// ── Component ─────────────────────────────────────────────
-
 export default function NotificationsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState("all");
-  const [confirmClearAll, setConfirmClearAll] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -132,7 +122,6 @@ export default function NotificationsPage() {
   const todayItems = filtered.filter((n) => isToday(n.createdAt));
   const earlierItems = filtered.filter((n) => !isToday(n.createdAt));
 
-  // Only show "featured" tab if the user actually has featured notifications
   const hasFeatured = notifications.some((n) => n.type === "featured_activated");
   const visibleFilters = FILTERS.filter((f) => f !== "featured" || hasFeatured);
 
@@ -142,18 +131,8 @@ export default function NotificationsPage() {
     if (href) router.push(href);
   }
 
-  async function handleDelete(e, id) {
-    e.stopPropagation();
-    await deleteNotification(id);
-  }
-
   async function handleMarkAllRead() {
     await markAllNotificationsRead(user.uid);
-  }
-
-  async function handleClearAll() {
-    await deleteAllNotifications(user.uid);
-    setConfirmClearAll(false);
   }
 
   function NotifItem({ n }) {
@@ -164,7 +143,6 @@ export default function NotificationsPage() {
         className={`notif-page-item${!n.read ? " unread" : ""} notif-page-item--${color}`}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, x: -20, height: 0, marginBottom: 0, padding: 0 }}
         transition={{ duration: 0.22 }}
         onClick={() => handleClick(n)}
         style={{ cursor: href || !n.read ? "pointer" : "default" }}
@@ -189,13 +167,6 @@ export default function NotificationsPage() {
 
         <div className="notif-page-item__right">
           {!n.read && <div className="notif-page-item__dot" />}
-          <button
-            className="notif-page-item__delete"
-            onClick={(e) => handleDelete(e, n.id)}
-            title="Dismiss"
-          >
-            <HiOutlineXMark />
-          </button>
         </div>
       </motion.div>
     );
@@ -216,7 +187,6 @@ export default function NotificationsPage() {
   return (
     <main className="notif-page">
 
-      {/* Header */}
       <motion.div
         className="notif-page__header"
         initial={{ opacity: 0, y: 16 }}
@@ -236,25 +206,16 @@ export default function NotificationsPage() {
             </h1>
             <p className="notif-page__sub">Stay up to date with your activity on rezidence.</p>
           </div>
-          {notifications.length > 0 && (
+          {unreadCount > 0 && (
             <div className="notif-page__header-actions">
-              {unreadCount > 0 && (
-                <button className="notif-page__action-btn" onClick={handleMarkAllRead}>
-                  <HiOutlineCheck /> Mark all read
-                </button>
-              )}
-              <button
-                className="notif-page__action-btn notif-page__action-btn--danger"
-                onClick={() => setConfirmClearAll(true)}
-              >
-                <HiOutlineTrash /> Clear all
+              <button className="notif-page__action-btn" onClick={handleMarkAllRead}>
+                <HiOutlineCheck /> Mark all read
               </button>
             </div>
           )}
         </div>
       </motion.div>
 
-      {/* Filters */}
       {notifications.length > 0 && (
         <motion.div
           className="notif-page__filters"
@@ -287,7 +248,6 @@ export default function NotificationsPage() {
         </motion.div>
       )}
 
-      {/* Content */}
       <div className="notif-page__content">
         {filtered.length === 0 ? (
           <motion.div
@@ -310,39 +270,6 @@ export default function NotificationsPage() {
           </>
         )}
       </div>
-
-      {/* Confirm clear all */}
-      <AnimatePresence>
-        {confirmClearAll && (
-          <motion.div
-            className="notif-page__overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setConfirmClearAll(false)}
-          >
-            <motion.div
-              className="notif-page__confirm"
-              initial={{ opacity: 0, scale: 0.95, y: 16 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <HiOutlineExclamationCircle className="notif-page__confirm-icon" />
-              <h3>Clear all notifications?</h3>
-              <p>This will permanently delete all {notifications.length} notifications. This can&apos;t be undone.</p>
-              <div className="notif-page__confirm-actions">
-                <button className="notif-page__confirm-cancel" onClick={() => setConfirmClearAll(false)}>
-                  Cancel
-                </button>
-                <button className="notif-page__confirm-delete" onClick={handleClearAll}>
-                  <HiOutlineTrash /> Clear all
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
     </main>
   );

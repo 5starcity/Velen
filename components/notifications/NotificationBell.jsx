@@ -1,4 +1,3 @@
-// components/notifications/NotificationBell.jsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -6,16 +5,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   HiOutlineBell,
   HiBell,
-  HiOutlineCheck,
   HiOutlineCheckCircle,
-  HiOutlineBolt,
   HiOutlineHomeModern,
   HiOutlineXMark,
   HiOutlineClipboardDocumentCheck,
   HiOutlineShieldCheck,
   HiOutlineBanknotes,
   HiOutlineUserGroup,
-  HiOutlineTrash,
   HiOutlineArrowRight,
 } from "react-icons/hi2";
 import Link from "next/link";
@@ -24,7 +20,6 @@ import {
   subscribeToNotifications,
   markNotificationRead,
   markAllNotificationsRead,
-  deleteNotification,
 } from "@/lib/firestoreNotifications";
 import "@/styles/notifications.css";
 
@@ -50,7 +45,6 @@ function notifIcon(type) {
   return <HiOutlineBell className="notif-item__icon" />;
 }
 
-// Where to link on click
 function notifHref(n) {
   if (n.listingId && (n.type === "listing_interest" || n.type === "reservation_request" || n.type === "listing_approved")) {
     return `/listings/${n.listingId}`;
@@ -89,17 +83,11 @@ export default function NotificationBell() {
   if (!user) return null;
 
   const unread = notifications.filter((n) => !n.read).length;
-  // Show max 8 in dropdown
   const preview = notifications.slice(0, 8);
 
   async function handleItemClick(n) {
     if (!n.read) await markNotificationRead(n.id);
     setOpen(false);
-  }
-
-  async function handleDelete(e, id) {
-    e.stopPropagation();
-    await deleteNotification(id);
   }
 
   async function handleMarkAll() {
@@ -163,16 +151,11 @@ export default function NotificationBell() {
                         <p className="notif-item__message">{n.message}</p>
                         <p className="notif-item__time">{timeAgo(n.createdAt)}</p>
                       </div>
-                      <div className="notif-item__actions">
-                        {!n.read && <div className="notif-item__unread-dot" />}
-                        <button
-                          className="notif-item__delete-btn"
-                          onClick={(e) => handleDelete(e, n.id)}
-                          title="Dismiss"
-                        >
-                          <HiOutlineXMark />
-                        </button>
-                      </div>
+                      {!n.read && (
+                        <div className="notif-item__actions">
+                          <div className="notif-item__unread-dot" />
+                        </div>
+                      )}
                     </div>
                   );
                   return href ? (

@@ -81,7 +81,7 @@ export default function PrivacyPage() {
           <p className={styles.subtitle}>
             How rezidence collects, uses, and protects your personal information.
           </p>
-          <p className={styles.lastUpdated}>Last updated: May 2026</p>
+          <p className={styles.lastUpdated}>Last updated: July 2026</p>
         </div>
 
         <div className={styles.layout}>

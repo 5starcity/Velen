@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { collection, query, where, getDocs, limit, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
+import { parseSearchQuery } from "@/lib/searchParser";
 import {
   HiOutlineMapPin,
   HiOutlineArrowRight,
@@ -43,9 +44,17 @@ export default function Hero() {
 
   const handleSearchSubmit = () => {
     const q = query_.trim();
-    window.location.href = q
-      ? `/listings?q=${encodeURIComponent(q)}`
-      : "/listings";
+    if (!q) {
+      window.location.href = "/listings";
+      return;
+    }
+    const { type, beds, text } = parseSearchQuery(q);
+    const params = new URLSearchParams();
+    if (type) params.set("type", type);
+    if (beds) params.set("beds", String(beds));
+    if (text) params.set("q", text);
+    if (!type && !beds && !text) params.set("q", q); // nothing parsed, fall back to raw text
+    window.location.href = `/listings?${params.toString()}`;
   };
 
   const handleKeyDown = (e) => {

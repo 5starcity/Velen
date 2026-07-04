@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
@@ -43,8 +43,14 @@ export function AuthProvider({ children }) {
     return () => unsubscribe();
   }, []);
 
+  async function logout() {
+    await signOut(auth);
+    setUser(null);
+    setUserRole(null);
+  }
+
   return (
-    <AuthContext.Provider value={{ user, userRole, loading }}>
+    <AuthContext.Provider value={{ user, userRole, loading, logout }}>
       {children}
     </AuthContext.Provider>
   );
