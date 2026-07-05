@@ -10,7 +10,7 @@ export async function generateMetadata({ params }) {
     return { title: "Listing Not Found" };
   }
 
-  const title = `${listing.beds || ""} Bedroom ${listing.type || "Property"} in ${listing.location}`.trim();
+  const title = `${listing.type || "Property"} in ${listing.location}`.trim();
   const description = `${listing.type || "Property"} in ${listing.location}, Port Harcourt. ₦${Number(listing.price).toLocaleString()}/year. ${listing.verified ? "Verified landlord. " : ""}No agent fees.`;
 
   return {
@@ -30,5 +30,46 @@ export async function generateMetadata({ params }) {
 export default async function Page({ params }) {
   const { id } = await params;
   const listing = await fetchListingByIdServer(id);
-  return <ListingDetailClient initialListing={listing} />;
+
+  if (!listing) {
+    return <ListingDetailClient initialListing={null} />;
+  }
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Apartment",
+    name: listing.title,
+    description: listing.description || `${listing.type} in ${listing.location}, Port Harcourt`,
+    url: `https://rezidence.ng/listings/${id}`,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: listing.address || listing.location,
+      addressLocality: "Port Harcourt",
+      addressRegion: "Rivers State",
+      addressCountry: "NG",
+    },
+    numberOfRooms: listing.beds || undefined,
+    numberOfBathroomsTotal: listing.baths || undefined,
+    image: listing.images?.length > 0 ? listing.images : listing.image ? [listing.image] : undefined,
+    offers: {
+      "@type": "Offer",
+      price: Number(listing.price),
+      priceCurrency: "NGN",
+      availability:
+        listing.availability === "Available Now"
+          ? "https://schema.org/InStock"
+          : "https://schema.org/PreOrder",
+      url: `https://rezidence.ng/listings/${id}`,
+    },
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ListingDetailClient initialListing={listing} />
+    </>
+  );
 }
