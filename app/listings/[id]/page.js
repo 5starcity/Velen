@@ -106,7 +106,18 @@ export default function ListingDetailsPage() {
       try {
         const data = await fetchListingById(listingId);
         if (data && data.landlordId) {
-          const verified = await isLandlordVerified(data.landlordId);
+          // Verification check is best-effort: signed-out users can't read
+          // /users/{uid} under current Firestore rules, so we don't even
+          // attempt the call for them (avoids a guaranteed permission-denied
+          // error) and it must never block the listing itself from rendering.
+          let verified = false;
+          if (user) {
+            try {
+              verified = await isLandlordVerified(data.landlordId);
+            } catch (verifyError) {
+              console.error("Error checking landlord verification:", verifyError);
+            }
+          }
           setListing({ ...data, verified });
           setEditForm({ ...data, verified });
         } else {
