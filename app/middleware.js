@@ -6,7 +6,7 @@ export const config = {
   runtime: "nodejs", // Firebase Admin SDK needs Node runtime, not Edge
 };
 
-export async function middleware(request: NextRequest) {
+export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith("/admin/login")) {

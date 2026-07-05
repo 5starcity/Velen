@@ -10,12 +10,12 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
 
 const ALLOWED_ORIGIN = process.env.NEXT_PUBLIC_SITE_URL || "https://rezidence.ng";
 
-function getClientIp(request: NextRequest): string {
+function getClientIp(request) {
   const forwarded = request.headers.get("x-forwarded-for");
   return forwarded?.split(",")[0]?.trim() || "unknown";
 }
 
-async function logAttempt(email: string | undefined, ip: string, success: boolean, reason?: string) {
+async function logAttempt(email, ip, success, reason) {
   try {
     const db = getFirestore();
     await db.collection("admin_login_audit").add({
@@ -30,7 +30,7 @@ async function logAttempt(email: string | undefined, ip: string, success: boolea
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request) {
   const ip = getClientIp(request);
 
   // 1. Origin check — reject requests not coming from your own site
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE(request) {
   const response = NextResponse.json({ success: true });
   response.cookies.delete("rezidence_admin_session");
   return response;
