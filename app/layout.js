@@ -1,7 +1,7 @@
 // app/layout.js
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+import ConditionalFooter from "@/components/ConditionalFooter";
 import PageTransition from "@/components/layout/PageTransition";
 import SupportWidget from "@/components/support/SupportWidget";
 import PostHogProvider from "@/components/layout/PostHogProvider";
@@ -34,7 +34,7 @@ export default function RootLayout({ children }) {
           <PageTransition>
             {children}
           </PageTransition>
-          <Footer />
+          <ConditionalFooter />
         </AuthProvider>
       </body>
     </html>

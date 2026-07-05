@@ -27,6 +27,7 @@ import {
   HiOutlinePhone,
   HiOutlineXCircle,
   HiOutlineCheck,
+  HiOutlineLockClosed,
 } from "react-icons/hi2";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -253,6 +254,7 @@ export default function DashboardPage() {
   const totalInterests   = listings.reduce((s, l) => s + (Number(l.interests) || 0), 0);
   const availableCount   = listings.filter(l => l.availability === "Available Now").length;
   const highDemandCount  = listings.filter(l => (getConversionRate(l) ?? 0) >= 15).length;
+  const takenCount       = listings.filter(l => l.status === "taken").length;
 
   const listingsWithData = listings.filter(l => (Number(l.views) || 0) >= 5);
   const avgConversion    = listingsWithData.length > 0
@@ -266,6 +268,7 @@ export default function DashboardPage() {
   const filtered = listings
     .filter(l => {
       if (filter === "All")         return true;
+      if (filter === "Taken")       return l.status === "taken";
       if (filter === "High Demand") return (getConversionRate(l) ?? 0) >= 15;
       if (filter === "Expiring")    return getExpiryStatus(l) !== "fresh";
       return l.availability === filter;
@@ -340,6 +343,7 @@ export default function DashboardPage() {
     { key: "Available Now",  label: "Available Now" },
     { key: "Available Soon", label: "Available Soon" },
     { key: "Not Available",  label: "Not Available" },
+    { key: "Taken",          label: "Taken" },
     { key: "High Demand",    label: "High demand",  hot:   highDemandCount > 0 },
     { key: "Expiring",       label: "Needs attention", alert: needsAttention > 0 },
   ];
@@ -549,6 +553,7 @@ export default function DashboardPage() {
             {filterTabs.map(tab => {
               const count =
                 tab.key === "All"         ? null :
+                tab.key === "Taken"       ? (takenCount > 0 ? takenCount : null) :
                 tab.key === "High Demand" ? (highDemandCount > 0 ? highDemandCount : null) :
                 tab.key === "Expiring"    ? (needsAttention > 0 ? needsAttention : null) :
                 listings.filter(l => l.availability === tab.key).length || null;
@@ -614,6 +619,7 @@ export default function DashboardPage() {
                 const isExpired  = status === "expired";
                 const isExpiring = status === "expiring";
                 const isRenewing = renewingId === listing.id;
+                const isTaken    = listing.status === "taken";
                 const views      = Number(listing.views)     || 0;
                 const interests  = Number(listing.interests) || 0;
                 const rate       = getConversionRate(listing);
@@ -626,7 +632,7 @@ export default function DashboardPage() {
                 return (
                   <motion.div
                     key={listing.id}
-                    className={`db__card${isExpired ? " db__card--expired" : ""}${isExpiring ? " db__card--expiring" : ""}`}
+                    className={`db__card${isExpired ? " db__card--expired" : ""}${isExpiring ? " db__card--expiring" : ""}${isTaken ? " db__card--taken" : ""}`}
                     variants={fadeUp}
                     layout
                     exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.18 } }}
@@ -642,10 +648,13 @@ export default function DashboardPage() {
                       {listing.verified && (
                         <span className="db__thumb-badge db__thumb-badge--verified">Verified</span>
                       )}
-                      {isExpired && (
+                      {isTaken && (
+                        <span className="db__thumb-badge db__thumb-badge--taken">Taken</span>
+                      )}
+                      {isExpired && !isTaken && (
                         <span className="db__thumb-badge db__thumb-badge--expired">Expired</span>
                       )}
-                      {isExpiring && !isExpired && (
+                      {isExpiring && !isExpired && !isTaken && (
                         <span className="db__thumb-badge db__thumb-badge--expiring">{daysLeft}d left</span>
                       )}
                     </div>
@@ -664,6 +673,9 @@ export default function DashboardPage() {
                             <span className="muted"><HiOutlineClock />Listed {formatDate(listing.createdAt)}</span>
                             {listing.renewedAt && (
                               <span style={{ color: "var(--accent)" }}><HiOutlineArrowPath />Renewed {formatDate(listing.renewedAt)}</span>
+                            )}
+                            {isTaken && listing.takenAt && (
+                              <span style={{ color: "var(--text-secondary)" }}><HiOutlineLockClosed />Taken {formatDate(listing.takenAt)}</span>
                             )}
                           </div>
                         </div>
@@ -698,8 +710,22 @@ export default function DashboardPage() {
                         </div>
                       </div>
 
-                      {/* Expiry prompt */}
-                      {(isExpired || isExpiring) && (
+                      {/* Taken notice — takes priority over expiry prompt */}
+                      {isTaken ? (
+                        <div className="db__taken-prompt">
+                          <div className="db__taken-left">
+                            <HiOutlineLockClosed />
+                            <div>
+                              <strong>This listing has been taken</strong>
+                              <span>
+                                {listing.takenByName
+                                  ? `Paid for by ${listing.takenByName}. It's no longer visible to students browsing.`
+                                  : "It's no longer visible to students browsing."}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (isExpired || isExpiring) && (
                         <div className={`db__expiry-prompt db__expiry-prompt--${isExpired ? "expired" : "expiring"}`}>
                           <div className="db__expiry-left">
                             <HiOutlineExclamationTriangle />
@@ -753,17 +779,28 @@ export default function DashboardPage() {
 
                         {/* Availability */}
                         <div className="db__avail-wrap">
-                          <select
-                            className={`db__avail-select ${availClass}`}
-                            value={listing.availability || "Not Available"}
-                            onChange={e => handleAvailabilityChange(listing.id, e.target.value)}
-                            disabled={updatingId === listing.id}
-                          >
-                            {AVAILABILITY_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>{opt}</option>
-                            ))}
-                          </select>
-                          {updatingId === listing.id && <span className="db__mini-spin" />}
+                          {isTaken ? (
+                            <span
+                              className="db__avail-select db__avail-select--taken"
+                              title="This listing has been paid for and is no longer available"
+                            >
+                              <HiOutlineLockClosed /> Taken
+                            </span>
+                          ) : (
+                            <>
+                              <select
+                                className={`db__avail-select ${availClass}`}
+                                value={listing.availability || "Not Available"}
+                                onChange={e => handleAvailabilityChange(listing.id, e.target.value)}
+                                disabled={updatingId === listing.id}
+                              >
+                                {AVAILABILITY_OPTIONS.map(opt => (
+                                  <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                              </select>
+                              {updatingId === listing.id && <span className="db__mini-spin" />}
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>

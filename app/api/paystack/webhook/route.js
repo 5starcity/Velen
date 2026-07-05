@@ -68,8 +68,8 @@ async function handleChargeSuccess(data) {
     throw new Error("Student and landlord cannot be the same user");
   }
 
-  // Verify listing exists and price matches
-  const listingSnap = await adminDb.collection("listings").doc(listingId).get();
+  const listingRef  = adminDb.collection("listings").doc(listingId);
+  const listingSnap = await listingRef.get();
   if (!listingSnap.exists) {
     throw new Error("Listing not found: " + listingId);
   }
@@ -99,38 +99,100 @@ async function handleChargeSuccess(data) {
   const studentSnap = await adminDb.collection("users").doc(studentId).get();
   const studentData = studentSnap.exists ? studentSnap.data() : {};
 
-  // ── 4. Create transaction record ──
-  await txRef.set({
-    // Parties
-    studentId,
-    studentName:    studentName || "",
-    landlordId,
-    landlordName,
+  // ── 4. Mark listing as taken + create transaction record, atomically ──
+  // Re-reads the listing inside the transaction so that if two payments
+  // land close together, only the first one wins and the second is flagged
+  // for refund instead of double-booking the same house.
+  let alreadyTaken = false;
 
-    // Property
-    listingId,
-    listingTitle: listingTitle || listing.title || "",
+  await adminDb.runTransaction(async (t) => {
+    const freshListingSnap = await t.get(listingRef);
+    const freshListing = freshListingSnap.data();
 
-    // Amounts — all server-calculated
-    amount:         listingPrice,
-    serviceFee:     expectedFee,
-    totalCharged:   expectedTotal,
-    landlordPayout: listingPrice,
+    if (freshListing.status === "taken") {
+      alreadyTaken = true;
+      t.set(txRef, {
+        studentId,
+        studentName: studentName || "",
+        landlordId,
+        listingId,
+        listingTitle: listingTitle || listing.title || "",
+        amount: listingPrice,
+        serviceFee: expectedFee,
+        totalCharged: expectedTotal,
+        reference,
+        status: "conflict_needs_refund",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      return;
+    }
 
-    // Paystack
-    reference,
-    paystackSubaccount: listing.paystackSubaccount || "",
+    t.update(listingRef, {
+      status:           "taken",
+      takenBy:          studentId,
+      takenByName:      studentName || "",
+      takenAt:          new Date(),
+      paymentReference: reference,
+    });
 
-    // Status
-    status:      "completed",
-    completedAt: new Date(),
+    t.set(txRef, {
+      // Parties
+      studentId,
+      studentName:    studentName || "",
+      landlordId,
+      landlordName,
 
-    type:      metadata.type || "rent",
-    createdAt: new Date(),
-    updatedAt: new Date(),
+      // Property
+      listingId,
+      listingTitle: listingTitle || listing.title || "",
+
+      // Amounts — all server-calculated
+      amount:         listingPrice,
+      serviceFee:     expectedFee,
+      totalCharged:   expectedTotal,
+      landlordPayout: listingPrice,
+
+      // Paystack
+      reference,
+      paystackSubaccount: listing.paystackSubaccount || "",
+
+      // Status
+      status:      "completed",
+      completedAt: new Date(),
+
+      type:      metadata.type || "rent",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
   });
 
-  // ── 5. In-app notifications ──
+  // ── 5. Handle conflict case — listing was already taken by someone else ──
+  if (alreadyTaken) {
+    console.warn("Listing already taken, flagged for refund:", reference, listingId);
+
+    await adminDb.collection("notifications").add({
+      userId:    studentId,
+      type:      "payment_conflict",
+      title:     "Listing no longer available",
+      message:   `"${listing.title}" was just taken by another student. Your payment will be refunded shortly.`,
+      listingId,
+      reference,
+      read:      false,
+      createdAt: new Date(),
+    });
+
+    if (studentData.phone) {
+      await sendSMS(
+        studentData.phone,
+        `Rezidence: "${listing.title}" was just taken by another student. Your payment of N${listingPrice.toLocaleString()} will be refunded. Ref: ${reference}`
+      );
+    }
+
+    return; // stop here — don't send success notifications below
+  }
+
+  // ── 6. In-app notifications (success path) ──
   const batch = adminDb.batch();
 
   batch.set(adminDb.collection("notifications").doc(), {
@@ -157,7 +219,7 @@ async function handleChargeSuccess(data) {
 
   await batch.commit();
 
-  // ── 6. SMS notifications ──
+  // ── 7. SMS notifications (success path) ──
   await Promise.allSettled([
     studentData.phone && sendSMS(
       studentData.phone,
@@ -185,8 +247,27 @@ async function handleRefundProcessed(data) {
     updatedAt:  new Date(),
   });
 
-  // Fetch transaction to notify parties
   const tx = snap.data();
+
+  // If the refund was for a listing we'd marked "taken" (e.g. a conflict
+  // case that got manually refunded), release the listing back to available.
+  if (tx.listingId) {
+    const listingRef  = adminDb.collection("listings").doc(tx.listingId);
+    const listingSnap = await listingRef.get();
+
+    if (listingSnap.exists) {
+      const listing = listingSnap.data();
+      if (listing.paymentReference === reference && listing.status === "taken") {
+        await listingRef.update({
+          status:           "available",
+          takenBy:          null,
+          takenByName:      null,
+          takenAt:          null,
+          paymentReference: null,
+        });
+      }
+    }
+  }
 
   const batch = adminDb.batch();
 
@@ -204,7 +285,7 @@ async function handleRefundProcessed(data) {
   await batch.commit();
 
   // SMS for refund
-  const studentSnap = await adminDb.collection("users").doc(tx.studentId).get();
+  const studentSnap  = await adminDb.collection("users").doc(tx.studentId).get();
   const studentPhone = studentSnap.exists ? studentSnap.data().phone : null;
 
   if (studentPhone) {

@@ -1,0 +1,124 @@
+.admin-login {
+    min-height: 100vh;
+    background: #0f1a0f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', -apple-system, sans-serif;
+    padding: 20px;
+  }
+  
+  .admin-login__card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 40px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+  
+  .admin-login__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  
+  .admin-login__logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: #2d5a28;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+  }
+  
+  .admin-login__brand-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: #1a2a1a;
+    letter-spacing: -0.01em;
+  }
+  
+  .admin-login__brand-sub {
+    font-size: 11px;
+    color: #6b7c6b;
+    font-weight: 500;
+  }
+  
+  .admin-login__title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a2a1a;
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
+  }
+  
+  .admin-login__subtitle {
+    font-size: 13px;
+    color: #6b7c6b;
+    margin-bottom: 24px;
+  }
+  
+  .admin-login__error {
+    background: #fdf0f0;
+    border: 1px solid #e8c0c0;
+    color: #8b2020;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  
+  .admin-login__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .admin-login__input {
+    padding: 10px 12px;
+    border: 1px solid #e2e8e2;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    color: #1a2a1a;
+  }
+  
+  .admin-login__input:focus {
+    border-color: #2d5a28;
+  }
+  
+  .admin-login__input:disabled {
+    background: #f5f7f5;
+    cursor: not-allowed;
+  }
+  
+  .admin-login__submit {
+    width: 100%;
+    padding: 11px;
+    background: #2d5a28;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  
+  .admin-login__submit:disabled {
+    background: #9aaa9a;
+    cursor: not-allowed;
+  }
+  
+  .admin-login__submit:not(:disabled):hover {
+    background: #244a20;
+  }

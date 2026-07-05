@@ -10,6 +10,8 @@ import {
   HiOutlineLockClosed,
   HiOutlineExclamationTriangle,
   HiOutlineChevronDown,
+  HiOutlineEye,
+  HiOutlineEyeSlash,
 } from "react-icons/hi2";
 import {
   logIn,
@@ -86,6 +88,7 @@ export default function LoginPage() {
   const [socialLoading, setSocialLoading] = useState(null);
   const [showEmail, setShowEmail] = useState(false);
   const [pendingUser, setPendingUser] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -231,19 +234,28 @@ export default function LoginPage() {
                   </div>
                 </div>
                 <div className="auth-field">
-                  <label>Password</label>
-                  <div className="auth-input-wrap">
-                    <HiOutlineLockClosed className="auth-input-icon" />
-                    <input
-                      type="password"
-                      name="password"
-                      placeholder="Enter your password"
-                      value={form.password}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                </div>
+  <label>Password</label>
+  <div className="auth-input-wrap">
+    <HiOutlineLockClosed className="auth-input-icon" />
+    <input
+      type={showPassword ? "text" : "password"}
+      name="password"
+      placeholder="Enter your password"
+      value={form.password}
+      onChange={handleChange}
+      required
+    />
+    <button
+      type="button"
+      className="auth-input-eye"
+      onClick={() => setShowPassword((v) => !v)}
+      aria-label={showPassword ? "Hide password" : "Show password"}
+      tabIndex={-1}
+    >
+      {showPassword ? <HiOutlineEyeSlash /> : <HiOutlineEye />}
+    </button>
+  </div>
+</div>
                 <button
                   type="submit"
                   className="auth-submit"

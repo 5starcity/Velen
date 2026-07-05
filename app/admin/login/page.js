@@ -2,17 +2,13 @@
 
 import { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase'; // your existing firebase init
-import { useRouter } from 'next/navigation';
-
-/**
- * Admin Login Page
- * After sign-in, verify the user has admin role in Firestore,
- * then set the rezidence_admin_session cookie.
- */
+import { auth } from '@/lib/firebase';
+import { useRouter, useSearchParams } from 'next/navigation';
+import './admin-login.css';
 
 export default function AdminLogin() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -20,124 +16,91 @@ export default function AdminLogin() {
 
   async function handleLogin() {
     setError('');
+
+    if (!email || !password) {
+      setError('Enter your email and password.');
+      return;
+    }
+
     setLoading(true);
 
     try {
       const credential = await signInWithEmailAndPassword(auth, email, password);
-      const user = credential.user;
+      const idToken = await credential.user.getIdToken();
 
-      // Verify admin claim — check Firestore or custom claims
-      // Example with Firestore:
-      // const snap = await getDoc(doc(db, 'admins', user.uid));
-      // if (!snap.exists()) throw new Error('Not an admin account.');
-
-      // Get ID token and send to your API to set an httpOnly cookie
-      const idToken = await user.getIdToken();
-      const res = await fetch('/api/admin/session', {
+      const res = await fetch('/api/auth/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idToken }),
       });
 
-      if (!res.ok) throw new Error('Access denied. This account does not have admin privileges.');
+      const data = await res.json();
 
-      router.push('/admin');
+      if (!res.ok) {
+        if (res.status === 429) {
+          throw new Error(data.error || 'Too many attempts. Try again in a few minutes.');
+        }
+        if (res.status === 403 && data.error === 'Email not verified') {
+          throw new Error('Verify your email before signing in.');
+        }
+        if (res.status === 403) {
+          throw new Error('This account does not have admin access.');
+        }
+        throw new Error(data.error || 'Sign-in failed.');
+      }
+
+      const redirect = searchParams.get('redirect') || '/admin';
+      router.push(redirect);
     } catch (err) {
-      setError(err.message || 'Sign-in failed. Check your credentials.');
+      const message = err instanceof Error ? err.message : 'Sign-in failed. Check your credentials.';
+      setError(message);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#0f1a0f',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: 'Inter, -apple-system, sans-serif',
-    }}>
-      <div style={{
-        background: '#ffffff',
-        borderRadius: '8px',
-        padding: '40px',
-        width: '100%',
-        maxWidth: '380px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-      }}>
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '32px' }}>
-          <div style={{
-            width: '32px', height: '32px', borderRadius: '6px',
-            background: '#2d5a28', color: '#fff',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontWeight: 700, fontSize: '15px',
-          }}>R</div>
+    <div className="admin-login">
+      <div className="admin-login__card">
+        <div className="admin-login__brand">
+          <div className="admin-login__logo">R</div>
           <div>
-            <div style={{ fontWeight: 700, fontSize: '15px', color: '#1a2a1a', letterSpacing: '-0.01em' }}>
-              Rezidence
-            </div>
-            <div style={{ fontSize: '11px', color: '#6b7c6b', fontWeight: 500 }}>Admin Portal</div>
+            <div className="admin-login__brand-name">Rezidence</div>
+            <div className="admin-login__brand-sub">Admin Portal</div>
           </div>
         </div>
 
-        <h1 style={{ fontSize: '20px', fontWeight: 700, color: '#1a2a1a', marginBottom: '6px', letterSpacing: '-0.02em' }}>
-          Sign in
-        </h1>
-        <p style={{ fontSize: '13px', color: '#6b7c6b', marginBottom: '24px' }}>
-          Admin access only
-        </p>
+        <h1 className="admin-login__title">Sign in</h1>
+        <p className="admin-login__subtitle">Admin access only</p>
 
-        {error && (
-          <div style={{
-            background: '#fdf0f0', border: '1px solid #e8c0c0',
-            color: '#8b2020', padding: '10px 12px',
-            borderRadius: '6px', fontSize: '13px', marginBottom: '16px',
-          }}>
-            {error}
-          </div>
-        )}
+        {error && <div className="admin-login__error">{error}</div>}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
+        <div className="admin-login__fields">
           <input
+            className="admin-login__input"
             type="email"
             placeholder="Email address"
             value={email}
+            autoComplete="email"
+            disabled={loading}
             onChange={(e) => setEmail(e.target.value)}
-            style={{
-              padding: '10px 12px', border: '1px solid #e2e8e2',
-              borderRadius: '6px', fontSize: '14px',
-              fontFamily: 'inherit', outline: 'none',
-              color: '#1a2a1a',
-            }}
           />
           <input
+            className="admin-login__input"
             type="password"
             placeholder="Password"
             value={password}
+            autoComplete="current-password"
+            disabled={loading}
             onChange={(e) => setPassword(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-            style={{
-              padding: '10px 12px', border: '1px solid #e2e8e2',
-              borderRadius: '6px', fontSize: '14px',
-              fontFamily: 'inherit', outline: 'none',
-              color: '#1a2a1a',
-            }}
           />
         </div>
 
         <button
+          className="admin-login__submit"
           onClick={handleLogin}
           disabled={loading}
-          style={{
-            width: '100%', padding: '11px',
-            background: loading ? '#9aaa9a' : '#2d5a28',
-            color: '#ffffff', border: 'none',
-            borderRadius: '6px', fontSize: '14px',
-            fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer',
-            fontFamily: 'inherit', transition: 'background 0.15s',
-          }}
         >
           {loading ? 'Signing in...' : 'Sign in'}
         </button>

@@ -8,9 +8,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   HiOutlineEnvelope,
   HiOutlineLockClosed,
-  HiOutlineUser,
   HiOutlineExclamationTriangle,
   HiOutlineChevronDown,
+  HiOutlineEye,
+  HiOutlineEyeSlash,
+  HiOutlineUser,
 } from "react-icons/hi2";
 import {
   signUp,
@@ -89,6 +91,7 @@ export default function SignupPage() {
   const [showEmail, setShowEmail]         = useState(false);
   const [pendingUser, setPendingUser]     = useState(null);
   const [pendingMethod, setPendingMethod] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -258,19 +261,28 @@ export default function SignupPage() {
                   </div>
                 </div>
                 <div className="auth-field">
-                  <label>Password</label>
-                  <div className="auth-input-wrap">
-                    <HiOutlineLockClosed className="auth-input-icon" />
-                    <input
-                      type="password"
-                      name="password"
-                      placeholder="Min 6 characters"
-                      value={form.password}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                </div>
+  <label>Password</label>
+  <div className="auth-input-wrap">
+    <HiOutlineLockClosed className="auth-input-icon" />
+    <input
+      type={showPassword ? "text" : "password"}
+      name="password"
+      placeholder="Enter your password"
+      value={form.password}
+      onChange={handleChange}
+      required
+    />
+    <button
+      type="button"
+      className="auth-input-eye"
+      onClick={() => setShowPassword((v) => !v)}
+      aria-label={showPassword ? "Hide password" : "Show password"}
+      tabIndex={-1}
+    >
+      {showPassword ? <HiOutlineEyeSlash /> : <HiOutlineEye />}
+    </button>
+  </div>
+</div>
                 <div className="auth-field">
                   <label>I am a...</label>
                   <div className="auth-role-toggle">
