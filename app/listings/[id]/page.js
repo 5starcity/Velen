@@ -37,7 +37,7 @@ export default async function Page({ params }) {
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Apartment",
+    "@type": "RealEstateListing",
     name: listing.title,
     description: listing.description || `${listing.type} in ${listing.location}, Port Harcourt`,
     url: `https://rezidence.ng/listings/${id}`,
