@@ -5,7 +5,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { fetchListings } from "@/lib/firestoreListings";
 import ListingCard from "@/components/listings/ListingCard";
-import { HiOutlineArrowRight } from "react-icons/hi2";
+import { HiOutlineArrowRight, HiOutlineBuildingOffice2 } from "react-icons/hi2";
+import { useAuth } from "@/context/AuthContext";
 import "@/styles/featured.css";
 
 const inView = {
@@ -21,6 +22,9 @@ const stagger = {
 export default function FeaturedListings() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading]   = useState(true);
+  const [email, setEmail]       = useState("");
+  const [notifyStatus, setNotifyStatus] = useState("idle"); // idle | loading | success | error
+  const { user } = useAuth();
 
   useEffect(() => {
     async function load() {
@@ -40,6 +44,27 @@ export default function FeaturedListings() {
     }
     load();
   }, []);
+
+  async function handleNotifyMe(e) {
+    e.preventDefault();
+    if (!email.trim()) return;
+
+    setNotifyStatus("loading");
+    try {
+      const res = await fetch("/api/notify-signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) throw new Error("Request failed");
+      setNotifyStatus("success");
+      setEmail("");
+    } catch (err) {
+      console.error("Notify signup failed:", err);
+      setNotifyStatus("error");
+    }
+  }
 
   return (
     <section className="featured">
@@ -71,10 +96,64 @@ export default function FeaturedListings() {
             ))}
           </div>
         ) : listings.length === 0 ? (
-          <div className="featured__empty">
-            <p>No listings available yet.</p>
-            <Link href="/listings" className="featured__empty-btn">Browse all listings</Link>
-          </div>
+          <motion.div
+            className="featured__empty"
+            variants={inView}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+          >
+            <div className="featured__empty-ghosts" aria-hidden="true">
+              <div className="featured__empty-ghost" />
+              <div className="featured__empty-ghost" />
+              <div className="featured__empty-ghost" />
+            </div>
+
+            <div className="featured__empty-icon">
+              <HiOutlineBuildingOffice2 aria-hidden="true" />
+            </div>
+
+            <h3 className="featured__empty-title">New listings are on the way</h3>
+            <p className="featured__empty-subtitle">
+              We're onboarding verified landlords across RSU, UniPort, IAUE and KSU.
+              Leave your email and we'll notify you the moment a room goes live.
+            </p>
+
+            {notifyStatus === "success" ? (
+              <div className="featured__empty-success">
+                You're on the list — we'll email you when listings go live.
+              </div>
+            ) : (
+              <form className="featured__empty-form" onSubmit={handleNotifyMe}>
+                <input
+                  type="email"
+                  required
+                  placeholder="name@school.edu.ng"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="featured__empty-input"
+                  disabled={notifyStatus === "loading"}
+                />
+                <button
+                  type="submit"
+                  className="featured__empty-btn"
+                  disabled={notifyStatus === "loading"}
+                >
+                  {notifyStatus === "loading" ? "Submitting..." : "Notify me"}
+                </button>
+              </form>
+            )}
+
+            {notifyStatus === "error" && (
+              <p className="featured__empty-error">Something went wrong. Please try again.</p>
+            )}
+
+            {!user && (
+              <p className="featured__empty-login">
+                or <Link href="/login">log in</Link> to browse as they land
+              </p>
+            )}
+          </motion.div>
         ) : (
           <>
             <motion.div
