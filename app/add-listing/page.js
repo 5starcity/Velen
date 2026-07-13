@@ -59,8 +59,8 @@ export default function AddListingPage() {
     else if (userRole && userRole !== "landlord") router.push("/listings");
   }, [user, userRole]);
 
-  if (!user || userRole !== "landlord") return null;
-
+  // NOTE: this useMemo must run on every render, so it stays above the
+  // early return below. Never put a hook after a conditional "return".
   const totalMoveInCost = useMemo(() => {
     const rent    = Number(formData.price)         || 0;
     const caution = Number(formData.cautionFee)    || 0;
@@ -69,6 +69,8 @@ export default function AddListingPage() {
     const service = Number(formData.serviceCharge) || 0;
     return rent + caution + legal + agency + service;
   }, [formData.price, formData.cautionFee, formData.legalFee, formData.agencyFee, formData.serviceCharge]);
+
+  if (!user || userRole !== "landlord") return null;
 
   const selectedLocation = LOCATIONS.find((l) => l.value === formData.location);
 
