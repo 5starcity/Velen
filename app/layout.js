@@ -81,7 +81,9 @@ export default function RootLayout({ children }) {
           <Suspense fallback={null}>
             <PostHogProvider />
           </Suspense>
-          <Navbar />
+          <Suspense fallback={null}>
+            <Navbar />
+          </Suspense>
           <SupportWidget />
           <PageTransition>
             <QueryProvider >
