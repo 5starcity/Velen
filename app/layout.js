@@ -15,7 +15,7 @@ export const metadata = {
     default: "Rezidence — Student Housing in Port Harcourt",
     template: "%s | Rezidence",
   },
-  description: "Find verified rooms near RSU, UniPort and more. No agents, no hidden fees, no stress.",
+  description: "Find verified rooms near RSU, UniPort and more. No hidden fees, no stress.",
   keywords: [
     "student housing Port Harcourt",
     "RSU hostel",
