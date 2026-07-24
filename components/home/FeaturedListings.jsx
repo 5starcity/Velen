@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { fetchListings } from "@/lib/firestoreListings";
@@ -11,65 +11,77 @@ import "@/styles/featured.css";
 
 const inView = {
   hidden: { opacity: 0, y: 20 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
 };
 
 const stagger = {
   hidden: {},
-  show:   { transition: { staggerChildren: 0.07 } },
+  show: { transition: { staggerChildren: 0.07 } },
 };
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function FeaturedListings() {
   const [listings, setListings] = useState([]);
-  const [loading, setLoading]   = useState(true);
-  const [email, setEmail]       = useState("");
+  const [status, setStatus] = useState("loading"); // loading | ready | fetch-error
+  const [email, setEmail] = useState("");
   const [notifyStatus, setNotifyStatus] = useState("idle"); // idle | loading | success | error
   const { user } = useAuth();
 
   useEffect(() => {
+    let isMounted = true;
+
     async function load() {
       try {
         const data = await fetchListings();
-        const sorted = data.sort((a, b) => {
-          if (a.verified && !b.verified) return -1;
-          if (!a.verified && b.verified) return 1;
-          return 0;
-        });
+        if (!isMounted) return;
+        const sorted = [...data].sort((a, b) => Number(b.verified) - Number(a.verified));
         setListings(sorted.slice(0, 6));
-      } catch {
-        setListings([]);
-      } finally {
-        setLoading(false);
+        setStatus("ready");
+      } catch (err) {
+        console.error("Failed to load featured listings:", err);
+        if (!isMounted) return;
+        setStatus("fetch-error");
       }
     }
+
     load();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  async function handleNotifyMe(e) {
-    e.preventDefault();
-    if (!email.trim()) return;
+  const handleNotifyMe = useCallback(
+    async (e) => {
+      e.preventDefault();
+      const trimmed = email.trim();
+      if (!EMAIL_RE.test(trimmed)) {
+        setNotifyStatus("error");
+        return;
+      }
 
-    setNotifyStatus("loading");
-    try {
-      const res = await fetch("/api/notify-signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+      setNotifyStatus("loading");
+      try {
+        const res = await fetch("/api/notify-signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: trimmed }),
+        });
 
-      if (!res.ok) throw new Error("Request failed");
-      setNotifyStatus("success");
-      setEmail("");
-    } catch (err) {
-      console.error("Notify signup failed:", err);
-      setNotifyStatus("error");
-    }
-  }
+        if (!res.ok) throw new Error(`Request failed with ${res.status}`);
+        setNotifyStatus("success");
+        setEmail("");
+      } catch (err) {
+        console.error("Notify signup failed:", err);
+        setNotifyStatus("error");
+      }
+    },
+    [email]
+  );
 
   return (
     <section className="featured">
       <div className="featured__inner">
-
         <motion.div
           className="featured__header"
           variants={inView}
@@ -78,10 +90,7 @@ export default function FeaturedListings() {
           viewport={{ once: true }}
         >
           <div className="featured__header-left">
-            <span className="featured__eyebrow">
-              <span className="featured__eyebrow-dot" aria-hidden="true" />
-              Available now
-            </span>
+           
             <h2 className="featured__heading">Featured listings</h2>
           </div>
           <Link href="/listings" className="featured__see-all">
@@ -89,13 +98,30 @@ export default function FeaturedListings() {
           </Link>
         </motion.div>
 
-        {loading ? (
-          <div className="featured__skeleton-grid">
+        {status === "loading" && (
+          <div className="featured__skeleton-grid" aria-hidden="true">
             {[1, 2, 3].map((n) => (
               <div key={n} className="featured__skeleton" />
             ))}
           </div>
-        ) : listings.length === 0 ? (
+        )}
+
+        {status === "fetch-error" && (
+          <div className="featured__empty" role="alert">
+            <div className="featured__empty-icon">
+              <HiOutlineBuildingOffice2 aria-hidden="true" />
+            </div>
+            <h3 className="featured__empty-title">Couldn't load listings</h3>
+            <p className="featured__empty-subtitle">
+              Something went wrong on our end. Please refresh the page or try again shortly.
+            </p>
+            <Link href="/listings" className="featured__empty-btn">
+              Go to listings
+            </Link>
+          </div>
+        )}
+
+        {status === "ready" && listings.length === 0 && (
           <motion.div
             className="featured__empty"
             variants={inView}
@@ -106,7 +132,6 @@ export default function FeaturedListings() {
             <div className="featured__empty-ghosts" aria-hidden="true">
               <div className="featured__empty-ghost" />
               <div className="featured__empty-ghost" />
-              <div className="featured__empty-ghost" />
             </div>
 
             <div className="featured__empty-icon">
@@ -115,24 +140,32 @@ export default function FeaturedListings() {
 
             <h3 className="featured__empty-title">New listings are on the way</h3>
             <p className="featured__empty-subtitle">
-              We're onboarding verified landlords across RSU, UniPort, IAUE and KSU.
+              We're onboarding verified landlords and agents across Port Harcourt.
               Leave your email and we'll notify you the moment a room goes live.
             </p>
 
             {notifyStatus === "success" ? (
-              <div className="featured__empty-success">
+              <div className="featured__empty-success" role="status" aria-live="polite">
                 You're on the list — we'll email you when listings go live.
               </div>
             ) : (
-              <form className="featured__empty-form" onSubmit={handleNotifyMe}>
+              <form className="featured__empty-form" onSubmit={handleNotifyMe} noValidate>
+                <label htmlFor="notify-email" className="sr-only">
+                  Email address
+                </label>
                 <input
+                  id="notify-email"
                   type="email"
                   required
-                  placeholder="name@school.edu.ng"
+                  placeholder="you@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (notifyStatus === "error") setNotifyStatus("idle");
+                  }}
                   className="featured__empty-input"
                   disabled={notifyStatus === "loading"}
+                  aria-invalid={notifyStatus === "error"}
                 />
                 <button
                   type="submit"
@@ -145,7 +178,11 @@ export default function FeaturedListings() {
             )}
 
             {notifyStatus === "error" && (
-              <p className="featured__empty-error">Something went wrong. Please try again.</p>
+              <p className="featured__empty-error" role="alert">
+                {EMAIL_RE.test(email.trim())
+                  ? "Something went wrong. Please try again."
+                  : "Enter a valid email address."}
+              </p>
             )}
 
             {!user && (
@@ -154,7 +191,9 @@ export default function FeaturedListings() {
               </p>
             )}
           </motion.div>
-        ) : (
+        )}
+
+        {status === "ready" && listings.length > 0 && (
           <>
             <motion.div
               className="featured__grid"
@@ -178,12 +217,11 @@ export default function FeaturedListings() {
               transition={{ delay: 0.3 }}
             >
               <Link href="/listings" className="featured__view-all">
-                See all available rooms <HiOutlineArrowRight aria-hidden="true" />
+                See more <HiOutlineArrowRight aria-hidden="true" />
               </Link>
             </motion.div>
           </>
         )}
-
       </div>
     </section>
   );

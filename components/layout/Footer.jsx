@@ -19,7 +19,7 @@ export default function Footer() {
           {/* Brand column */}
           <div className="footer__brand">
             <p className="footer__logo">
-              Rezi<em>dence</em>
+              Rezidence
             </p>
             <p className="footer__tagline">
               Verified student housing in Port Harcourt.

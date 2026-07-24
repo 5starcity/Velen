@@ -12,34 +12,34 @@ import "@/styles/listings-page.css";
 const PAGE_SIZE = 12;
 
 const SORT_OPTIONS = [
-  { value: "newest",      label: "Newest first"      },
-  { value: "oldest",      label: "Oldest first"      },
-  { value: "price_asc",   label: "Price: Low → High"  },
-  { value: "price_desc",  label: "Price: High → Low"  },
-  { value: "most_viewed", label: "Most viewed"        },
+  { value: "newest", label: "Newest first" },
+  { value: "oldest", label: "Oldest first" },
+  { value: "price_asc", label: "Price: Low → High" },
+  { value: "price_desc", label: "Price: High → Low" },
+  { value: "most_viewed", label: "Most viewed" },
 ];
 
-const TYPE_OPTIONS     = ["All", ...PARSER_TYPE_OPTIONS];
-const BED_OPTIONS      = ["All", "1", "2", "3", "4"];
-const FURNISH_OPTIONS  = ["All", "Furnished", "Unfurnished", "Semi-furnished"];
-const AVAIL_OPTIONS    = ["All", "Available Now", "Available Soon", "Not Available"];
-const UNI_OPTIONS      = ["All", "RSU", "UniPort", "IAUE", "KSU"];
+const TYPE_OPTIONS = ["All", ...PARSER_TYPE_OPTIONS];
+const BED_OPTIONS = ["All", "1", "2", "3", "4"];
+const FURNISH_OPTIONS = ["All", "Furnished", "Unfurnished", "Semi-furnished"];
+const AVAIL_OPTIONS = ["All", "Available Now", "Available Soon", "Not Available"];
+const UNI_OPTIONS = ["All", "RSU", "UniPort", "IAUE", "KSU"];
 
 const PRICE_PRESETS = [
-  { label: "Under ₦200k",   min: "",       max: "200000"  },
-  { label: "₦200k–₦400k",   min: "200000", max: "400000"  },
-  { label: "₦400k–₦700k",   min: "400000", max: "700000"  },
-  { label: "₦700k+",        min: "700000", max: ""        },
+  { label: "Under ₦200k", min: "", max: "200000" },
+  { label: "₦200k–₦400k", min: "200000", max: "400000" },
+  { label: "₦400k–₦700k", min: "400000", max: "700000" },
+  { label: "₦700k+", min: "700000", max: "" },
 ];
 
 const itemVariants = {
   hidden: { opacity: 0, y: 18 },
-  show:   { opacity: 1, y: 0,  transition: { duration: 0.32, ease: "easeOut" } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.32, ease: "easeOut" } },
 };
 
 const containerVariants = {
   hidden: {},
-  show:   { transition: { staggerChildren: 0.055 } },
+  show: { transition: { staggerChildren: 0.055 } },
 };
 
 function AccordionSection({ title, icon, children, defaultOpen = false }) {
@@ -213,23 +213,23 @@ function getPageNumbers(page, totalPages) {
 export default function ListingsPage() {
   const searchParams = useSearchParams();
 
-  const [search, setSearch]             = useState("");
+  const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [location, setLocation]         = useState("All");
-  const [type, setType]                 = useState("All");
-  const [beds, setBeds]                 = useState("All");
-  const [priceMin, setPriceMin]         = useState("");
-  const [priceMax, setPriceMax]         = useState("");
-  const [verified, setVerified]         = useState(false);
+  const [location, setLocation] = useState("All");
+  const [type, setType] = useState("All");
+  const [beds, setBeds] = useState("All");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
+  const [verified, setVerified] = useState(false);
   const [availability, setAvailability] = useState("All");
-  const [sharedOnly, setSharedOnly]     = useState(false);
-  const [university, setUniversity]     = useState("All");
-  const [furnishing, setFurnishing]     = useState("All");
-  const [sortBy, setSortBy]             = useState("newest");
-  const [page, setPage]                 = useState(1);
-  const [allListings, setAllListings]   = useState([]);
-  const [loading, setLoading]           = useState(true);
-  const [drawerOpen, setDrawerOpen]     = useState(false);
+  const [sharedOnly, setSharedOnly] = useState(false);
+  const [university, setUniversity] = useState("All");
+  const [furnishing, setFurnishing] = useState("All");
+  const [sortBy, setSortBy] = useState("newest");
+  const [page, setPage] = useState(1);
+  const [allListings, setAllListings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const searchDebounceRef = useRef(null);
   const gridRef = useRef(null);
@@ -245,7 +245,7 @@ export default function ListingsPage() {
   useEffect(() => {
     const urlType = searchParams.get("type");
     const urlBeds = searchParams.get("beds");
-    const urlQ    = searchParams.get("q");
+    const urlQ = searchParams.get("q");
 
     if (urlType && PARSER_TYPE_OPTIONS.includes(urlType)) setType(urlType);
     if (urlBeds) setBeds(urlBeds);
@@ -266,8 +266,8 @@ export default function ListingsPage() {
   }, [debouncedSearch, location, type, beds, priceMin, priceMax, verified, availability, sharedOnly, university, furnishing, sortBy]);
 
   const filteredAndSorted = useMemo(() => {
-    const min      = priceMin !== "" ? Number(priceMin) : null;
-    const max      = priceMax !== "" ? Number(priceMax) : null;
+    const min = priceMin !== "" ? Number(priceMin) : null;
+    const max = priceMax !== "" ? Number(priceMax) : null;
     const uniAreas = university !== "All" ? (UNIVERSITY_AREA_MAP[university] || []) : [];
 
     // Parse the search box for type/bed hints (e.g. "self con", "one bed").
@@ -278,29 +278,29 @@ export default function ListingsPage() {
     const q = parsed.text; // leftover free text after stripping type/bed words
 
     const filtered = allListings.filter((l) => {
-      const title = l.title?.toLowerCase()    || "";
-      const loc   = l.location?.toLowerCase() || "";
-      const price = Number(l.price)           || 0;
+      const title = l.title?.toLowerCase() || "";
+      const loc = l.location?.toLowerCase() || "";
+      const price = Number(l.price) || 0;
 
       return (
-        (!q                     || title.includes(q) || loc.includes(q))              &&
-        (location === "All"     || l.location    === location)                        &&
-        (!effectiveType         || l.type         === effectiveType)                   &&
-        (!effectiveBeds         || String(l.beds) === effectiveBeds)                   &&
-        (furnishing === "All"   || l.furnishing  === furnishing)                       &&
-        (min === null           || price >= min)                                        &&
-        (max === null           || price <= max)                                        &&
-        (!verified              || l.verified    === true)                              &&
-        (availability === "All" || l.availability === availability)                     &&
-        (!sharedOnly            || l.type        === "Shared Room")                     &&
-        (university === "All"   || l.nearSchool  === university ||
-          (uniAreas.length > 0  && uniAreas.includes(l.location)))
+        (!q || title.includes(q) || loc.includes(q)) &&
+        (location === "All" || l.location === location) &&
+        (!effectiveType || l.type === effectiveType) &&
+        (!effectiveBeds || String(l.beds) === effectiveBeds) &&
+        (furnishing === "All" || l.furnishing === furnishing) &&
+        (min === null || price >= min) &&
+        (max === null || price <= max) &&
+        (!verified || l.verified === true) &&
+        (availability === "All" || l.availability === availability) &&
+        (!sharedOnly || l.type === "Shared Room") &&
+        (university === "All" || l.nearSchool === university ||
+          (uniAreas.length > 0 && uniAreas.includes(l.location)))
       );
     });
 
     return [...filtered].sort((a, b) => {
-      if (sortBy === "price_asc")   return (Number(a.price) || 0) - (Number(b.price) || 0);
-      if (sortBy === "price_desc")  return (Number(b.price) || 0) - (Number(a.price) || 0);
+      if (sortBy === "price_asc") return (Number(a.price) || 0) - (Number(b.price) || 0);
+      if (sortBy === "price_desc") return (Number(b.price) || 0) - (Number(a.price) || 0);
       if (sortBy === "most_viewed") return (Number(b.views) || 0) - (Number(a.views) || 0);
       const at = a.createdAt?.toDate?.() ?? new Date(a.createdAt ?? 0);
       const bt = b.createdAt?.toDate?.() ?? new Date(b.createdAt ?? 0);
@@ -308,40 +308,40 @@ export default function ListingsPage() {
     });
   }, [allListings, debouncedSearch, location, type, beds, priceMin, priceMax, verified, availability, sharedOnly, university, furnishing, sortBy]);
 
-  const totalPages    = Math.ceil(filteredAndSorted.length / PAGE_SIZE);
+  const totalPages = Math.ceil(filteredAndSorted.length / PAGE_SIZE);
   const paginatedList = filteredAndSorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const pills = useMemo(() => {
     const p = [];
-    if (debouncedSearch)        p.push({ key: "search",       label: `"${debouncedSearch}"` });
-    if (location !== "All")     p.push({ key: "location",     label: location });
-    if (type !== "All")         p.push({ key: "type",         label: type });
-    if (beds !== "All")         p.push({ key: "beds",         label: `${beds} Bed${beds !== "1" ? "s" : ""}` });
-    if (furnishing !== "All")   p.push({ key: "furnishing",   label: furnishing });
+    if (debouncedSearch) p.push({ key: "search", label: `"${debouncedSearch}"` });
+    if (location !== "All") p.push({ key: "location", label: location });
+    if (type !== "All") p.push({ key: "type", label: type });
+    if (beds !== "All") p.push({ key: "beds", label: `${beds} Bed${beds !== "1" ? "s" : ""}` });
+    if (furnishing !== "All") p.push({ key: "furnishing", label: furnishing });
     if (availability !== "All") p.push({ key: "availability", label: availability });
-    if (university !== "All")   p.push({ key: "university",   label: university });
-    if (priceMin)                p.push({ key: "priceMin",     label: `Min ₦${Number(priceMin).toLocaleString()}` });
-    if (priceMax)                p.push({ key: "priceMax",     label: `Max ₦${Number(priceMax).toLocaleString()}` });
-    if (verified)                p.push({ key: "verified",     label: "Verified only" });
-    if (sharedOnly)               p.push({ key: "sharedOnly",   label: "Shared rooms" });
-    if (sortBy !== "newest")     p.push({ key: "sortBy",       label: SORT_OPTIONS.find((s) => s.value === sortBy)?.label });
+    if (university !== "All") p.push({ key: "university", label: university });
+    if (priceMin) p.push({ key: "priceMin", label: `Min ₦${Number(priceMin).toLocaleString()}` });
+    if (priceMax) p.push({ key: "priceMax", label: `Max ₦${Number(priceMax).toLocaleString()}` });
+    if (verified) p.push({ key: "verified", label: "Verified only" });
+    if (sharedOnly) p.push({ key: "sharedOnly", label: "Shared rooms" });
+    if (sortBy !== "newest") p.push({ key: "sortBy", label: SORT_OPTIONS.find((s) => s.value === sortBy)?.label });
     return p;
   }, [debouncedSearch, location, type, beds, priceMin, priceMax, verified, availability, sharedOnly, university, furnishing, sortBy]);
 
   const removePill = useCallback((key) => {
     const map = {
-      search:       () => { setSearch(""); setDebouncedSearch(""); },
-      location:     () => setLocation("All"),
-      type:         () => setType("All"),
-      beds:         () => setBeds("All"),
-      furnishing:   () => setFurnishing("All"),
+      search: () => { setSearch(""); setDebouncedSearch(""); },
+      location: () => setLocation("All"),
+      type: () => setType("All"),
+      beds: () => setBeds("All"),
+      furnishing: () => setFurnishing("All"),
       availability: () => setAvailability("All"),
-      university:   () => setUniversity("All"),
-      priceMin:     () => setPriceMin(""),
-      priceMax:     () => setPriceMax(""),
-      verified:     () => setVerified(false),
-      sharedOnly:   () => setSharedOnly(false),
-      sortBy:       () => setSortBy("newest"),
+      university: () => setUniversity("All"),
+      priceMin: () => setPriceMin(""),
+      priceMax: () => setPriceMax(""),
+      verified: () => setVerified(false),
+      sharedOnly: () => setSharedOnly(false),
+      sortBy: () => setSortBy("newest"),
     };
     map[key]?.();
   }, []);

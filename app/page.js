@@ -1,6 +1,7 @@
 import Hero           from "@/components/home/Hero";
+import Categories from "../components/home/Categories";
 import FeaturedListings from "@/components/home/FeaturedListings";
-import LandlordCTA    from "@/components/home/LandlordCTA";
+
 
 export const metadata = {
   title: "Rezidence — Student housing in Port Harcourt",
@@ -12,8 +13,9 @@ export default function HomePage() {
   return (
     <main>
       <Hero />
-      <FeaturedListings />
-      <LandlordCTA />
+         <Categories />
+         <FeaturedListings />
+   
     </main>
   );
 }

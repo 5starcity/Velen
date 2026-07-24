@@ -1,355 +1,221 @@
-
-/* ── Section ── */
-.hero {
-  background: var(--accent, #2d5a28);
-  padding: 10px 5px 0;
-  overflow: hidden;
-}
-
-/* ── Inner: centered column ── */
-.hero__inner {
-  max-width: 680px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding-bottom: 52px;
-}
-
-/* ── Eyebrow ── */
-.hero__eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  letter-spacing: 0.9px;
-  text-transform: uppercase;
-  color: #a8c9a4;
-  margin-bottom: 18px;
-}
-
-/* ── Headline ── */
-.hero__headline {
-  font-size: clamp(28px, 4.2vw, 48px);
-  font-weight: 500;
-  color: #fff;
-  line-height: 1.13;
-  letter-spacing: -0.5px;
-  margin-bottom: 14px;
-}
-
-.hero__headline em {
-  font-style: normal;
-  color: #a8c9a4;
-}
-
-/* ── Sub ── */
-.hero__sub {
-  font-size: 15px;
-  color: #c2dbbf;
-  line-height: 1.65;
-  max-width: 460px;
-  margin-bottom: 32px;
-}
-
-/* ── Search bar ── */
-.hero__search {
-  display: flex;
-  align-items: center;
-  background: #fff;
-  border-radius: 10px;
-  padding: 10px 10px 10px 16px;
-  gap: 10px;
-  width: 100%;
-  max-width: 580px;
-  margin-bottom: 14px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
-}
-
-.hero__search-icon {
-  font-size: 19px;
-  color: var(--accent, #2d5a28);
-  flex-shrink: 0;
-}
-
-.hero__search-input {
-  flex: 1;
-  border: none;
-  outline: none;
-  font-size: 14px;
-  color: #222;
-  background: transparent;
-  font-family: inherit;
-  min-width: 0; /* prevents overflow on mobile */
-}
-
-.hero__search-input::placeholder {
-  color: #aaa;
-}
-
-.hero__search-btn {
-  background: var(--accent, #2d5a28);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 10px 22px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  white-space: nowrap;
-  font-family: inherit;
-  transition: background 0.2s;
-  flex-shrink: 0;
-}
-
-.hero__search-btn:hover {
-  background: #245022;
-}
-
-/* ── Quick chips ── */
-.hero__chips {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 28px;
-  width: 100%;
-}
-
-.hero__chip {
-  background: rgba(255, 255, 255, 0.12);
-  color: #d4e8d2;
-  font-size: 12px;
-  padding: 6px 14px;
-  border-radius: 20px;
-  border: 0.5px solid rgba(255, 255, 255, 0.22);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: background 0.2s, border-color 0.2s;
-}
-
-.hero__chip:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.38);
-}
-
-/* ── Auth CTAs ── */
-.hero__actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.hero__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 11px 24px;
-  border-radius: 8px;
-  text-decoration: none;
-  transition: all 0.2s;
-}
-
-.hero__btn--primary {
-  background: #fff;
-  color: var(--accent, #2d5a28);
-}
-
-.hero__btn--primary:hover {
-  background: #f0f7ef;
-}
-
-.hero__btn--ghost {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border: 0.5px solid rgba(255, 255, 255, 0.28);
-}
-
-.hero__btn--ghost:hover {
-  background: rgba(255, 255, 255, 0.18);
-}
-
-/* ── Stats bar ── */
-.hero__stats {
-  max-width: 680px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: 12px 12px 0 0;
-  padding: 18px 32px;
-  width: 100%;
-}
-
-.hero__stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  flex: 1;
-}
-
-.hero__stat-num {
-  font-size: 22px;
-  font-weight: 500;
-  color: #fff;
-  letter-spacing: -0.3px;
-}
-
-.hero__stat-lbl {
-  font-size: 11px;
-  color: #a8c9a4;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-}
-
-.hero__stat-divider {
-  width: 0.5px;
-  height: 30px;
-  background: rgba(255, 255, 255, 0.2);
-  flex-shrink: 0;
-}
-
-/* ── Animations ── */
-@keyframes rz-shimmer {
-  0%   { opacity: 1; }
-  50%  { opacity: 0.5; }
-  100% { opacity: 1; }
-}
-
-@keyframes rz-pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
-}
-
-/* ═══════════════════════════════════════════
-   RESPONSIVE
-═══════════════════════════════════════════ */
-
-/* ── Tablet ── */
-@media (max-width: 768px) {
-  .hero {
-    padding: 36px 20px 0;
+/* ==========================================================================
+   Hero — tokens (mirror these in categories.css / featured.css so all three
+   sections read as one system)
+   ========================================================================== */
+   .hero {
+    --rz-forest-950: #0a2a1f;
+    --rz-forest-800: #123f2e;
+    --rz-forest-700: #17513c;
+    --rz-forest-600: #1f6b4a;
+    --rz-forest-500: #2c8a5e;
+    --rz-gold-500: #c9962e;
+    --rz-paper: #fffdf8;
+    --rz-cream: #f3ede1;
+  
+    position: relative;
+    overflow: hidden;
+    padding: 88px 24px 128px;
+    background: var(--accent);
+    isolation: isolate;
   }
-
+  
+  .hero__backdrop {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(560px 360px at 12% 8%, rgba(201, 150, 46, 0.16), transparent 65%),
+      radial-gradient(680px 460px at 88% 92%, rgba(44, 138, 94, 0.35), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  .hero__grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  
   .hero__inner {
-    padding-bottom: 40px;
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
-
-  .hero__headline {
-    font-size: 30px;
-  }
-
-  .hero__sub {
-    font-size: 14px;
-    margin-bottom: 24px;
-  }
-
-  .hero__stats {
-    padding: 16px 24px;
-  }
-
-  .hero__stat-num {
-    font-size: 18px;
-  }
-}
-
-/* ── Mobile ── */
-@media (max-width: 480px) {
-  .hero {
-    padding: 10px 16px 0;
-  }
-
-  .hero__inner {
-    padding-bottom: 32px;
-  }
-
-  .hero__eyebrow {
-    font-size: 10px;
-  }
-
-  .hero__headline {
-    font-size: 26px;
-    letter-spacing: -0.3px;
-  }
-
-  .hero__sub {
-    font-size: 13.5px;
-    margin-bottom: 20px;
-  }
-
-  /* Search: stack button below on very narrow */
-  .hero__search {
-    flex-wrap: wrap;
-    padding: 10px 12px;
+  
+  /* Ink-stamp badge — the signature element: a rotated, dashed "stamp" that
+     carries the brand's zero-agent-fee / verification promise. */
+  .hero__stamp {
+    display: inline-flex;
+    align-items: center;
     gap: 8px;
+    padding: 7px 16px;
+    margin-bottom: 28px;
+    border: 1px dashed rgba(243, 237, 225, 0.45);
+    border-radius: 999px;
+    color: var(--rz-cream);
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transform: rotate(-2deg);
+    background: rgba(255, 255, 255, 0.04);
   }
-
-  .hero__search-input {
-    /* allow input to take its own row if needed */
-    min-width: 160px;
-  }
-
-  .hero__search-btn {
-    width: 100%;
-    justify-content: center;
-    padding: 10px;
-    font-size: 14px;
-  }
-
-  /* Chips: horizontal scroll, no wrap */
-  .hero__chips {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    justify-content: flex-start;
-    gap: 7px;
-    margin-bottom: 22px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-bottom: 2px;
-  }
-
-  .hero__chips::-webkit-scrollbar {
-    display: none;
-  }
-
-  .hero__chip {
+  
+  .hero__stamp svg {
+    width: 15px;
+    height: 15px;
+    color: var(--rz-gold-500);
     flex-shrink: 0;
   }
-
-  /* Actions: full width */
-  .hero__actions {
-    width: 100%;
-    flex-direction: column;
-    gap: 10px;
+  
+  .hero__headline {
+    margin: 0 0 14px;
+    font-family: "Bricolage Grotesque", "Hanken Grotesk", sans-serif;
+    font-weight: 600;
+    font-size: clamp(34px, 5vw, 54px);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    color: var(--rz-paper);
   }
-
-  .hero__btn {
-    width: 100%;
-    justify-content: center;
-    padding: 12px 20px;
+  
+  .hero__headline em {
+    font-style: normal;
+    color: var(--rz-gold-500);
   }
-
-  /* Stats: tighter */
-  .hero__stats {
-    padding: 14px 12px;
-    border-radius: 10px 10px 0 0;
-  }
-
-  .hero__stat-num {
+  
+  .hero__subline {
+    margin: 0 0 36px;
+    max-width: 460px;
+    font-family: "Hanken Grotesk", sans-serif;
     font-size: 16px;
+    line-height: 1.5;
+    color: rgba(243, 237, 225, 0.72);
   }
-
-  .hero__stat-lbl {
-    font-size: 9.5px;
-    letter-spacing: 0.4px;
+  
+  /* Search card — frosted glass on the dark backdrop */
+  .hero__search-card {
+    width: 100%;
+    padding: 8px;
+    border-radius: 18px;
+    background: rgba(255, 253, 248, 0.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow:
+      0 24px 60px -20px rgba(6, 26, 18, 0.55),
+      0 2px 0 rgba(255, 255, 255, 0.6) inset;
   }
-
-  .hero__stat-divider {
-    height: 24px;
+  
+  .hero__search-row {
+    display: flex;
+    gap: 8px;
   }
-}
+  
+  .hero__search-input {
+    flex: 1;
+    min-width: 0;
+    height: 56px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    font-family: "Hanken Grotesk", sans-serif;
+    font-size: 15px;
+    color: var(--rz-forest-950);
+  }
+  
+  .hero__search-input::placeholder {
+    color: #8a9a91;
+  }
+  
+  .hero__search-input:focus {
+    outline: none;
+    background: rgba(31, 107, 74, 0.06);
+  }
+  
+  .hero__search-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 56px;
+    padding: 0 26px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(180deg, var(--rz-forest-600), var(--rz-forest-700));
+    color: var(--rz-paper);
+    font-family: "Hanken Grotesk", sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    box-shadow: 0 8px 20px -8px rgba(15, 61, 46, 0.65);
+  }
+  
+  .hero__search-btn svg {
+    width: 17px;
+    height: 17px;
+  }
+  
+  .hero__search-btn:hover {
+    background: linear-gradient(180deg, var(--rz-forest-500), var(--rz-forest-600));
+    transform: translateY(-1px);
+  }
+  
+  .hero__search-btn:active {
+    transform: translateY(0);
+  }
+  
+  @media (max-width: 640px) {
+    .hero {
+      padding: 56px 16px 80px;
+    }
+  
+    .hero__stamp {
+      margin-bottom: 20px;
+    }
+  
+    .hero__subline {
+      margin-bottom: 28px;
+    }
+  
+    .hero__search-card {
+      padding: 6px;
+      border-radius: 16px;
+    }
+  
+    /* Column stacking: flex:1 on the input only makes sense on the main axis
+       of a ROW. In a column it collapses the input's height instead of its
+       width, which is what was letting the button sit on top of it. Give both
+       children an explicit, non-flexing width/height instead. */
+    .hero__search-row {
+      flex-direction: column;
+      gap: 8px;
+    }
+  
+    .hero__search-input {
+      flex: none;
+      width: 100%;
+      height: 50px;
+      padding: 0 16px;
+    }
+  
+    .hero__search-btn {
+      flex: none;
+      width: 100%;
+      height: 50px;
+      justify-content: center;
+    }
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .hero__search-btn {
+      transition: none;
+    }
+  }

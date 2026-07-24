@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
@@ -12,30 +12,27 @@ import {
   HiHeart,
   HiOutlinePencilSquare,
   HiOutlineTrash,
-  HiOutlineBanknotes,
-  HiOutlineSparkles,
   HiOutlineWrenchScrewdriver,
   HiOutlineShare,
   HiOutlineFlag,
   HiOutlineEye,
-  HiOutlineCalendarDays,
   HiOutlinePlayCircle,
-  HiOutlineCalculator,
-  HiOutlineReceiptPercent,
   HiOutlineShieldCheck,
-  HiOutlineBuildingOffice,
-  HiOutlineCog6Tooth,
-  HiOutlineClipboardDocumentCheck,
   HiOutlineUserCircle,
   HiOutlineXMark,
   HiOutlineExclamationTriangle,
   HiOutlineCheckCircle,
   HiOutlinePhoto,
-  HiOutlineCreditCard,
-  HiOutlinePresentationChartBar,
+  HiOutlinePhone,
+  HiOutlineChatBubbleLeftRight,
+  HiChevronLeft,
+  HiChevronRight,
+  HiOutlineBuildingOffice2,
+  HiOutlineSquares2X2,
 } from "react-icons/hi2";
 import {
   fetchListingById,
+  fetchSimilarListings,
   updateListing,
   deleteListing,
   incrementViewCount,
@@ -45,10 +42,8 @@ import { getFavorites, toggleFavorite } from "@/lib/favorites";
 import { useAuth } from "@/context/AuthContext";
 import { isLandlordVerified } from "@/lib/verification";
 import { trackEvent } from "@/lib/posthog";
-import {
-  fetchActiveReservationForListing,
-  fetchStudentReservationForListing,
-} from "@/lib/firestoreReservations";
+import { useStartConversation } from "@/hooks/useStartConversation";
+import ListingCard from "@/components/listings/ListingCard";
 import "@/styles/details-page.css";
 
 const REPORT_CATEGORIES = [
@@ -61,17 +56,35 @@ const REPORT_CATEGORIES = [
   { value: "other", label: "Other", desc: "Something else is wrong" },
 ];
 
-const TABS = ["overview", "costs", "amenities", "location"];
+function formatWhatsAppNumber(raw) {
+  if (!raw) return null;
+  const digits = raw.replace(/\D/g, "");
+  if (digits.startsWith("234")) return digits;
+  if (digits.startsWith("0")) return "234" + digits.slice(1);
+  return digits;
+}
+
+function getDaysAgo(ts) {
+  if (!ts) return null;
+  const date = ts.toDate ? ts.toDate() : new Date(ts);
+  const diffMs = Date.now() - date.getTime();
+  const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+  if (diffHrs < 1) return "Just now";
+  if (diffHrs < 24) return diffHrs + "h ago";
+  const diffDays = Math.floor(diffHrs / 24);
+  if (diffDays === 1) return "1 day ago";
+  if (diffDays < 30) return diffDays + " days ago";
+  return date.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" });
+}
 
 export default function ListingDetailsPage({ initialListing }) {
   const params = useParams();
   const router = useRouter();
   const listingId = params?.id;
   const { user } = useAuth();
-  const searchParams = useSearchParams();
+  const { startConversation, isStarting, error: startError } = useStartConversation();
 
   const [listing, setListing] = useState(initialListing || null);
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [loading, setLoading] = useState(!initialListing);
   const [favorites, setFavorites] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -81,10 +94,7 @@ export default function ListingDetailsPage({ initialListing }) {
   const [copied, setCopied] = useState(false);
   const [activeMedia, setActiveMedia] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
-
-  const [listingReserved, setListingReserved] = useState(false);
-  const [studentHasReservation, setStudentHasReservation] = useState(false);
+  const [similarListings, setSimilarListings] = useState([]);
 
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportCategory, setReportCategory] = useState("");
@@ -104,14 +114,8 @@ export default function ListingDetailsPage({ initialListing }) {
     async function loadListing() {
       if (!listingId) { setLoading(false); return; }
       try {
-        // Use server-provided data if we have it (SSR path), otherwise
-        // fall back to a client fetch (e.g. client-side navigation between listings)
         const data = initialListing || (await fetchListingById(listingId));
         if (data && data.landlordId) {
-          // Verification check is best-effort: signed-out users can't read
-          // /users/{uid} under current Firestore rules, so we don't even
-          // attempt the call for them (avoids a guaranteed permission-denied
-          // error) and it must never block the listing itself from rendering.
           let verified = false;
           if (user) {
             try {
@@ -141,36 +145,22 @@ export default function ListingDetailsPage({ initialListing }) {
 
   useEffect(() => {
     if (!listing) return;
-    async function checkReservationStatus() {
+    async function loadSimilar() {
       try {
-        const [active, mine] = await Promise.all([
-          fetchActiveReservationForListing(listingId),
-          user ? fetchStudentReservationForListing(listingId, user.uid) : Promise.resolve(null),
-        ]);
-        if (active) setListingReserved(true);
-        if (mine) setStudentHasReservation(true);
-      } catch (e) { }
+        const results = await fetchSimilarListings(listing, listingId, 6);
+        setSimilarListings(results);
+      } catch (e) {
+        console.error("Error fetching similar listings:", e);
+      }
     }
-    checkReservationStatus();
-  }, [listing, user]);
+    loadSimilar();
+  }, [listing, listingId]);
 
   useEffect(() => {
     function handleKey(e) { if (e.key === "Escape") setShowReportModal(false); }
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
   }, []);
-
-  useEffect(() => {
-    if (searchParams.get("payment") === "success") {
-      setPaymentSuccess(true);
-      const url = new URL(window.location.href);
-      url.searchParams.delete("payment");
-      url.searchParams.delete("reference");
-      window.history.replaceState({}, "", url.toString());
-      const t = setTimeout(() => setPaymentSuccess(false), 6000);
-      return () => clearTimeout(t);
-    }
-  }, [searchParams]);
 
   if (loading) {
     return (
@@ -199,18 +189,16 @@ export default function ListingDetailsPage({ initialListing }) {
   const images = listing.images?.length > 0 ? listing.images : listing.image ? [listing.image] : [];
   const isOwner = user && user.uid === listing.landlordId;
   const saved = favorites.includes(listing.id);
-
-  const hasCostBreakdown = listing.cautionFee !== undefined || listing.legalFee !== undefined || listing.agencyFee !== undefined || listing.serviceCharge;
-  const totalMoveInCost = listing.totalMoveInCost ||
-    (Number(listing.price) || 0) + (Number(listing.cautionFee) || 0) +
-    (Number(listing.legalFee) || 0) + (Number(listing.agencyFee) || 0) +
-    (Number(listing.serviceCharge) || 0);
-
-  const mapsUrl = listing.mapsUrl ||
-    (listing.address ? "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(listing.address + ", Port Harcourt, Nigeria") : null);
+  const whatsappNumber = formatWhatsAppNumber(listing.contact);
 
   function handleToggleFavorite() { setFavorites(toggleFavorite(listing.id)); }
   function handleEditChange(e) { setEditForm((prev) => ({ ...prev, [e.target.name]: e.target.value })); }
+
+  function goToImage(delta) {
+    if (images.length === 0) return;
+    setShowVideo(false);
+    setActiveMedia((prev) => (prev + delta + images.length) % images.length);
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -222,10 +210,8 @@ export default function ListingDetailsPage({ initialListing }) {
         title: editForm.title, price: editForm.price, location: editForm.location,
         address: editForm.address, mapsUrl: newMapsUrl, type: editForm.type,
         beds: editForm.beds, baths: editForm.baths, furnishing: editForm.furnishing,
-        availability: editForm.availability, paymentTerms: editForm.paymentTerms,
-        cautionFee: editForm.cautionFee, legalFee: editForm.legalFee,
-        agencyFee: editForm.agencyFee, serviceCharge: editForm.serviceCharge,
-        amenities: editForm.amenities, contact: editForm.contact, description: editForm.description,
+        availability: editForm.availability, amenities: editForm.amenities,
+        contact: editForm.contact, description: editForm.description,
       });
       setListing({ ...listing, ...editForm, mapsUrl: newMapsUrl });
       setIsEditing(false);
@@ -279,31 +265,35 @@ export default function ListingDetailsPage({ initialListing }) {
     }
   }
 
-  function handleBookInspection() {
-    if (!user) { router.push("/login"); return; }
-    trackEvent("inspection_click", { listingId, listingTitle: listing.title, location: listing.location });
-    router.push("/inspect/" + listingId);
+  function handleCall() {
+    if (!listing.contact) return;
+    trackEvent("call_click", { listingId, listingTitle: listing.title });
+    window.location.href = "tel:" + listing.contact;
   }
 
-  function handlePayRent() {
-    if (!user) { router.push("/login"); return; }
-    trackEvent("pay_click", { listingId, listingTitle: listing.title });
-    router.push("/pay/" + listingId);
+  function handleWhatsApp() {
+    if (!whatsappNumber) return;
+    trackEvent("whatsapp_click", { listingId, listingTitle: listing.title });
+    const message = encodeURIComponent(
+      "Hi, I'm interested in " + listing.title + " (" + listing.location + ") on Rezidence."
+    );
+    window.open("https://wa.me/" + whatsappNumber + "?text=" + message, "_blank");
   }
 
-  function formatDate(ts) {
-    if (!ts) return null;
-    const date = ts.toDate ? ts.toDate() : new Date(ts);
-    return date.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" });
-  }
-
-  function getDaysAgo(ts) {
-    if (!ts) return null;
-    const date = ts.toDate ? ts.toDate() : new Date(ts);
-    const diff = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24));
-    if (diff === 0) return "Today";
-    if (diff === 1) return "1d ago";
-    return diff + "d ago";
+  function handleMessage() {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+    if (!listing.landlordId) return;
+    trackEvent("message_click", { listingId, listingTitle: listing.title });
+    startConversation({
+      otherUserId: listing.landlordId,
+      listingId: listing.id,
+      listingTitle: listing.title,
+      listingImage: images[0] || null,
+      listingPrice: listing.price,
+    });
   }
 
   const amenityList = listing.amenities
@@ -312,28 +302,6 @@ export default function ListingDetailsPage({ initialListing }) {
 
   return (
     <main className="dp">
-
-      {/* ── Payment Success Toast ── */}
-      <AnimatePresence>
-        {paymentSuccess && (
-          <motion.div
-            className="dp__toast dp__toast--success"
-            initial={{ opacity: 0, y: -40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -40 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-          >
-            <HiOutlineCheckCircle className="dp__toast-icon" />
-            <div>
-              <p className="dp__toast-title">Payment successful!</p>
-              <p className="dp__toast-sub">Your rent has been submitted to the landlord.</p>
-            </div>
-            <button className="dp__toast-close" onClick={() => setPaymentSuccess(false)}>
-              <HiOutlineXMark />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* ── Report Modal ── */}
       <AnimatePresence>
@@ -482,32 +450,12 @@ export default function ListingDetailsPage({ initialListing }) {
                 <input name="furnishing" value={editForm.furnishing || ""} onChange={handleEditChange} />
               </div>
               <div className="dp__edit-field">
-                <label>Payment Terms</label>
-                <input name="paymentTerms" value={editForm.paymentTerms || ""} onChange={handleEditChange} />
-              </div>
-              <div className="dp__edit-field">
-                <label>Caution Fee (₦)</label>
-                <input type="number" name="cautionFee" value={editForm.cautionFee || ""} onChange={handleEditChange} />
-              </div>
-              <div className="dp__edit-field">
-                <label>Legal Fee (₦)</label>
-                <input type="number" name="legalFee" value={editForm.legalFee || ""} onChange={handleEditChange} />
-              </div>
-              <div className="dp__edit-field">
-                <label>Agency Fee (₦)</label>
-                <input type="number" name="agencyFee" value={editForm.agencyFee || ""} onChange={handleEditChange} />
-              </div>
-              <div className="dp__edit-field">
-                <label>Service Charge (₦)</label>
-                <input type="number" name="serviceCharge" value={editForm.serviceCharge || ""} onChange={handleEditChange} />
+                <label>Contact number (call &amp; WhatsApp)</label>
+                <input name="contact" value={editForm.contact || ""} onChange={handleEditChange} placeholder="e.g. 08012345678" />
               </div>
               <div className="dp__edit-field dp__edit-field--full">
                 <label>Amenities (comma separated)</label>
                 <input name="amenities" value={editForm.amenities || ""} onChange={handleEditChange} />
-              </div>
-              <div className="dp__edit-field dp__edit-field--full">
-                <label>Contact</label>
-                <input name="contact" value={editForm.contact || ""} onChange={handleEditChange} />
               </div>
               <div className="dp__edit-field dp__edit-field--full">
                 <label>Description</label>
@@ -524,13 +472,11 @@ export default function ListingDetailsPage({ initialListing }) {
             </div>
           </motion.div>
         ) : (
-          /* ── Main Content ── */
-          <motion.div className="dp__layout" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }}>
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }}>
 
-            {/* ── LEFT COLUMN ── */}
-            <div className="dp__left">
+            <div className="dp__layout">
 
-              {/* Gallery */}
+              {/* ── Gallery ── */}
               <div className="dp__gallery">
                 <div className="dp__gallery-main">
                   {showVideo && listing.videoUrl ? (
@@ -544,337 +490,230 @@ export default function ListingDetailsPage({ initialListing }) {
                     </div>
                   )}
 
-                  {/* Overlaid badges */}
                   {listing.type && (
                     <span className="dp__gallery-badge dp__gallery-badge--type">{listing.type}</span>
                   )}
-                  {listing.availability && (
-                    <span className={"dp__gallery-badge dp__gallery-badge--avail " + (
-                      listing.availability === "Available Now" ? "avail-now" :
-                      listing.availability === "Available Soon" ? "avail-soon" : "avail-no"
-                    )}>
-                      <span className="dp__avail-dot" />
-                      {listing.availability}
-                    </span>
-                  )}
-                  {images.length > 1 && (
-                    <span className="dp__gallery-count">
-                      <HiOutlinePhoto /> {activeMedia + 1} / {images.length}
-                    </span>
-                  )}
-                </div>
 
-                {(images.length > 1 || listing.videoUrl) && (
-                  <div className="dp__gallery-thumbs">
-                    {images.map((src, i) => (
-                      <button
-                        key={i}
-                        className={"dp__gallery-thumb" + (activeMedia === i && !showVideo ? " active" : "")}
-                        onClick={() => { setActiveMedia(i); setShowVideo(false); }}
-                      >
-                        <img src={src} alt={"Photo " + (i + 1)} />
-                        {i === 3 && images.length > 4 && (
-                          <div className="dp__gallery-thumb-more">+{images.length - 4}</div>
-                        )}
-                      </button>
-                    ))}
-                    {listing.videoUrl && (
-                      <button
-                        className={"dp__gallery-thumb dp__gallery-thumb--video" + (showVideo ? " active" : "")}
-                        onClick={() => setShowVideo(true)}
-                      >
-                        <HiOutlinePlayCircle />
-                        <span>Video</span>
-                      </button>
-                    )}
+                  <div className="dp__gallery-top-actions">
+                    <button
+                      className={"dp__gallery-fav" + (saved ? " active" : "")}
+                      onClick={handleToggleFavorite}
+                      aria-label={saved ? "Remove from saved" : "Save listing"}
+                    >
+                      {saved ? <HiHeart /> : <HiOutlineHeart />}
+                    </button>
+                    <button className="dp__gallery-fav" onClick={handleShare} aria-label="Share">
+                      <HiOutlineShare />
+                    </button>
                   </div>
-                )}
-              </div>
 
-              {/* Title + meta */}
-              <div className="dp__title-row">
-                <div className="dp__title-left">
-                  <h1 className="dp__title">{listing.title}</h1>
-                  <div className="dp__location">
-                    <HiOutlineMapPin />
-                    <span>{listing.location}</span>
-                  </div>
-                  {listing.address && (
-                    <p className="dp__address">{listing.address}</p>
+                  {images.length > 1 && !showVideo && (
+                    <>
+                      <button className="dp__gallery-arrow dp__gallery-arrow--left" onClick={() => goToImage(-1)} aria-label="Previous photo">
+                        <HiChevronLeft />
+                      </button>
+                      <button className="dp__gallery-arrow dp__gallery-arrow--right" onClick={() => goToImage(1)} aria-label="Next photo">
+                        <HiChevronRight />
+                      </button>
+                      <span className="dp__gallery-count">
+                        <HiOutlinePhoto /> {activeMedia + 1} / {images.length}
+                      </span>
+                    </>
+                  )}
+
+                  {listing.videoUrl && images.length > 0 && (
+                    <button
+                      className="dp__gallery-video-toggle"
+                      onClick={() => setShowVideo((v) => !v)}
+                    >
+                      <HiOutlinePlayCircle /> {showVideo ? "View photos" : "Watch video"}
+                    </button>
                   )}
                 </div>
-                <div className="dp__title-actions">
-                  <button
-                    className={"dp__icon-btn" + (saved ? " dp__icon-btn--saved" : "")}
-                    onClick={handleToggleFavorite}
-                    title={saved ? "Remove from saved" : "Save listing"}
-                  >
-                    {saved ? <HiHeart /> : <HiOutlineHeart />}
-                  </button>
-                  <button className="dp__icon-btn" onClick={handleShare} title="Share">
-                    <HiOutlineShare />
-                  </button>
-                </div>
-              </div>
-
-              {/* Verified + meta row */}
-              <div className="dp__meta-row">
-                {listing.verified && (
-                  <span className="dp__verified-pill">
-                    <HiOutlineCheckBadge /> Verified
-                  </span>
-                )}
-                {listing.createdAt && (
-                  <span className="dp__meta-chip">
-                    <HiOutlineCalendarDays /> {formatDate(listing.createdAt)}
-                  </span>
-                )}
-                {listing.views > 0 && (
-                  <span className="dp__meta-chip">
-                    <HiOutlineEye /> {listing.views} views
-                  </span>
-                )}
-                {listing.interests > 0 && (
-                  <span className="dp__meta-chip dp__meta-chip--interest">
-                    <HiOutlinePresentationChartBar /> {listing.interests} interested
-                  </span>
-                )}
                 {copied && <span className="dp__copied-flash">Link copied!</span>}
               </div>
 
-              {/* Landlord card */}
-              {listing.landlordId && (listing.landlordName || listing.agentName) && (
-                <Link href={"/agent/" + listing.landlordId} className="dp__landlord-card">
-                  <div className="dp__landlord-avatar">
-                    <HiOutlineUserCircle />
-                  </div>
-                  <div className="dp__landlord-info">
-                    <p className="dp__landlord-name">{listing.landlordName || listing.agentName}</p>
-                    <p className="dp__landlord-sub">
-                      <HiOutlineShieldCheck /> Direct landlord
-                    </p>
-                  </div>
-                  <span className="dp__landlord-link">View profile →</span>
-                </Link>
-              )}
-
-              {/* Tabs */}
-              <div className="dp__tabs">
-                {TABS.map((tab) => (
-                  <button
-                    key={tab}
-                    className={"dp__tab" + (activeTab === tab ? " active" : "")}
-                    onClick={() => setActiveTab(tab)}
-                  >
-                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                  </button>
-                ))}
+              {/* ── Price card ── */}
+              <div className="dp__price-card">
+                <p className="dp__price">₦{Number(listing.price).toLocaleString()}</p>
+                <p className="dp__price-label">per year</p>
               </div>
 
-              {/* Tab: Overview */}
-              {activeTab === "overview" && (
-                <motion.div key="overview" className="dp__tab-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
-                  <p className="dp__section-label">About this property</p>
-                  <p className="dp__description">{listing.description || "No description provided."}</p>
-                  {mapsUrl && (
-                    <a href={mapsUrl} target="_blank" rel="noreferrer" className="dp__map-link">
-                      <HiOutlineMapPin /> View on Google Maps
-                    </a>
-                  )}
-                </motion.div>
-              )}
+              {/* ── Contact / profile card ── */}
+              {!isOwner && (
+                <div className="dp__contact-card">
+                  <div className="dp__contact-top">
+                    <div className="dp__landlord-avatar">
+                      <HiOutlineUserCircle />
+                    </div>
+                    <div className="dp__contact-info">
+                      <p className="dp__landlord-name">
+                        {listing.landlordName || listing.agentName || "Property owner"}
+                      </p>
+                      <div className="dp__contact-badges">
+                        {listing.verified && (
+                          <span className="dp__verified-pill">
+                            <HiOutlineCheckBadge /> Verified ID
+                          </span>
+                        )}
 
-              {/* Tab: Costs */}
-              {activeTab === "costs" && (
-                <motion.div key="costs" className="dp__tab-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
-                  {hasCostBreakdown ? (
-                    <div className="dp__cost-card">
-                      <div className="dp__cost-header">
-                        <div className="dp__cost-header-icon"><HiOutlineCalculator /></div>
-                        <div>
-                          <p className="dp__cost-header-title">Move-in cost breakdown</p>
-                          <p className="dp__cost-header-sub">Full upfront cost to secure this property</p>
-                        </div>
-                      </div>
-                      <div className="dp__cost-rows">
-                        <div className="dp__cost-row">
-                          <div className="dp__cost-row-left">
-                            <HiOutlineBanknotes className="dp__cost-icon dp__cost-icon--rent" />
-                            <span>Annual rent</span>
-                          </div>
-                          <span className="dp__cost-val">₦{Number(listing.price).toLocaleString()}</span>
-                        </div>
-                        {listing.cautionFee !== undefined && (
-                          <div className="dp__cost-row">
-                            <div className="dp__cost-row-left">
-                              <HiOutlineShieldCheck className="dp__cost-icon dp__cost-icon--caution" />
-                              <span>Caution fee</span>
-                            </div>
-                            {Number(listing.cautionFee) === 0
-                              ? <span className="dp__cost-free">None ✓</span>
-                              : <span className="dp__cost-val">₦{Number(listing.cautionFee).toLocaleString()}</span>}
-                          </div>
-                        )}
-                        {listing.legalFee !== undefined && (
-                          <div className="dp__cost-row">
-                            <div className="dp__cost-row-left">
-                              <HiOutlineReceiptPercent className="dp__cost-icon dp__cost-icon--legal" />
-                              <span>Legal fee</span>
-                            </div>
-                            {Number(listing.legalFee) === 0
-                              ? <span className="dp__cost-free">None ✓</span>
-                              : <span className="dp__cost-val">₦{Number(listing.legalFee).toLocaleString()}</span>}
-                          </div>
-                        )}
-                        {listing.agencyFee !== undefined && (
-                          <div className="dp__cost-row">
-                            <div className="dp__cost-row-left">
-                              <HiOutlineBuildingOffice className="dp__cost-icon dp__cost-icon--agency" />
-                              <span>Agency fee</span>
-                            </div>
-                            {Number(listing.agencyFee) === 0
-                              ? <span className="dp__cost-free">No agent ✓</span>
-                              : <span className="dp__cost-val">₦{Number(listing.agencyFee).toLocaleString()}</span>}
-                          </div>
-                        )}
-                        {Number(listing.serviceCharge) > 0 && (
-                          <div className="dp__cost-row">
-                            <div className="dp__cost-row-left">
-                              <HiOutlineCog6Tooth className="dp__cost-icon dp__cost-icon--service" />
-                              <span>Service charge</span>
-                            </div>
-                            <span className="dp__cost-val">₦{Number(listing.serviceCharge).toLocaleString()}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="dp__cost-total">
-                        <div>
-                          <p className="dp__cost-total-label">Total move-in</p>
-                          <p className="dp__cost-total-note">One-time payment to secure this property</p>
-                        </div>
-                        <strong className="dp__cost-total-val">₦{totalMoveInCost.toLocaleString()}</strong>
                       </div>
                     </div>
-                  ) : (
-                    <p className="dp__description">No cost breakdown provided for this listing.</p>
+                  </div>
+                  <div className="dp__ctas">
+                    <button
+                      className="dp__cta dp__cta--message"
+                      onClick={handleMessage}
+                      disabled={isStarting}
+                    >
+                      <HiOutlineChatBubbleLeftRight /> {isStarting ? "Starting chat..." : "Message on Rezidence"}
+                    </button>
+                    <button className="dp__cta dp__cta--whatsapp" onClick={handleWhatsApp} disabled={!whatsappNumber}>
+                      <HiOutlineChatBubbleLeftRight /> Chat on WhatsApp
+                    </button>
+                    <button className="dp__cta dp__cta--call" onClick={handleCall} disabled={!listing.contact}>
+                      <HiOutlinePhone /> Show contact / Call
+                    </button>
+                  </div>
+                  {startError && (
+                    <p className="dp__message-error">
+                      <HiOutlineExclamationTriangle /> {startError}
+                    </p>
                   )}
-                </motion.div>
+                  {listing.landlordId && (
+                    <Link href={"/agent/" + listing.landlordId} className="dp__view-profile-link">
+                      View profile →
+                    </Link>
+                  )}
+                </div>
               )}
 
-              {/* Tab: Amenities */}
-              {activeTab === "amenities" && (
-                <motion.div key="amenities" className="dp__tab-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
-                  {amenityList.length > 0 ? (
-                    <>
-                      <p className="dp__section-label">Included in this property</p>
-                      <div className="dp__amenities">
-                        {amenityList.map((item, i) => (
-                          <span key={i} className="dp__amenity">
-                            <HiOutlineWrenchScrewdriver /> {item}
-                          </span>
-                        ))}
-                      </div>
-                    </>
-                  ) : (
-                    <p className="dp__description">No amenities listed.</p>
-                  )}
-                </motion.div>
+              {/* ── Title + meta ── */}
+              <div className="dp__title-block">
+                <h1 className="dp__title">{listing.title}</h1>
+                <p className="dp__meta-line">
+                  <HiOutlineMapPin /> {listing.location}
+                  {listing.createdAt && <> · {getDaysAgo(listing.createdAt)}</>}
+                  {listing.views > 0 && <> · <HiOutlineEye /> {listing.views} views</>}
+                </p>
+                {listing.address && <p className="dp__address">{listing.address}</p>}
+              </div>
+
+              {/* ── Icon facts ── */}
+              <div className="dp__icon-facts">
+                {listing.type && (
+                  <div className="dp__icon-fact">
+                    <span className="dp__icon-fact-circle"><HiOutlineBuildingOffice2 /></span>
+                    <span className="dp__icon-fact-label">{listing.type}</span>
+                  </div>
+                )}
+                {listing.beds && (
+                  <div className="dp__icon-fact">
+                    <span className="dp__icon-fact-circle"><HiOutlineHomeModern /></span>
+                    <span className="dp__icon-fact-label">{listing.beds} Bedrooms</span>
+                  </div>
+                )}
+                {listing.baths && (
+                  <div className="dp__icon-fact">
+                    <span className="dp__icon-fact-circle"><HiOutlineSquares2X2 /></span>
+                    <span className="dp__icon-fact-label">{listing.baths} Bathrooms</span>
+                  </div>
+                )}
+              </div>
+
+              {/* ── Details grid ── */}
+              <div className="dp__details-grid">
+                {listing.address && (
+                  <div className="dp__detail-item">
+                    <span className="dp__detail-label">Property address</span>
+                    <span className="dp__detail-val">{listing.address}</span>
+                  </div>
+                )}
+                {listing.furnishing && (
+                  <div className="dp__detail-item">
+                    <span className="dp__detail-label">Furnishing</span>
+                    <span className="dp__detail-val">{listing.furnishing}</span>
+                  </div>
+                )}
+                {listing.availability && (
+                  <div className="dp__detail-item">
+                    <span className="dp__detail-label">Availability</span>
+                    <span className="dp__detail-val">{listing.availability}</span>
+                  </div>
+                )}
+                {listing.createdAt && (
+                  <div className="dp__detail-item">
+                    <span className="dp__detail-label">Posted</span>
+                    <span className="dp__detail-val">{getDaysAgo(listing.createdAt)}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* ── Amenities ── */}
+              {amenityList.length > 0 && (
+                <div className="dp__amenities-section">
+                  <p className="dp__section-label">Amenities</p>
+                  <div className="dp__amenities">
+                    {amenityList.map((item, i) => (
+                      <span key={i} className="dp__amenity">
+                        <HiOutlineWrenchScrewdriver /> {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               )}
 
-              {/* Tab: Location */}
-              {activeTab === "location" && (
-                <motion.div key="location" className="dp__tab-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
-                  <p className="dp__section-label">Address</p>
-                  <p className="dp__description">{listing.address || listing.location || "No address provided."}</p>
-                  {mapsUrl && (
-                    <a href={mapsUrl} target="_blank" rel="noreferrer" className="dp__map-link">
-                      <HiOutlineMapPin /> Open full map
-                    </a>
-                  )}
-                </motion.div>
-              )}
+              {/* ── Description ── */}
+              <div className="dp__description-section">
+                <p className="dp__section-label">Description</p>
+                <p className="dp__description">{listing.description || "No description provided."}</p>
+              </div>
+
+              {/* ── Safety tips ── */}
+              <div className="dp__tips">
+                <p className="dp__tips-title">Stay safe while renting</p>
+                <ul className="dp__tips-list">
+                  <li>Always view the property in person before paying anything.</li>
+                  <li>Never send money before you've confirmed the property and the owner.</li>
+                  <li>Verify the account details belong to the actual property owner.</li>
+                  <li>Report any listing that feels off — it helps keep Rezidence safe.</li>
+                </ul>
+              </div>
+
+              {/* ── Report ── */}
+              <div className="dp__report-wrap">
+                {!reportSent ? (
+                  <button
+                    className="dp__report-btn"
+                    onClick={() => { if (!user) { router.push("/login"); return; } setShowReportModal(true); }}
+                  >
+                    <HiOutlineFlag /> Report this listing
+                  </button>
+                ) : (
+                  <div className="dp__report-sent">
+                    <HiOutlineCheckCircle />
+                    <span>Report submitted — thank you.</span>
+                  </div>
+                )}
+              </div>
 
             </div>
 
-            {/* ── RIGHT SIDEBAR ── */}
-            <aside className="dp__sidebar">
-              <div className="dp__sidebar-card">
-
-                {/* Price */}
-                <div className="dp__price-block">
-                  <p className="dp__price">₦{Number(listing.price).toLocaleString()}</p>
-                  <p className="dp__price-label">per year · {listing.paymentTerms || "annually"}</p>
+            {/* ── Similar Adverts ── */}
+            {similarListings.length > 0 && (
+              <div className="dp__similar">
+                <p className="dp__similar-title">Similar adverts</p>
+                <div className="dp__similar-grid">
+                  {similarListings.map((item) => (
+                    <ListingCard key={item.id} listing={item} />
+                  ))}
                 </div>
-
-                <div className="dp__sidebar-divider" />
-
-                {/* Key facts */}
-                <div className="dp__sidebar-facts">
-                  <div className="dp__sidebar-fact">
-                    <span className="dp__sidebar-fact-label"><HiOutlineHomeModern /> Type</span>
-                    <span className="dp__sidebar-fact-val">{listing.type || "—"}</span>
-                  </div>
-                  <div className="dp__sidebar-fact">
-                    <span className="dp__sidebar-fact-label"><HiOutlineCalendarDays /> Availability</span>
-                    <span className={"dp__sidebar-fact-val" + (listing.availability === "Available Now" ? " dp__sidebar-fact-val--green" : "")}>
-                      {listing.availability || "—"}
-                    </span>
-                  </div>
-                  {hasCostBreakdown && (
-                    <div className="dp__sidebar-fact">
-                      <span className="dp__sidebar-fact-label"><HiOutlineCalculator /> Move-in total</span>
-                      <span className="dp__sidebar-fact-val">₦{totalMoveInCost.toLocaleString()}</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="dp__sidebar-divider" />
-
-                {/* CTAs — only for non-owners */}
-                {!isOwner && (
-                  <div className="dp__ctas">
-                    <button className="dp__cta dp__cta--primary" onClick={handleBookInspection}>
-                      <HiOutlineClipboardDocumentCheck /> Book Inspection
-                    </button>
-                    <button className="dp__cta dp__cta--secondary" onClick={handlePayRent}>
-                      <HiOutlineCreditCard /> Pay Rent
-                    </button>
-                  </div>
-                )}
-
-                {/* Trust strip */}
-                {listing.verified && (
-                  <div className="dp__trust-strip">
-                    <HiOutlineShieldCheck className="dp__trust-icon" />
-                    <p>
-                      <strong>Verified landlord.</strong> This property has been field-checked by the Rezidence team.
-                    </p>
-                  </div>
-                )}
-
-                {/* Report */}
-                <div className="dp__sidebar-report">
-                  {!reportSent ? (
-                    <button
-                      className="dp__report-btn"
-                      onClick={() => { if (!user) { router.push("/login"); return; } setShowReportModal(true); }}
-                    >
-                      <HiOutlineFlag /> Report this listing
-                    </button>
-                  ) : (
-                    <div className="dp__report-sent">
-                      <HiOutlineCheckCircle />
-                      <span>Report submitted — thank you.</span>
-                    </div>
-                  )}
-                </div>
-
               </div>
-            </aside>
+            )}
 
           </motion.div>
         )}
-      </div>
+        </div>
     </main>
   );
 }

@@ -5,6 +5,7 @@ import ConditionalFooter from "@/components/ConditionalFooter";
 import PageTransition from "@/components/layout/PageTransition";
 import SupportWidget from "@/components/support/SupportWidget";
 import PostHogProvider from "@/components/layout/PostHogProvider";
+import { QueryProvider } from '@/lib/queryClient';
 import { Suspense } from "react";
 import "./global.css";
 
@@ -83,7 +84,9 @@ export default function RootLayout({ children }) {
           <Navbar />
           <SupportWidget />
           <PageTransition>
+            <QueryProvider >
             {children}
+            </QueryProvider>
           </PageTransition>
           <ConditionalFooter />
         </AuthProvider>

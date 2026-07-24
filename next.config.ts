@@ -35,7 +35,7 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https://res.cloudinary.com https://lh3.googleusercontent.com https://firebasestorage.googleapis.com",
       "media-src 'self' blob: https://res.cloudinary.com",
-      "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://api.paystack.co https://app.posthog.com https://*.sentry.io wss://*.firebaseio.com https://*.upstash.io https://api.cloudinary.com",
+      "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://api.paystack.co https://app.posthog.com https://*.sentry.io wss://*.firebaseio.com https://*.upstash.io https://api.cloudinary.com https://in-app-chat-system-production.up.railway.app wss://in-app-chat-system-production.up.railway.app",
       "frame-src https://js.paystack.co https://accounts.google.com https://*.firebaseapp.com",
       "object-src 'none'",
       "base-uri 'self'",
