@@ -5,7 +5,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { parseSearchQuery } from "@/lib/searchParser";
-import { HiOutlineArrowRight, HiOutlineCheckBadge } from "react-icons/hi2";
+import {
+  HiOutlineArrowRight,
+  HiOutlineCheckBadge,
+  HiOutlineMagnifyingGlass,
+} from "react-icons/hi2";
 import "@/styles/hero.css";
 
 const rise = (delay = 0) => ({
@@ -19,6 +23,11 @@ const fade = (delay = 0) => ({
   animate: { opacity: 1 },
   transition: { duration: 0.5, delay },
 });
+
+const CATEGORIES = [
+  { key: "rent", label: "Rent" },
+  { key: "sale", label: "Buy" },
+];
 
 export default function Hero() {
   const { user, userRole } = useAuth();
@@ -54,26 +63,15 @@ export default function Hero() {
       <div className="hero__grain" aria-hidden="true" />
 
       <div className="hero__inner">
-        <motion.h1 className="hero__headline" {...rise(0.12)}>
-          Find Student Housing Near Your Campus
+        <motion.h1 className="hero__headline" {...rise(0.1)}>
+          Find Student Housing,
+          <br />
+          Near Your Campus.
         </motion.h1>
 
-        <motion.div className="hero__search-card" {...rise(0.3)}>
-          <div className="hero__search-row">
-            <input
-              className="hero__search-input"
-              type="text"
-              placeholder="Self contain in Rumuokoro, 1 bedroom near RSU..."
-              value={query_}
-              onChange={(e) => setQuery_(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-            <button className="hero__search-btn" onClick={handleSearchSubmit}>
-              Search
-              <HiOutlineArrowRight aria-hidden="true" />
-            </button>
-          </div>
-        </motion.div>
+        <motion.p className="hero__subtext" {...rise(0.2)}>
+          Verified rentals and sales across Port Harcourt — easier, faster ,less stressful.
+        </motion.p>
       </div>
     </section>
   );

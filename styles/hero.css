@@ -1,221 +1,84 @@
-/* ==========================================================================
-   Hero — tokens (mirror these in categories.css / featured.css so all three
-   sections read as one system)
-   ========================================================================== */
-   .hero {
-    --rz-forest-950: #0a2a1f;
-    --rz-forest-800: #123f2e;
-    --rz-forest-700: #17513c;
-    --rz-forest-600: #1f6b4a;
-    --rz-forest-500: #2c8a5e;
-    --rz-gold-500: #c9962e;
-    --rz-paper: #fffdf8;
-    --rz-cream: #f3ede1;
-  
-    position: relative;
-    overflow: hidden;
-    padding: 88px 24px 128px;
-    background: var(--accent);
-    isolation: isolate;
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 92vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 8rem 1.5rem 5rem;
+  background: #faf6ef;
+}
+
+.hero__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 15% 10%, rgba(200, 134, 45, 0.14), transparent 60%),
+    radial-gradient(ellipse 55% 45% at 90% 15%, rgba(20, 17, 15, 0.06), transparent 55%),
+    linear-gradient(180deg, #fbf8f2 0%, #f6f0e6 100%);
+}
+
+.hero__grain {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.035;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 780px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(20, 17, 15, 0.08);
+  backdrop-filter: blur(8px);
+  font-family: "Montserrat", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.01em;
+  color: #4a4038;
+  margin-bottom: 1.75rem;
+  box-shadow: 0 1px 2px rgba(20, 17, 15, 0.04);
+}
+
+.hero__subtext {
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  line-height: 1.55;
+  color: #6b6058;
+  max-width: 520px;
+  margin-bottom: 2.5rem;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding: 6.5rem 1.25rem 3.5rem;
+    min-height: unset;
   }
-  
-  .hero__backdrop {
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(560px 360px at 12% 8%, rgba(201, 150, 46, 0.16), transparent 65%),
-      radial-gradient(680px 460px at 88% 92%, rgba(44, 138, 94, 0.35), transparent 60%);
-    pointer-events: none;
-    z-index: 0;
+  .hero__search-bar {
+    flex-wrap: wrap;
   }
-  
-  .hero__grain {
-    position: absolute;
-    inset: 0;
-    opacity: 0.05;
-    pointer-events: none;
-    z-index: 0;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  }
-  
-  .hero__inner {
-    position: relative;
-    z-index: 1;
-    max-width: 680px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-  
-  /* Ink-stamp badge — the signature element: a rotated, dashed "stamp" that
-     carries the brand's zero-agent-fee / verification promise. */
-  .hero__stamp {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 16px;
-    margin-bottom: 28px;
-    border: 1px dashed rgba(243, 237, 225, 0.45);
-    border-radius: 999px;
-    color: var(--rz-cream);
-    font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 11.5px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    transform: rotate(-2deg);
-    background: rgba(255, 255, 255, 0.04);
-  }
-  
-  .hero__stamp svg {
-    width: 15px;
-    height: 15px;
-    color: var(--rz-gold-500);
-    flex-shrink: 0;
-  }
-  
-  .hero__headline {
-    margin: 0 0 14px;
-    font-family: "Bricolage Grotesque", "Hanken Grotesk", sans-serif;
-    font-weight: 600;
-    font-size: clamp(34px, 5vw, 54px);
-    line-height: 1.08;
-    letter-spacing: -0.01em;
-    color: var(--rz-paper);
-  }
-  
-  .hero__headline em {
-    font-style: normal;
-    color: var(--rz-gold-500);
-  }
-  
-  .hero__subline {
-    margin: 0 0 36px;
-    max-width: 460px;
-    font-family: "Hanken Grotesk", sans-serif;
-    font-size: 16px;
-    line-height: 1.5;
-    color: rgba(243, 237, 225, 0.72);
-  }
-  
-  /* Search card — frosted glass on the dark backdrop */
-  .hero__search-card {
+  .hero__search-submit {
     width: 100%;
-    padding: 8px;
-    border-radius: 18px;
-    background: rgba(255, 253, 248, 0.94);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow:
-      0 24px 60px -20px rgba(6, 26, 18, 0.55),
-      0 2px 0 rgba(255, 255, 255, 0.6) inset;
+    justify-content: center;
   }
-  
-  .hero__search-row {
-    display: flex;
-    gap: 8px;
+  .hero__stats {
+    gap: 1rem;
   }
-  
-  .hero__search-input {
-    flex: 1;
-    min-width: 0;
-    height: 56px;
-    padding: 0 20px;
-    border: none;
-    border-radius: 12px;
-    background: transparent;
-    font-family: "Hanken Grotesk", sans-serif;
-    font-size: 15px;
-    color: var(--rz-forest-950);
-  }
-  
-  .hero__search-input::placeholder {
-    color: #8a9a91;
-  }
-  
-  .hero__search-input:focus {
-    outline: none;
-    background: rgba(31, 107, 74, 0.06);
-  }
-  
-  .hero__search-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    height: 56px;
-    padding: 0 26px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(180deg, var(--rz-forest-600), var(--rz-forest-700));
-    color: var(--rz-paper);
-    font-family: "Hanken Grotesk", sans-serif;
-    font-weight: 600;
-    font-size: 15px;
-    cursor: pointer;
-    transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
-    box-shadow: 0 8px 20px -8px rgba(15, 61, 46, 0.65);
-  }
-  
-  .hero__search-btn svg {
-    width: 17px;
-    height: 17px;
-  }
-  
-  .hero__search-btn:hover {
-    background: linear-gradient(180deg, var(--rz-forest-500), var(--rz-forest-600));
-    transform: translateY(-1px);
-  }
-  
-  .hero__search-btn:active {
-    transform: translateY(0);
-  }
-  
-  @media (max-width: 640px) {
-    .hero {
-      padding: 56px 16px 80px;
-    }
-  
-    .hero__stamp {
-      margin-bottom: 20px;
-    }
-  
-    .hero__subline {
-      margin-bottom: 28px;
-    }
-  
-    .hero__search-card {
-      padding: 6px;
-      border-radius: 16px;
-    }
-  
-    /* Column stacking: flex:1 on the input only makes sense on the main axis
-       of a ROW. In a column it collapses the input's height instead of its
-       width, which is what was letting the button sit on top of it. Give both
-       children an explicit, non-flexing width/height instead. */
-    .hero__search-row {
-      flex-direction: column;
-      gap: 8px;
-    }
-  
-    .hero__search-input {
-      flex: none;
-      width: 100%;
-      height: 50px;
-      padding: 0 16px;
-    }
-  
-    .hero__search-btn {
-      flex: none;
-      width: 100%;
-      height: 50px;
-      justify-content: center;
-    }
-  }
-  
-  @media (prefers-reduced-motion: reduce) {
-    .hero__search-btn {
-      transition: none;
-    }
-  }
+}

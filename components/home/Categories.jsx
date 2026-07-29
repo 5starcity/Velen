@@ -44,9 +44,6 @@ export default function Categories() {
     <section className="categories">
       <div className="categories__inner">
         <div className="categories__head">
-          <div>
-            <h2 className="categories__heading">Find your kind of space</h2>
-          </div>
           <Link href="/listings" className="categories__viewall">
             View all listings
             <HiArrowUpRight aria-hidden="true" />

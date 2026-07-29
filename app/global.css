@@ -73,8 +73,8 @@ html {
   --shadow-xl: 0 24px 60px rgba(22, 45, 20, 0.12), 0 8px 24px rgba(22, 45, 20, 0.06);
 
   /* Typography */
-  --font-display: "DM Serif Display", Georgia, serif;
-  --font-body: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: "Montserrat", Georgia, serif;
+  --font-body: "Montserrat", -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Radii */
   --radius-sm: 8px;
