@@ -267,7 +267,7 @@ export default function SignupPage() {
                   <button
                     type="button"
                     className={"role-btn" + (form.role === "landlord" ? " active" : "")}
-                    onClick={() => setForm({ ...form, role: "landlord" })}
+                    onClick={() => setForm({ ...form, role: "agent" })}
                   >
                     🧑‍💼 Agent
                   </button>
