@@ -113,7 +113,7 @@ export default function Navbar() {
     <>
       <nav className="navbar">
         {/* Logo */}
-        <Link href="/" className="navbar__logo" aria-label="Rezidence home">
+        <Link a href="/" className="navbar__logo" aria-label="Rezidence home">
           <div className="navbar__logo-mark">R</div>
           <span className="navbar__logo-text">
             Rezidence
@@ -139,14 +139,14 @@ export default function Navbar() {
 
         {/* ── Desktop actions ── */}
         <div className="navbar__actions">
-          <Link href="/listings" className="navbar__link">
+          <Link a href="/listings" className="navbar__link">
             Browse
           </Link>
 
           {/* Roommates — students only */}
           {isStudent && (
             <Link
-              href="/roommates"
+              a href="/roommates"
               className="navbar__icon-link"
               aria-label="Find roommates"
               title="Find roommates"
@@ -162,7 +162,7 @@ export default function Navbar() {
 
           {/* List a room — landlords only */}
           {isLandlord && (
-            <Link href="/add-listing" className="navbar__btn-post">
+            <Link a href="/add-listing" className="navbar__btn-post">
               + List a room
             </Link>
           )}
@@ -171,7 +171,7 @@ export default function Navbar() {
           {user && (
             <>
               <Link
-                href="/saved"
+                a href="/saved"
                 className="navbar__icon-link"
                 aria-label="Saved homes"
                 title="Saved homes"
@@ -184,7 +184,7 @@ export default function Navbar() {
               <NotificationBell />
 
               <Link
-                href="/messages"
+                a href="/chat"
                 className="navbar__icon-link"
                 aria-label="Messages"
                 title="Messages"
@@ -225,21 +225,21 @@ export default function Navbar() {
                   <hr className="navbar__avatar-menu-divider" />
 
                   <Link
-                    href="/dashboard"
+                    a href="/dashboard"
                     className="navbar__avatar-menu-item"
                     onClick={() => setAvatarMenuOpen(false)}
                   >
                     Dashboard
                   </Link>
                   <Link
-                    href="/profile"
+                    a href="/profile"
                     className="navbar__avatar-menu-item"
                     onClick={() => setAvatarMenuOpen(false)}
                   >
                     Profile
                   </Link>
                   <Link
-                    href="/settings"
+                    a href="/settings"
                     className="navbar__avatar-menu-item"
                     onClick={() => setAvatarMenuOpen(false)}
                   >
@@ -260,13 +260,13 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="navbar__guest-actions">
-              <Link href="/add-listing" className="navbar__link">
+              <Link a href="/add-listing" className="navbar__link">
                 List your property
               </Link>
-              <Link href="/login" className="navbar__link">
+              <Link a href="/login" className="navbar__link">
                 Log in
               </Link>
-              <Link href="/signup" className="navbar__btn-signup">
+              <Link a href="/signup" className="navbar__btn-signup">
                 Sign up
               </Link>
             </div>
@@ -370,7 +370,7 @@ export default function Navbar() {
 
               <span className="drawer__section-label">Explore</span>
               <nav className="drawer__links">
-                <Link href="/" className="drawer__link" onClick={() => setDrawerOpen(false)}>
+                <Link a href="/" className="drawer__link" onClick={() => setDrawerOpen(false)}>
                   <span className="drawer__link-icon">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                       <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -380,7 +380,7 @@ export default function Navbar() {
                   Home
                 </Link>
 
-                <Link href="/listings" className="drawer__link" onClick={() => setDrawerOpen(false)}>
+                <Link a href="/listings" className="drawer__link" onClick={() => setDrawerOpen(false)}>
                   <span className="drawer__link-icon">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="11" cy="11" r="7" />
@@ -391,7 +391,7 @@ export default function Navbar() {
                 </Link>
 
                 {isStudent && (
-                  <Link href="/roommates" className="drawer__link" onClick={() => setDrawerOpen(false)}>
+                  <Link a href="/roommates" className="drawer__link" onClick={() => setDrawerOpen(false)}>
                     <span className="drawer__link-icon">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -427,7 +427,7 @@ export default function Navbar() {
                 <>
                   <span className="drawer__section-label">Account</span>
                   <nav className="drawer__links">
-                    <Link href="/saved" className="drawer__link" onClick={() => setDrawerOpen(false)}>
+                    <Link a href="/saved" className="drawer__link" onClick={() => setDrawerOpen(false)}>
                       <span className="drawer__link-icon">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M6 3.5h12a1 1 0 0 1 1 1V21l-7-4.2L5 21V4.5a1 1 0 0 1 1-1Z" />
@@ -436,7 +436,7 @@ export default function Navbar() {
                       Saved homes
                     </Link>
 
-                    <Link href="/messages" className="drawer__link" onClick={() => setDrawerOpen(false)}>
+                    <Link a href="/messages" className="drawer__link" onClick={() => setDrawerOpen(false)}>
                       <span className="drawer__link-icon">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M4 5.5h16a1 1 0 0 1 1 1V16a1 1 0 0 1-1 1H9l-5 4v-4H4a1 1 0 0 1-1-1V6.5a1 1 0 0 1 1-1Z" />
@@ -445,7 +445,7 @@ export default function Navbar() {
                       Messages
                     </Link>
 
-                    <Link href="/dashboard" className="drawer__link" onClick={() => setDrawerOpen(false)}>
+                    <Link a href="/dashboard" className="drawer__link" onClick={() => setDrawerOpen(false)}>
                       <span className="drawer__link-icon">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                           <rect x="3" y="3" width="7" height="7" />
@@ -457,7 +457,7 @@ export default function Navbar() {
                       My dashboard
                     </Link>
 
-                    <Link href="/profile" className="drawer__link" onClick={() => setDrawerOpen(false)}>
+                    <Link a href="/profile" className="drawer__link" onClick={() => setDrawerOpen(false)}>
                       <span className="drawer__link-icon">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -467,7 +467,7 @@ export default function Navbar() {
                       Profile
                     </Link>
 
-                    <Link href="/settings" className="drawer__link" onClick={() => setDrawerOpen(false)}>
+                    <Link a href="/settings" className="drawer__link" onClick={() => setDrawerOpen(false)}>
                       <span className="drawer__link-icon">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                           <circle cx="12" cy="12" r="3" />
@@ -482,7 +482,7 @@ export default function Navbar() {
 
               {!user && (
                 <nav className="drawer__links">
-                  <Link href="/add-listing" className="drawer__link" onClick={() => setDrawerOpen(false)}>
+                  <Link a href="/add-listing" className="drawer__link" onClick={() => setDrawerOpen(false)}>
                     <span className="drawer__link-icon">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M12 5v14M5 12h14" />
@@ -497,7 +497,7 @@ export default function Navbar() {
             {/* Sticky footer — primary actions always in reach */}
             <div className="drawer__footer">
               {isLandlord && (
-                <Link href="/add-listing" className="drawer__post-btn" onClick={() => setDrawerOpen(false)}>
+                <Link a href="/add-listing" className="drawer__post-btn" onClick={() => setDrawerOpen(false)}>
                   + List a room
                 </Link>
               )}
@@ -512,10 +512,10 @@ export default function Navbar() {
                 </button>
               ) : (
                 <div className="drawer__guest-actions">
-                  <Link href="/login" className="drawer__link-btn drawer__link-btn--ghost" onClick={() => setDrawerOpen(false)}>
+                  <Link a href="/login" className="drawer__link-btn drawer__link-btn--ghost" onClick={() => setDrawerOpen(false)}>
                     Log in
                   </Link>
-                  <Link href="/signup" className="drawer__link-btn drawer__link-btn--primary" onClick={() => setDrawerOpen(false)}>
+                  <Link a href="/signup" className="drawer__link-btn drawer__link-btn--primary" onClick={() => setDrawerOpen(false)}>
                     Sign up
                   </Link>
                 </div>
