@@ -12,6 +12,7 @@ import {
   HiOutlineShieldCheck,
   HiOutlineBanknotes,
   HiOutlineUserGroup,
+  HiOutlineChatBubbleLeftRight,
   HiOutlineArrowRight,
 } from "react-icons/hi2";
 import Link from "next/link";
@@ -34,6 +35,7 @@ function timeAgo(ts) {
 }
 
 function notifIcon(type) {
+  if (type === "chat_message")          return <HiOutlineChatBubbleLeftRight className="notif-item__icon notif-item__icon--chat" />;
   if (type === "roommate_interest")     return <HiOutlineUserGroup className="notif-item__icon notif-item__icon--roommate" />;
   if (type === "listing_interest")      return <HiOutlineHomeModern className="notif-item__icon notif-item__icon--home" />;
   if (type === "inspection_booked")     return <HiOutlineClipboardDocumentCheck className="notif-item__icon notif-item__icon--inspect" />;
@@ -46,6 +48,9 @@ function notifIcon(type) {
 }
 
 function notifHref(n) {
+  if (n.type === "chat_message" && n.conversationId) {
+    return `/chat/${n.conversationId}`;
+  }
   if (n.listingId && (n.type === "listing_interest" || n.type === "reservation_request" || n.type === "listing_approved")) {
     return `/listings/${n.listingId}`;
   }

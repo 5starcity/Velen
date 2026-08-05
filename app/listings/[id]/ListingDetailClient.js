@@ -282,7 +282,7 @@ export default function ListingDetailsPage({ initialListing }) {
 
   function handleMessage() {
     if (!user) {
-      router.push("/login");
+      router.push("/chat");
       return;
     }
     if (!listing.landlordId) return;
