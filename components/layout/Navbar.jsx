@@ -29,13 +29,6 @@ export default function Navbar() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
-  // The server always renders as "logged out" because it has no access to
-  // Firebase's client-side auth cache. If `authUser` becomes truthy before
-  // React finishes hydrating, the first client render won't match the HTML
-  // the server sent — that's what throws the hydration error. `mounted`
-  // forces this component's first client render to stay in the logged-out
-  // shape (matching SSR exactly), then swaps in the real auth state right
-  // after mount, once hydration is already done.
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
@@ -46,18 +39,11 @@ export default function Navbar() {
   const avatarMenuRef = useRef(null);
   const mobileSearchInputRef = useRef(null);
 
-  const isStudent = user && userRole === "student";
-  const isLandlord = user && userRole === "landlord";
-
   const initials = user?.displayName?.slice(0, 2).toUpperCase() || "ME";
 
-  // Show the compact navbar search only on a single listing's detail page —
-  // that's the one route with no other search entry point (hero lives on "/",
-  // the browse page has its own filter bar).
   const pathSegments = (pathname || "").split("/").filter(Boolean);
   const isListingDetailPage = pathSegments[0] === "listings" && pathSegments.length === 2;
 
-  // Close avatar dropdown on outside click
   useEffect(() => {
     if (!avatarMenuOpen) return;
     function handleClick(e) {
@@ -69,7 +55,6 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [avatarMenuOpen]);
 
-  // Close drawer / dropdown / mobile search on Escape key
   useEffect(() => {
     function handleKey(e) {
       if (e.key === "Escape") {
@@ -82,14 +67,12 @@ export default function Navbar() {
     return () => document.removeEventListener("keydown", handleKey);
   }, []);
 
-  // Focus the input the moment the mobile search row opens
   useEffect(() => {
     if (mobileSearchOpen && mobileSearchInputRef.current) {
       mobileSearchInputRef.current.focus();
     }
   }, [mobileSearchOpen]);
 
-  // Lock body scroll while the drawer is open (mobile)
   useEffect(() => {
     if (drawerOpen) {
       const prevOverflow = document.body.style.overflow;
@@ -129,12 +112,9 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="navbar__logo" aria-label="Rezidence home">
           <div className="navbar__logo-mark">R</div>
-          <span className="navbar__logo-text">
-            Rezidence
-          </span>
+          <span className="navbar__logo-text">Rezidence</span>
         </Link>
 
-        {/* ── Desktop contextual search — listing detail pages only ── */}
         {isListingDetailPage && (
           <form className="navbar__search" onSubmit={handleSearchSubmit}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="navbar__search-icon">
@@ -157,39 +137,14 @@ export default function Navbar() {
             Browse
           </Link>
 
-          {/* Roommates — students only */}
-          {isStudent && (
-            <Link
-              href="/roommates"
-              className="navbar__icon-link"
-              aria-label="Find roommates"
-              title="Find roommates"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
-            </Link>
-          )}
+          {/* Add listing — open to everyone, signed in or not */}
+          <Link href="/add-listing" className="navbar__btn-post">
+            + Add Listing
+          </Link>
 
-          {/* List a room — landlords only */}
-          {isLandlord && (
-            <Link href="/add-listing" className="navbar__btn-post">
-              + List a room
-            </Link>
-          )}
-
-          {/* Signed-in only: Saved / Notifications / Messages */}
           {user && (
             <>
-              <Link
-                href="/saved"
-                className="navbar__icon-link"
-                aria-label="Saved homes"
-                title="Saved homes"
-              >
+              <Link href="/saved" className="navbar__icon-link" aria-label="Saved homes" title="Saved homes">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M6 3.5h12a1 1 0 0 1 1 1V21l-7-4.2L5 21V4.5a1 1 0 0 1 1-1Z" />
                 </svg>
@@ -197,12 +152,7 @@ export default function Navbar() {
 
               <NotificationBell />
 
-              <Link
-                href="/chat"
-                className="navbar__icon-link"
-                aria-label="Messages"
-                title="Messages"
-              >
+              <Link href="/chat" className="navbar__icon-link" aria-label="Messages" title="Messages">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 5.5h16a1 1 0 0 1 1 1V16a1 1 0 0 1-1 1H9l-5 4v-4H4a1 1 0 0 1-1-1V6.5a1 1 0 0 1 1-1Z" />
                 </svg>
@@ -210,7 +160,6 @@ export default function Navbar() {
             </>
           )}
 
-          {/* Avatar dropdown or guest actions */}
           {user ? (
             <div className="navbar__avatar-wrap" ref={avatarMenuRef}>
               <button
@@ -230,33 +179,19 @@ export default function Navbar() {
                       <span className="navbar__avatar-menu-name">
                         {user.displayName || "My account"}
                       </span>
-                      {userRole && (
-                        <span className="navbar__avatar-menu-role">{userRole}</span>
-                      )}
+                      {userRole && <span className="navbar__avatar-menu-role">{userRole}</span>}
                     </div>
                   </div>
 
                   <hr className="navbar__avatar-menu-divider" />
 
-                  <Link
-                    href="/dashboard"
-                    className="navbar__avatar-menu-item"
-                    onClick={() => setAvatarMenuOpen(false)}
-                  >
+                  <Link href="/dashboard" className="navbar__avatar-menu-item" onClick={() => setAvatarMenuOpen(false)}>
                     Dashboard
                   </Link>
-                  <Link
-                    href="/profile"
-                    className="navbar__avatar-menu-item"
-                    onClick={() => setAvatarMenuOpen(false)}
-                  >
+                  <Link href="/profile" className="navbar__avatar-menu-item" onClick={() => setAvatarMenuOpen(false)}>
                     Profile
                   </Link>
-                  <Link
-                    href="/settings"
-                    className="navbar__avatar-menu-item"
-                    onClick={() => setAvatarMenuOpen(false)}
-                  >
+                  <Link href="/settings" className="navbar__avatar-menu-item" onClick={() => setAvatarMenuOpen(false)}>
                     Settings
                   </Link>
 
@@ -274,9 +209,6 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="navbar__guest-actions">
-              <Link href="/add-listing" className="navbar__link">
-                List your property
-              </Link>
               <Link href="/login" className="navbar__link">
                 Log in
               </Link>
@@ -328,7 +260,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* ── Mobile search row (slides in below navbar) ── */}
       {mobileSearchOpen && (
         <form className="navbar__mobile-search-row" onSubmit={handleSearchSubmit}>
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="navbar__search-icon">
@@ -347,22 +278,16 @@ export default function Navbar() {
         </form>
       )}
 
-      {/* ── Mobile drawer ── */}
       {drawerOpen && (
         <>
           <div className="drawer__scrim" onClick={() => setDrawerOpen(false)} />
           <div className="drawer" role="dialog" aria-modal="true" aria-label="Menu">
-            {/* Header — logo + close */}
             <div className="drawer__header">
               <div className="drawer__header-logo">
                 <div className="drawer__header-logo-mark">R</div>
                 <span className="drawer__header-logo-text">Rezidence</span>
               </div>
-              <button
-                className="drawer__close-btn"
-                aria-label="Close menu"
-                onClick={() => setDrawerOpen(false)}
-              >
+              <button className="drawer__close-btn" aria-label="Close menu" onClick={() => setDrawerOpen(false)}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <path d="M18 6 6 18M6 6l12 12" />
                 </svg>
@@ -374,9 +299,7 @@ export default function Navbar() {
                 <div className="drawer__profile">
                   <span className="drawer__profile-avatar">{initials}</span>
                   <div className="drawer__profile-info">
-                    <span className="drawer__profile-name">
-                      {user.displayName || "My account"}
-                    </span>
+                    <span className="drawer__profile-name">{user.displayName || "My account"}</span>
                     {userRole && <span className="drawer__profile-role">{userRole}</span>}
                   </div>
                 </div>
@@ -403,20 +326,6 @@ export default function Navbar() {
                   </span>
                   Browse listings
                 </Link>
-
-                {isStudent && (
-                  <Link href="/roommates" className="drawer__link" onClick={() => setDrawerOpen(false)}>
-                    <span className="drawer__link-icon">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                      </svg>
-                    </span>
-                    Find roommates
-                  </Link>
-                )}
               </nav>
 
               <span className="drawer__section-label">Categories</span>
@@ -425,11 +334,7 @@ export default function Navbar() {
                   <Link
                     key={cat.value}
                     href={`/listings?type=${cat.value}`}
-                    className={
-                      activeCategory === cat.value
-                        ? "drawer__category drawer__category--active"
-                        : "drawer__category"
-                    }
+                    className={activeCategory === cat.value ? "drawer__category drawer__category--active" : "drawer__category"}
                     onClick={() => setDrawerOpen(false)}
                   >
                     {cat.label}
@@ -493,35 +398,16 @@ export default function Navbar() {
                   </nav>
                 </>
               )}
-
-              {!user && (
-                <nav className="drawer__links">
-                  <Link href="/add-listing" className="drawer__link" onClick={() => setDrawerOpen(false)}>
-                    <span className="drawer__link-icon">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 5v14M5 12h14" />
-                      </svg>
-                    </span>
-                    List your property
-                  </Link>
-                </nav>
-              )}
             </div>
 
             {/* Sticky footer — primary actions always in reach */}
             <div className="drawer__footer">
-              {isLandlord && (
-                <Link href="/add-listing" className="drawer__post-btn" onClick={() => setDrawerOpen(false)}>
-                  + List a room
-                </Link>
-              )}
+              <Link href="/add-listing" className="drawer__post-btn" onClick={() => setDrawerOpen(false)}>
+                + Add Listing
+              </Link>
 
               {user ? (
-                <button
-                  className="drawer__signout-btn"
-                  onClick={handleSignOut}
-                  disabled={signingOut}
-                >
+                <button className="drawer__signout-btn" onClick={handleSignOut} disabled={signingOut}>
                   {signingOut ? "Signing out…" : "Log out"}
                 </button>
               ) : (
