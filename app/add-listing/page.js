@@ -54,7 +54,7 @@ export default function AddListingPage() {
   const [saving, setSaving]                 = useState(false);
   const [uploadProgress, setUploadProgress] = useState("");
 
-  
+
   const totalMoveInCost = useMemo(() => {
     const rent    = Number(formData.price)         || 0;
     const caution = Number(formData.cautionFee)    || 0;
@@ -64,7 +64,6 @@ export default function AddListingPage() {
     return rent + caution + legal + agency + service;
   }, [formData.price, formData.cautionFee, formData.legalFee, formData.agencyFee, formData.serviceCharge]);
 
-  if (!user || userRole !== "landlord") return null;
 
   const selectedLocation = LOCATIONS.find((l) => l.value === formData.location);
 
