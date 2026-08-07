@@ -54,13 +54,7 @@ export default function AddListingPage() {
   const [saving, setSaving]                 = useState(false);
   const [uploadProgress, setUploadProgress] = useState("");
 
-  useEffect(() => {
-    if (!user) router.push("/login");
-    else if (userRole && userRole !== "landlord") router.push("/listings");
-  }, [user, userRole]);
-
-  // NOTE: this useMemo must run on every render, so it stays above the
-  // early return below. Never put a hook after a conditional "return".
+  
   const totalMoveInCost = useMemo(() => {
     const rent    = Number(formData.price)         || 0;
     const caution = Number(formData.cautionFee)    || 0;
