@@ -1,4 +1,4 @@
-/* add-listing.css — mobile-first wizard redesign */
+/* add-listing.css — compose-flow redesign (as simple as posting on WhatsApp) */
 
 /* ── Page shell ── */
 .alp {
@@ -6,21 +6,14 @@
   background: var(--bg-page);
 }
 
-/* ── Sticky progress header ── */
+/* ── Minimal header ── */
 .alp__header {
   position: sticky;
   top: 0;
   z-index: 10;
   background: var(--bg-card);
   border-bottom: 1px solid var(--border);
-  padding: 16px 20px 0;
-}
-
-.alp__header-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
+  padding: 16px 20px;
 }
 
 .alp__step-label {
@@ -31,63 +24,17 @@
   color: var(--accent);
 }
 
-.alp__back-link {
-  background: none;
-  border: none;
-  padding: 0;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  cursor: pointer;
-  font-family: var(--font-body);
-  transition: color 0.15s;
-}
-
-.alp__back-link:hover {
-  color: var(--text-primary);
-}
-
-/* Thin live-fill progress bar — the signature element */
-.alp__progress-track {
-  height: 3px;
-  background: var(--border);
-  border-radius: 99px;
-  overflow: hidden;
-}
-
-.alp__progress-fill {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 99px;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 /* ── Body ── */
 .alp__body {
-  max-width: 540px;
+  max-width: 520px;
   margin: 0 auto;
-  padding: 32px 20px 80px;
+  padding: 20px 16px 100px;
 }
 
-/* ── Step container ── */
-.alp__step {
+.alp__compose {
   display: flex;
   flex-direction: column;
   gap: 20px;
-}
-
-.alp__step-title {
-  font-size: 1.75rem;
-  font-family: var(--font-display);
-  color: var(--text-primary);
-  line-height: 1.2;
-  margin: 0;
-}
-
-.alp__step-sub {
-  color: var(--text-secondary);
-  font-size: 0.92rem;
-  margin: -12px 0 0;
-  line-height: 1.5;
 }
 
 /* ── Fields ── */
@@ -125,7 +72,7 @@
   border: 1px solid var(--border);
   background: var(--bg-input);
   color: var(--text-primary);
-  font-size: 0.95rem;
+  font-size: 16px; /* keeps iOS from zooming in on focus */
   font-family: var(--font-body);
   outline: none;
   transition: border-color 0.18s, box-shadow 0.18s;
@@ -146,14 +93,10 @@
   box-shadow: 0 0 0 3px var(--accent-dim);
 }
 
-.alp__field textarea {
-  resize: vertical;
-  min-height: 130px;
-}
-
 .alp__hint {
   font-size: 0.78rem;
   color: var(--text-muted);
+  margin-top: -10px;
 }
 
 .alp__err {
@@ -161,21 +104,301 @@
   color: var(--red);
 }
 
-/* ── Two-column row ── */
 .alp__row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
-/* Beds/baths row: visually lighter */
 .alp__row--sm .alp__field select {
   padding: 10px 14px;
   font-size: 0.88rem;
   border-radius: 12px;
 }
 
-/* ── Fees section label ── */
+/* ── Attach row: like sharing media in a chat ── */
+.alp__media-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.alp__media-row::-webkit-scrollbar {
+  display: none;
+}
+
+.alp__media-add {
+  flex: 0 0 auto;
+  width: 76px;
+  height: 76px;
+  border-radius: 16px;
+  border: 1.5px dashed var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  cursor: pointer;
+  color: var(--accent);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.alp__media-add:hover {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.alp__media-add-icon {
+  font-size: 1.4rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.alp__media-add-text {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.alp__media-item {
+  position: relative;
+  flex: 0 0 auto;
+  width: 76px;
+  height: 76px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.alp__media-item img,
+.alp__media-item video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.alp__media-item--video .alp__media-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1rem;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.alp__photo-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  border: none;
+  font-size: 0.6rem;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.15s;
+}
+
+.alp__photo-remove:hover {
+  background: var(--red);
+}
+
+.alp__photo-main {
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 99px;
+}
+
+.alp__media-video-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.alp__file-hidden {
+  display: none;
+}
+
+/* ── Type chips: one tap instead of a dropdown ── */
+.alp__chip-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.alp__chip-row::-webkit-scrollbar {
+  display: none;
+}
+
+.alp__chip {
+  flex: 0 0 auto;
+  padding: 10px 16px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.alp__chip--active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ── Price field ── */
+.alp__price-input {
+  display: flex;
+  align-items: center;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  overflow: hidden;
+}
+
+.alp__price-input:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.alp__price-prefix {
+  padding: 0 0 0 16px;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.alp__price-input input {
+  border: none;
+  box-shadow: none !important;
+  padding-left: 6px;
+}
+
+.alp__price-input--hero {
+  border-radius: 16px;
+}
+
+.alp__price-input--hero .alp__price-prefix {
+  font-size: 1.3rem;
+  padding-left: 18px;
+}
+
+.alp__price-input--hero input {
+  font-size: 1.3rem;
+  font-weight: 700;
+  padding: 16px 16px 16px 8px;
+}
+
+/* ── Percent input (agency fee) ── */
+.alp__percent-input {
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  overflow: hidden;
+}
+
+.alp__percent-input:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.alp__percent-input input {
+  border: none;
+  box-shadow: none !important;
+  padding-right: 4px;
+}
+
+.alp__percent-suffix {
+  padding: 0 14px 0 0;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ── Caption ── */
+.alp__caption {
+  min-height: 110px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* ── More details toggle ── */
+.alp__more {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  overflow: hidden;
+}
+
+.alp__more-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
+}
+
+.alp__more-toggle span:first-child {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.alp__more-toggle .alp__optional {
+  flex: 1;
+}
+
+.alp__chevron {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.alp__chevron--open {
+  transform: rotate(180deg);
+}
+
+.alp__more-body {
+  padding: 4px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
 .alp__fees-label {
   font-size: 0.88rem;
   font-weight: 600;
@@ -184,27 +407,11 @@
   border-bottom: 1px solid var(--border);
 }
 
-/* ── Move-in cost total ── */
 .alp__total {
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid var(--border-warm);
   background: var(--accent-dim);
-}
-
-.alp__total-rows {
-  padding: 12px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  border-bottom: 1px solid var(--border-warm);
-}
-
-.alp__total-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.82rem;
-  color: var(--text-secondary);
 }
 
 .alp__total-final {
@@ -226,151 +433,18 @@
   color: var(--accent);
 }
 
-/* ── Upload buttons ── */
-.alp__file-hidden {
-  display: none;
+.alp__total--top {
+  margin-top: -4px;
 }
 
-.alp__upload-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 20px;
-  border-radius: 12px;
-  background: var(--accent-light);
-  color: rgb(255, 255, 255);
-  font-size: 0.88rem;
-  font-weight: 600;
-  font-family: var(--font-body);
-  cursor: pointer;
-  transition: background 0.18s, transform 0.18s;
-  width: fit-content;
+.alp__total--top .alp__total-final {
+  padding: 14px 16px 4px;
 }
 
-.alp__upload-btn:hover {
-  background: var(--accent-light);
-  transform: translateY(-1px);
-}
-
-.alp__upload-btn--ghost {
-  background: transparent;
-  border: 1px dashed var(--border);
-  color: var(--text-secondary);
-}
-
-.alp__upload-btn--ghost:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-dim);
-  transform: none;
-}
-
-/* ── Photo grid ── */
-.alp__photo-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  gap: 8px;
-}
-
-.alp__photo-item {
-  position: relative;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  aspect-ratio: 1;
-}
-
-.alp__photo-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.alp__photo-remove {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.55);
-  color: #fff;
-  border: none;
-  font-size: 0.65rem;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  transition: background 0.15s;
-}
-
-.alp__photo-remove:hover {
-  background: var(--red);
-}
-
-.alp__photo-main {
-  position: absolute;
-  bottom: 5px;
-  left: 5px;
-  background: var(--accent);
-  color: #fff;
-  font-size: 0.65rem;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 99px;
-}
-
-/* ── Video preview ── */
-.alp__video-wrap {
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-}
-
-.alp__thumb-wrap {
-  position: relative;
-}
-
-.alp__thumb-wrap img {
-  width: 100%;
-  max-height: 160px;
-  object-fit: cover;
+.alp__total--top .alp__hint {
   display: block;
-}
-
-.alp__thumb-tag {
-  position: absolute;
-  bottom: 8px;
-  left: 8px;
-  background: rgba(0,0,0,0.55);
-  color: #fff;
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 99px;
-}
-
-.alp__video-wrap video {
-  width: 100%;
-  max-height: 200px;
-  display: block;
-}
-
-.alp__video-remove {
-  width: 100%;
-  padding: 10px;
-  background: var(--red-bg);
-  border: none;
-  border-top: 1px solid var(--border);
-  color: var(--red);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--font-body);
-  transition: background 0.15s;
-}
-
-.alp__video-remove:hover {
-  background: rgba(200, 48, 63, 0.15);
+  padding: 0 16px 12px;
+  margin-top: 0;
 }
 
 /* ── Upload progress ── */
@@ -421,9 +495,12 @@
   color: var(--red);
 }
 
-/* ── Bottom CTA ── */
+/* ── Send button ── */
 .alp__nav {
-  margin-top: 32px;
+  position: sticky;
+  bottom: 0;
+  padding: 12px 0 4px;
+  background: linear-gradient(to top, var(--bg-page) 65%, transparent);
 }
 
 .alp__btn-next {
@@ -448,22 +525,34 @@
   box-shadow: 0 6px 24px var(--accent-glow);
 }
 
+.alp__btn-next:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
 .alp__btn-next:disabled {
   opacity: 0.65;
   cursor: not-allowed;
 }
 
-/* ── Responsive ── */
+/* ── Mobile ── */
 @media (max-width: 480px) {
-  .alp__step-title {
-    font-size: 1.45rem;
-  }
-
   .alp__body {
-    padding: 24px 16px 80px;
+    padding: 16px 14px 96px;
   }
 
   .alp__row {
     grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .alp__media-add,
+  .alp__media-item {
+    width: 70px;
+    height: 70px;
+  }
+
+  .alp__chip {
+    padding: 9px 14px;
+    font-size: 0.82rem;
   }
 }
