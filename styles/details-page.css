@@ -797,3 +797,107 @@
   font-size: 0.78rem;
   margin-top: 10px;
 }
+/* ── Roommate CTA ── */
+.dp__roommate-cta {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px 20px 20px 22px;
+  border: 1.5px dashed var(--accent, #2d5a28);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent, #2d5a28) 5%, transparent);
+  overflow: hidden;
+}
+
+.dp__roommate-cta-stamp {
+  position: absolute;
+  top: 10px;
+  right: -28px;
+  transform: rotate(38deg);
+  background: var(--accent, #2d5a28);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 34px;
+}
+
+.dp__roommate-cta-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent, #2d5a28);
+  color: #fff;
+  font-size: 1.15rem;
+}
+
+.dp__roommate-cta-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.dp__roommate-cta-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink-1, #1a2e17);
+  margin: 0 0 4px;
+}
+
+.dp__roommate-cta-split {
+  font-family: var(--font-mono, "IBM Plex Mono", monospace);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent, #2d5a28);
+  margin: 0 0 4px;
+}
+
+.dp__roommate-cta-split span {
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary, #6b7a68);
+  margin-left: 4px;
+}
+
+.dp__roommate-cta-sub {
+  font-size: 0.82rem;
+  color: var(--text-secondary, #6b7a68);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.dp__roommate-cta-btn {
+  flex-shrink: 0;
+  align-self: center;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent, #2d5a28);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.dp__roommate-cta-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .dp__roommate-cta {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .dp__roommate-cta-btn {
+    width: 100%;
+  }
+}

@@ -547,3 +547,77 @@
   .roommate-post-page__budget-row { grid-template-columns: 1fr; gap: 0.5rem; }
   .roommate-post-page__budget-sep { display: none; }
 }
+/* ── Prefill: loading + locked listing state ── */
+.roommate-post-page__prefill-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  font-size: 0.88rem;
+  color: var(--text-secondary, #6b7a68);
+}
+
+.roommate-post-page__prefill-spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--accent, #2d5a28);
+  border-top-color: transparent;
+  animation: roommate-spin 0.7s linear infinite;
+}
+
+@keyframes roommate-spin {
+  to { transform: rotate(360deg); }
+}
+
+.roommate-post-page__prefill-error {
+  font-size: 0.85rem;
+  color: #b3261e;
+  margin: 0 0 10px;
+}
+
+.roommate-post-page__locked-listing {
+  position: relative;
+  border: 1.5px solid var(--accent, #2d5a28);
+  border-radius: 14px;
+  padding: 16px 16px 12px;
+  background: color-mix(in srgb, var(--accent, #2d5a28) 4%, transparent);
+}
+
+.roommate-post-page__locked-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent, #2d5a28);
+  background: #fff;
+  border: 1px solid var(--accent, #2d5a28);
+  border-radius: 999px;
+  padding: 3px 10px;
+  margin-bottom: 10px;
+}
+
+.roommate-post-page__change-listing {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary, #6b7a68);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  cursor: pointer;
+  transition: text-decoration-color 0.15s ease, color 0.15s ease;
+}
+
+.roommate-post-page__change-listing:hover {
+  color: var(--accent, #2d5a28);
+  text-decoration-color: currentColor;
+}

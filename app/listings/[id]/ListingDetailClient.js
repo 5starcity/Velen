@@ -19,6 +19,7 @@ import {
   HiOutlinePlayCircle,
   HiOutlineShieldCheck,
   HiOutlineUserCircle,
+  HiOutlineUserGroup,
   HiOutlineXMark,
   HiOutlineExclamationTriangle,
   HiOutlineCheckCircle,
@@ -81,7 +82,7 @@ export default function ListingDetailsPage({ initialListing }) {
   const params = useParams();
   const router = useRouter();
   const listingId = params?.id;
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const { startConversation, isStarting, error: startError } = useStartConversation();
 
   const [listing, setListing] = useState(initialListing || null);
@@ -188,8 +189,10 @@ export default function ListingDetailsPage({ initialListing }) {
 
   const images = listing.images?.length > 0 ? listing.images : listing.image ? [listing.image] : [];
   const isOwner = user && user.uid === listing.landlordId;
+  const isTaken = listing.status === "taken";
   const saved = favorites.includes(listing.id);
   const whatsappNumber = formatWhatsAppNumber(listing.contact);
+  const splitEach = Math.ceil(Number(listing.price || 0) / 2);
 
   function handleToggleFavorite() { setFavorites(toggleFavorite(listing.id)); }
   function handleEditChange(e) { setEditForm((prev) => ({ ...prev, [e.target.name]: e.target.value })); }
@@ -294,6 +297,11 @@ export default function ListingDetailsPage({ initialListing }) {
       listingImage: images[0] || null,
       listingPrice: listing.price,
     });
+  }
+
+  function handleFindRoommate() {
+    trackEvent("roommate_cta_click", { listingId, listingTitle: listing.title });
+    router.push("/roommates/post?listingId=" + listing.id);
   }
 
   const amenityList = listing.amenities
@@ -586,6 +594,33 @@ export default function ListingDetailsPage({ initialListing }) {
                     </Link>
                   )}
                 </div>
+              )}
+
+              {/* ── Roommate CTA ── */}
+              {!isOwner && !isTaken && listing.price > 0 && (
+                <motion.div
+                  className="dp__roommate-cta"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.1 }}
+                >
+                  <span className="dp__roommate-cta-stamp">Split rent</span>
+                  <div className="dp__roommate-cta-icon">
+                    <HiOutlineUserGroup />
+                  </div>
+                  <div className="dp__roommate-cta-body">
+                    <p className="dp__roommate-cta-title">Splitting this place with someone?</p>
+                    <p className="dp__roommate-cta-split">
+                      ₦{splitEach.toLocaleString()}<span>/yr each</span>
+                    </p>
+                    <p className="dp__roommate-cta-sub">
+                      Post a roommate request for this listing and find someone to share it with.
+                    </p>
+                  </div>
+                  <button className="dp__roommate-cta-btn" onClick={handleFindRoommate}>
+                    Find a roommate
+                  </button>
+                </motion.div>
               )}
 
               {/* ── Title + meta ── */}
