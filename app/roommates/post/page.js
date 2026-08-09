@@ -1,7 +1,7 @@
 // app/roommates/post/page.js
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -58,9 +58,10 @@ function mapGenderPref(pref) {
   return "No preference";
 }
 
-export default function PostRoommatePage() {
+function PostRoommatePageContent() {
   const { user, userRole } = useAuth();
   const router = useRouter();
+
   const searchParams = useSearchParams();
   const prefillListingId = searchParams.get("listingId");
 
@@ -101,66 +102,111 @@ export default function PostRoommatePage() {
 
   useEffect(() => {
     if (userRole === undefined || user === undefined) return;
+
     setAuthChecked(true);
-    if (!user) { router.push("/login"); return; }
-    if (userRole && userRole !== "student") router.push("/roommates");
-  }, [user, userRole]);
+
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    if (userRole && userRole !== "student") {
+      router.push("/roommates");
+    }
+  }, [user, userRole, router]);
 
   useEffect(() => {
     if (!user) return;
+
     async function loadProfilePrefs() {
       try {
         const snap = await getDoc(doc(db, "users", user.uid));
+
         if (!snap.exists()) return;
+
         const data = snap.data();
+
         if (data.phone) setContact(data.phone);
         if (data.university) setSchool(data.university);
+
         const prefs = data.roommatePrefs;
+
         if (prefs) {
-          if (prefs.genderPref) setPrefGender(mapGenderPref(prefs.genderPref));
+          if (prefs.genderPref) {
+            setPrefGender(mapGenderPref(prefs.genderPref));
+          }
+
           const tag = sleepToTag(prefs.sleepSchedule);
-          if (tag) setLifestyleTags([tag]);
-          if (prefs.extraNotes) setMessage(prefs.extraNotes);
+
+          if (tag) {
+            setLifestyleTags([tag]);
+          }
+
+          if (prefs.extraNotes) {
+            setMessage(prefs.extraNotes);
+          }
         }
+
         setProfilePrefsLoaded(true);
       } catch (e) {
         console.error("Failed to load profile prefs:", e);
       }
     }
+
     loadProfilePrefs();
   }, [user]);
 
-  // ── Prefill from ?listingId= (arrived via "Find a roommate" on a listing page) ──
+  // ── Prefill from ?listingId= ──
   useEffect(() => {
     if (!prefillListingId || !user) return;
+
     let cancelled = false;
+
     async function loadPrefill() {
       setPostType("listing");
       setPrefillLoading(true);
       setPrefillError("");
+
       try {
         const listing = await fetchListingById(prefillListingId);
+
         if (cancelled) return;
+
         if (!listing) {
-          setPrefillError("That listing couldn't be found. Search for it below instead.");
+          setPrefillError(
+            "That listing couldn't be found. Search for it below instead."
+          );
           return;
         }
+
         setSelectedListing(listing);
         setQuery(listing.title || "");
         setLockedFromListing(true);
       } catch (e) {
         console.error("Failed to prefill listing:", e);
-        if (!cancelled) setPrefillError("Couldn't load that listing. Search for it below instead.");
+
+        if (!cancelled) {
+          setPrefillError(
+            "Couldn't load that listing. Search for it below instead."
+          );
+        }
       } finally {
-        if (!cancelled) setPrefillLoading(false);
+        if (!cancelled) {
+          setPrefillLoading(false);
+        }
       }
     }
+
     loadPrefill();
-    return () => { cancelled = true; };
+
+    return () => {
+      cancelled = true;
+    };
   }, [prefillListingId, user]);
 
   useEffect(() => {
     if (postType !== "listing" || lockedFromListing) return;
+
     async function load() {
       try {
         const data = await fetchListings();
@@ -169,25 +215,46 @@ export default function PostRoommatePage() {
         console.error("Failed to load listings:", e);
       }
     }
+
     load();
   }, [postType, lockedFromListing]);
 
   useEffect(() => {
-    if (query.trim().length < 2) { setSuggestions([]); setShowDropdown(false); return; }
+    if (query.trim().length < 2) {
+      setSuggestions([]);
+      setShowDropdown(false);
+      return;
+    }
+
     const q = query.toLowerCase();
+
     const matches = allListings
-      .filter((l) => l.title?.toLowerCase().includes(q) || l.location?.toLowerCase().includes(q))
+      .filter(
+        (l) =>
+          l.title?.toLowerCase().includes(q) ||
+          l.location?.toLowerCase().includes(q)
+      )
       .slice(0, 6);
+
     setSuggestions(matches);
     setShowDropdown(matches.length > 0);
   }, [query, allListings]);
 
   useEffect(() => {
     function handleClick(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setShowDropdown(false);
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target)
+      ) {
+        setShowDropdown(false);
+      }
     }
+
     document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+    };
   }, []);
 
   function handleSelect(listing) {
@@ -209,7 +276,9 @@ export default function PostRoommatePage() {
 
   function toggleTag(tag) {
     setLifestyleTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+      prev.includes(tag)
+        ? prev.filter((t) => t !== tag)
+        : [...prev, tag]
     );
   }
 
@@ -220,16 +289,19 @@ export default function PostRoommatePage() {
       setError("Please search and select a listing.");
       return;
     }
+
     if (postType === "looking" && (!budgetMin || !budgetMax)) {
       setError("Please enter your budget range.");
       return;
     }
+
     if (!contact.trim()) {
       setError("Please enter your WhatsApp contact number.");
       return;
     }
 
     setSubmitting(true);
+
     try {
       const postData = {
         postType,
@@ -274,7 +346,9 @@ export default function PostRoommatePage() {
         ...(postType === "listing" && {
           listingId: selectedListing.id,
           listingTitle: selectedListing.title,
-          splitCost: Math.ceil(Number(selectedListing.price || 0) / 2),
+          splitCost: Math.ceil(
+            Number(selectedListing.price || 0) / 2
+          ),
         }),
       });
 
@@ -309,7 +383,9 @@ export default function PostRoommatePage() {
   if (!authChecked) {
     return (
       <main className="roommate-post-page">
-        <div className="roommate-post-page__auth-loading"><p>Checking access...</p></div>
+        <div className="roommate-post-page__auth-loading">
+          <p>Checking access...</p>
+        </div>
       </main>
     );
   }
@@ -323,12 +399,31 @@ export default function PostRoommatePage() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4 }}
         >
-          <div className="roommate-post-page__success-icon"><HiOutlineCheckCircle /></div>
+          <div className="roommate-post-page__success-icon">
+            <HiOutlineCheckCircle />
+          </div>
+
           <h1>Post published!</h1>
-          <p>Your roommate request is now live on the board. Interested students will reach out via WhatsApp.</p>
+
+          <p>
+            Your roommate request is now live on the board.
+            Interested students will reach out via WhatsApp.
+          </p>
+
           <div className="roommate-post-page__success-actions">
-            <Link href="/roommates" className="roommate-post-page__back-btn">View the board</Link>
-            <button className="roommate-post-page__another-btn" onClick={resetForm}>Post another</button>
+            <Link
+              href="/roommates"
+              className="roommate-post-page__back-btn"
+            >
+              View the board
+            </Link>
+
+            <button
+              className="roommate-post-page__another-btn"
+              onClick={resetForm}
+            >
+              Post another
+            </button>
           </div>
         </motion.div>
       </main>
@@ -343,14 +438,27 @@ export default function PostRoommatePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <Link href="/roommates" className="roommate-post-page__back">
+        <Link
+          href="/roommates"
+          className="roommate-post-page__back"
+        >
           <HiOutlineArrowLeft /> Back to board
         </Link>
+
         <p className="roommate-post-page__eyebrow">
-          {lockedFromListing ? <HiOutlineLink /> : <HiOutlineUserGroup />}
-          {lockedFromListing ? "Posting about a listing" : "New Roommate Request"}
+          {lockedFromListing ? (
+            <HiOutlineLink />
+          ) : (
+            <HiOutlineUserGroup />
+          )}
+
+          {lockedFromListing
+            ? "Posting about a listing"
+            : "New Roommate Request"}
         </p>
+
         <h1>Post a roommate request</h1>
+
         <p className="roommate-post-page__sub">
           {lockedFromListing
             ? "You're posting about the listing you just viewed. Fill in the rest and publish."
@@ -364,20 +472,26 @@ export default function PostRoommatePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, delay: 0.1 }}
       >
-
-        {/* ── Mode toggle (hidden while locked to a specific listing) ── */}
+        {/* ── Mode toggle ── */}
         {!lockedFromListing && (
           <div className="roommate-post-page__mode-toggle">
             <button
-              className={"roommate-post-page__mode-btn" + (postType === "listing" ? " active" : "")}
+              className={
+                "roommate-post-page__mode-btn" +
+                (postType === "listing" ? " active" : "")
+              }
               onClick={() => setPostType("listing")}
               type="button"
             >
               <HiOutlineHomeModern />
               I have a listing to share
             </button>
+
             <button
-              className={"roommate-post-page__mode-btn" + (postType === "looking" ? " active" : "")}
+              className={
+                "roommate-post-page__mode-btn" +
+                (postType === "looking" ? " active" : "")
+              }
               onClick={() => setPostType("looking")}
               type="button"
             >
@@ -396,11 +510,16 @@ export default function PostRoommatePage() {
             transition={{ duration: 0.25 }}
           >
             <HiOutlineInformationCircle />
-            <p>Some fields were pre-filled from your <Link href="/profile">profile preferences</Link>. You can edit them below.</p>
+
+            <p>
+              Some fields were pre-filled from your{" "}
+              <Link href="/profile">profile preferences</Link>.
+              You can edit them below.
+            </p>
           </motion.div>
         )}
 
-        {/* ── Section 1a — Listing (prefill lock OR search) ── */}
+        {/* ── Section 1a — Listing ── */}
         {postType === "listing" && (
           <motion.div
             className="roommate-post-page__section"
@@ -428,48 +547,108 @@ export default function PostRoommatePage() {
                 <div className="roommate-post-page__locked-badge">
                   <HiOutlineLink /> From listing
                 </div>
+
                 <div className="roommate-post-page__preview">
                   <div className="roommate-post-page__preview-row">
-                    <span className="roommate-post-page__preview-label">Listing</span>
-                    <span className="roommate-post-page__preview-val">{selectedListing.title || "Untitled"}</span>
-                  </div>
-                  <div className="roommate-post-page__preview-row">
-                    <span className="roommate-post-page__preview-label">Location</span>
-                    <span className="roommate-post-page__preview-val">{selectedListing.location || "Port Harcourt"}</span>
-                  </div>
-                  <div className="roommate-post-page__preview-row">
-                    <span className="roommate-post-page__preview-label">Full rent</span>
-                    <span className="roommate-post-page__preview-val">₦{Number(selectedListing.price || 0).toLocaleString()}/yr</span>
-                  </div>
-                  <div className="roommate-post-page__preview-row roommate-post-page__preview-row--highlight">
-                    <span className="roommate-post-page__preview-label">Your split</span>
+                    <span className="roommate-post-page__preview-label">
+                      Listing
+                    </span>
                     <span className="roommate-post-page__preview-val">
-                      ₦{Math.ceil(Number(selectedListing.price || 0) / 2).toLocaleString()}/yr each
+                      {selectedListing.title || "Untitled"}
+                    </span>
+                  </div>
+
+                  <div className="roommate-post-page__preview-row">
+                    <span className="roommate-post-page__preview-label">
+                      Location
+                    </span>
+                    <span className="roommate-post-page__preview-val">
+                      {selectedListing.location || "Port Harcourt"}
+                    </span>
+                  </div>
+
+                  <div className="roommate-post-page__preview-row">
+                    <span className="roommate-post-page__preview-label">
+                      Full rent
+                    </span>
+                    <span className="roommate-post-page__preview-val">
+                      ₦
+                      {Number(
+                        selectedListing.price || 0
+                      ).toLocaleString()}
+                      /yr
+                    </span>
+                  </div>
+
+                  <div className="roommate-post-page__preview-row roommate-post-page__preview-row--highlight">
+                    <span className="roommate-post-page__preview-label">
+                      Your split
+                    </span>
+
+                    <span className="roommate-post-page__preview-val">
+                      ₦
+                      {Math.ceil(
+                        Number(selectedListing.price || 0) / 2
+                      ).toLocaleString()}
+                      /yr each
                     </span>
                   </div>
                 </div>
-                <button type="button" className="roommate-post-page__change-listing" onClick={handleChangeListing}>
-                  <HiOutlinePencilSquare /> Not this one? Search another listing
+
+                <button
+                  type="button"
+                  className="roommate-post-page__change-listing"
+                  onClick={handleChangeListing}
+                >
+                  <HiOutlinePencilSquare />
+                  Not this one? Search another listing
                 </button>
               </motion.div>
             ) : (
               <>
                 {prefillError && (
-                  <p className="roommate-post-page__prefill-error">{prefillError}</p>
+                  <p className="roommate-post-page__prefill-error">
+                    {prefillError}
+                  </p>
                 )}
-                <div className="roommate-post-page__search-wrap" ref={dropdownRef}>
-                  <div className={"roommate-post-page__search-box" + (selectedListing ? " selected" : "")}>
+
+                <div
+                  className="roommate-post-page__search-wrap"
+                  ref={dropdownRef}
+                >
+                  <div
+                    className={
+                      "roommate-post-page__search-box" +
+                      (selectedListing ? " selected" : "")
+                    }
+                  >
                     <HiOutlineMagnifyingGlass className="roommate-post-page__search-icon" />
+
                     <input
                       type="text"
                       placeholder="Search by listing name or area..."
                       value={query}
-                      onChange={(e) => { setQuery(e.target.value); if (selectedListing) setSelectedListing(null); }}
-                      onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
+                      onChange={(e) => {
+                        setQuery(e.target.value);
+
+                        if (selectedListing) {
+                          setSelectedListing(null);
+                        }
+                      }}
+                      onFocus={() =>
+                        suggestions.length > 0 &&
+                        setShowDropdown(true)
+                      }
                       className="roommate-post-page__search-input"
                     />
+
                     {selectedListing && (
-                      <button className="roommate-post-page__clear-btn" onClick={clearListing}>✕</button>
+                      <button
+                        className="roommate-post-page__clear-btn"
+                        onClick={clearListing}
+                      >
+                        ✕
+                      </button>
                     )}
                   </div>
 
@@ -481,12 +660,36 @@ export default function PostRoommatePage() {
                       transition={{ duration: 0.18 }}
                     >
                       {suggestions.map((l) => (
-                        <button key={l.id} className="roommate-post-page__dropdown-item" onClick={() => handleSelect(l)}>
-                          <div className="roommate-post-page__dropdown-title">{l.title}</div>
+                        <button
+                          key={l.id}
+                          className="roommate-post-page__dropdown-item"
+                          onClick={() => handleSelect(l)}
+                        >
+                          <div className="roommate-post-page__dropdown-title">
+                            {l.title}
+                          </div>
+
                           <div className="roommate-post-page__dropdown-meta">
-                            <span><HiOutlineMapPin />{l.location || "Port Harcourt"}</span>
-                            <span><HiOutlineBanknotes />₦{Number(l.price || 0).toLocaleString()}/yr</span>
-                            {l.type && <span><HiOutlineHomeModern />{l.type}</span>}
+                            <span>
+                              <HiOutlineMapPin />
+                              {l.location || "Port Harcourt"}
+                            </span>
+
+                            <span>
+                              <HiOutlineBanknotes />
+                              ₦
+                              {Number(
+                                l.price || 0
+                              ).toLocaleString()}
+                              /yr
+                            </span>
+
+                            {l.type && (
+                              <span>
+                                <HiOutlineHomeModern />
+                                {l.type}
+                              </span>
+                            )}
                           </div>
                         </button>
                       ))}
@@ -502,21 +705,50 @@ export default function PostRoommatePage() {
                     transition={{ duration: 0.25 }}
                   >
                     <div className="roommate-post-page__preview-row">
-                      <span className="roommate-post-page__preview-label">Listing</span>
-                      <span className="roommate-post-page__preview-val">{selectedListing.title || "Untitled"}</span>
-                    </div>
-                    <div className="roommate-post-page__preview-row">
-                      <span className="roommate-post-page__preview-label">Location</span>
-                      <span className="roommate-post-page__preview-val">{selectedListing.location || "Port Harcourt"}</span>
-                    </div>
-                    <div className="roommate-post-page__preview-row">
-                      <span className="roommate-post-page__preview-label">Full rent</span>
-                      <span className="roommate-post-page__preview-val">₦{Number(selectedListing.price || 0).toLocaleString()}/yr</span>
-                    </div>
-                    <div className="roommate-post-page__preview-row roommate-post-page__preview-row--highlight">
-                      <span className="roommate-post-page__preview-label">Your split</span>
+                      <span className="roommate-post-page__preview-label">
+                        Listing
+                      </span>
+
                       <span className="roommate-post-page__preview-val">
-                        ₦{Math.ceil(Number(selectedListing.price || 0) / 2).toLocaleString()}/yr each
+                        {selectedListing.title || "Untitled"}
+                      </span>
+                    </div>
+
+                    <div className="roommate-post-page__preview-row">
+                      <span className="roommate-post-page__preview-label">
+                        Location
+                      </span>
+
+                      <span className="roommate-post-page__preview-val">
+                        {selectedListing.location || "Port Harcourt"}
+                      </span>
+                    </div>
+
+                    <div className="roommate-post-page__preview-row">
+                      <span className="roommate-post-page__preview-label">
+                        Full rent
+                      </span>
+
+                      <span className="roommate-post-page__preview-val">
+                        ₦
+                        {Number(
+                          selectedListing.price || 0
+                        ).toLocaleString()}
+                        /yr
+                      </span>
+                    </div>
+
+                    <div className="roommate-post-page__preview-row roommate-post-page__preview-row--highlight">
+                      <span className="roommate-post-page__preview-label">
+                        Your split
+                      </span>
+
+                      <span className="roommate-post-page__preview-val">
+                        ₦
+                        {Math.ceil(
+                          Number(selectedListing.price || 0) / 2
+                        ).toLocaleString()}
+                        /yr each
                       </span>
                     </div>
                   </motion.div>
@@ -526,7 +758,7 @@ export default function PostRoommatePage() {
           </motion.div>
         )}
 
-        {/* ── Section 1b — Budget range (looking mode) ── */}
+        {/* ── Section 1b — Budget range ── */}
         {postType === "looking" && (
           <motion.div
             className="roommate-post-page__section"
@@ -536,11 +768,15 @@ export default function PostRoommatePage() {
           >
             <div className="roommate-post-page__section-label">
               <HiOutlineBanknotes />
-              <span>What's your budget range? <em>(per year)</em></span>
+              <span>
+                What's your budget range? <em>(per year)</em>
+              </span>
             </div>
+
             <div className="roommate-post-page__budget-row">
               <div className="roommate-post-page__budget-field">
                 <label>Min (₦/yr)</label>
+
                 <input
                   type="number"
                   className="roommate-post-page__input"
@@ -550,9 +786,14 @@ export default function PostRoommatePage() {
                   min="0"
                 />
               </div>
-              <span className="roommate-post-page__budget-sep">to</span>
+
+              <span className="roommate-post-page__budget-sep">
+                to
+              </span>
+
               <div className="roommate-post-page__budget-field">
                 <label>Max (₦/yr)</label>
+
                 <input
                   type="number"
                   className="roommate-post-page__input"
@@ -572,6 +813,7 @@ export default function PostRoommatePage() {
             <HiOutlinePhone />
             <span>Your WhatsApp number</span>
           </div>
+
           <input
             type="tel"
             className="roommate-post-page__input"
@@ -579,15 +821,21 @@ export default function PostRoommatePage() {
             value={contact}
             onChange={(e) => setContact(e.target.value)}
           />
-          <p className="roommate-post-page__hint">Interested students will contact you directly via WhatsApp.</p>
+
+          <p className="roommate-post-page__hint">
+            Interested students will contact you directly via WhatsApp.
+          </p>
         </div>
 
         {/* ── Section 3 — Message ── */}
         <div className="roommate-post-page__section">
           <div className="roommate-post-page__section-label">
             <HiOutlineChatBubbleBottomCenterText />
-            <span>A short message <em>(optional)</em></span>
+            <span>
+              A short message <em>(optional)</em>
+            </span>
           </div>
+
           <textarea
             className="roommate-post-page__textarea"
             rows={3}
@@ -596,31 +844,52 @@ export default function PostRoommatePage() {
             onChange={(e) => setMessage(e.target.value)}
             maxLength={280}
           />
-          <p className="roommate-post-page__char-count">{message.length}/280</p>
+
+          <p className="roommate-post-page__char-count">
+            {message.length}/280
+          </p>
         </div>
 
-        {/* ── Section 4 — About you (school + level) ── */}
+        {/* ── Section 4 — About you ── */}
         <div className="roommate-post-page__section">
           <div className="roommate-post-page__section-label">
             <HiOutlineAcademicCap />
             <span>About you</span>
           </div>
+
           <div className="roommate-post-page__prefs-grid">
             <div className="roommate-post-page__pref-field">
               <label>Your university</label>
-              <select value={school} onChange={(e) => setSchool(e.target.value)}>
+
+              <select
+                value={school}
+                onChange={(e) => setSchool(e.target.value)}
+              >
                 <option value="">Select school</option>
-                {UNIVERSITIES.filter((u) => u.value !== "All").map((u) => (
-                  <option key={u.value} value={u.value}>{u.label}</option>
+
+                {UNIVERSITIES.filter(
+                  (u) => u.value !== "All"
+                ).map((u) => (
+                  <option key={u.value} value={u.value}>
+                    {u.label}
+                  </option>
                 ))}
               </select>
             </div>
+
             <div className="roommate-post-page__pref-field">
               <label>Level</label>
-              <select value={level} onChange={(e) => setLevel(e.target.value)}>
+
+              <select
+                value={level}
+                onChange={(e) => setLevel(e.target.value)}
+              >
                 <option value="">Select level</option>
+
                 {LEVEL_OPTIONS.map((l) => (
-                  <option key={l} value={l}>{l}</option>
+                  <option key={l} value={l}>
+                    {l}
+                  </option>
                 ))}
               </select>
             </div>
@@ -631,14 +900,22 @@ export default function PostRoommatePage() {
         <div className="roommate-post-page__section">
           <div className="roommate-post-page__section-label">
             <HiOutlineSparkles />
-            <span>Roommate preferences <em>(optional)</em></span>
+            <span>
+              Roommate preferences <em>(optional)</em>
+            </span>
           </div>
 
           <div className="roommate-post-page__prefs-grid">
             <div className="roommate-post-page__pref-field">
               <label>Gender preference</label>
-              <select value={prefGender} onChange={(e) => setPrefGender(e.target.value)}>
-                <option value="No preference">No preference</option>
+
+              <select
+                value={prefGender}
+                onChange={(e) => setPrefGender(e.target.value)}
+              >
+                <option value="No preference">
+                  No preference
+                </option>
                 <option value="Male">Male only</option>
                 <option value="Female">Female only</option>
               </select>
@@ -646,22 +923,36 @@ export default function PostRoommatePage() {
 
             <div className="roommate-post-page__pref-field">
               <label>Occupation</label>
-              <select value={prefOccupation} onChange={(e) => setPrefOccupation(e.target.value)}>
+
+              <select
+                value={prefOccupation}
+                onChange={(e) =>
+                  setPrefOccupation(e.target.value)
+                }
+              >
                 <option value="Any">Any</option>
                 <option value="Student">Student</option>
-                <option value="Working professional">Working professional</option>
+                <option value="Working professional">
+                  Working professional
+                </option>
               </select>
             </div>
 
             <div className="roommate-post-page__pref-field">
               <label>Move-in date</label>
+
               <div className="roommate-post-page__date-wrap">
                 <HiOutlineCalendarDays />
+
                 <input
                   type="date"
                   value={moveInDate}
-                  onChange={(e) => setMoveInDate(e.target.value)}
-                  min={new Date().toISOString().split("T")[0]}
+                  onChange={(e) =>
+                    setMoveInDate(e.target.value)
+                  }
+                  min={new Date()
+                    .toISOString()
+                    .split("T")[0]}
                 />
               </div>
             </div>
@@ -669,13 +960,21 @@ export default function PostRoommatePage() {
 
           {/* Lifestyle tag chips */}
           <div className="roommate-post-page__tag-section">
-            <label className="roommate-post-page__tag-label">Lifestyle <em>(pick all that apply)</em></label>
+            <label className="roommate-post-page__tag-label">
+              Lifestyle <em>(pick all that apply)</em>
+            </label>
+
             <div className="roommate-post-page__tag-grid">
               {LIFESTYLE_TAGS.map((tag) => (
                 <button
                   key={tag}
                   type="button"
-                  className={"roommate-post-page__tag" + (lifestyleTags.includes(tag) ? " active" : "")}
+                  className={
+                    "roommate-post-page__tag" +
+                    (lifestyleTags.includes(tag)
+                      ? " active"
+                      : "")
+                  }
                   onClick={() => toggleTag(tag)}
                 >
                   {tag}
@@ -686,16 +985,41 @@ export default function PostRoommatePage() {
         </div>
 
         {error && (
-          <motion.p className="roommate-post-page__error" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}>
+          <motion.p
+            className="roommate-post-page__error"
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
             {error}
           </motion.p>
         )}
 
-        <button className="roommate-post-page__submit" onClick={handleSubmit} disabled={submitting}>
-          {submitting ? "Publishing..." : "Publish Roommate Request"}
+        <button
+          className="roommate-post-page__submit"
+          onClick={handleSubmit}
+          disabled={submitting}
+        >
+          {submitting
+            ? "Publishing..."
+            : "Publish Roommate Request"}
         </button>
-
       </motion.div>
     </main>
+  );
+}
+
+export default function PostRoommatePage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="roommate-post-page">
+          <div className="roommate-post-page__auth-loading">
+            <p>Loading...</p>
+          </div>
+        </main>
+      }
+    >
+      <PostRoommatePageContent />
+    </Suspense>
   );
 }
