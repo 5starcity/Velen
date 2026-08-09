@@ -355,7 +355,7 @@ export default function Navbar() {
                       Saved homes
                     </Link>
 
-                    <Link href="/messages" className="drawer__link" onClick={() => setDrawerOpen(false)}>
+                    <Link href="/chat" className="drawer__link" onClick={() => setDrawerOpen(false)}>
                       <span className="drawer__link-icon">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M4 5.5h16a1 1 0 0 1 1 1V16a1 1 0 0 1-1 1H9l-5 4v-4H4a1 1 0 0 1-1-1V6.5a1 1 0 0 1 1-1Z" />

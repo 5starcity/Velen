@@ -22,10 +22,6 @@ import {
   HiOutlineExclamationTriangle,
   HiOutlineArrowPath,
   HiOutlineArrowTrendingUp,
-  HiOutlineClipboardDocumentCheck,
-  HiOutlineCalendarDays,
-  HiOutlinePhone,
-  HiOutlineXCircle,
   HiOutlineCheck,
   HiOutlineLockClosed,
 } from "react-icons/hi2";
@@ -36,12 +32,6 @@ import {
   updateListingAvailability,
   renewListing,
 } from "@/lib/firestoreListings";
-import {
-  fetchInspectionsByLandlord,
-} from "@/lib/firestoreInspections";
-import {
-  fetchReservationsByLandlord,
-} from "@/lib/firestoreReservations";
 import "@/styles/dashboard.css";
 
 /* ─────────────────────────── constants ─────────────────────────── */
@@ -120,15 +110,6 @@ export default function DashboardPage() {
   const [sortBy, setSortBy]           = useState("newest");
   const [dismissed, setDismissed]     = useState(false);
 
-  /* inspections */
-  const [inspections, setInspections]             = useState([]);
-  const [inspLoading, setInspLoading]             = useState(true);
-  const [inspFilter, setInspFilter]               = useState("pending");
-  const [updatingInspId, setUpdatingInspId]       = useState(null);
-
-  const [reservations, setReservations] = useState([]);
-  const [resLoading, setResLoading]     = useState(false);
-
   /* toast */
   const [toast, setToast] = useState(null);
 
@@ -148,24 +129,6 @@ export default function DashboardPage() {
       .finally(() => setLoading(false));
   }, [user]);
 
-  useEffect(() => {
-    if (!user) return;
-    setInspLoading(true);
-    fetchInspectionsByLandlord(user.uid)
-      .then(setInspections)
-      .catch(console.error)
-      .finally(() => setInspLoading(false));
-  }, [user]);
-
-  useEffect(() => {
-    if (!user) return;
-    setResLoading(true);
-    fetchReservationsByLandlord(user.uid)
-      .then(setReservations)
-      .catch(console.error)
-      .finally(() => setResLoading(false));
-  }, [user]);
-
   /* ── toast helper ── */
   function showToast(msg, type = "success") {
     setToast({ msg, type });
@@ -173,26 +136,6 @@ export default function DashboardPage() {
   }
 
   /* ── handlers ── */
-  async function handleInspectionStatus(id, status) {
-    setUpdatingInspId(id);
-    try {
-      const res = await fetch("/api/inspections/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ inspectionId: id, status }),
-      });
-  
-      if (!res.ok) throw new Error("Update failed");
-  
-      setInspections(prev => prev.map(i => i.id === id ? { ...i, status } : i));
-      showToast(status === "confirmed" ? "Visit confirmed." : "Visit declined.");
-    } catch {
-      showToast("Something went wrong.", "error");
-    } finally {
-      setUpdatingInspId(null);
-    }
-  }
-
   async function handleDelete(id) {
     if (!window.confirm("Delete this listing? This cannot be undone.")) return;
     setDeletingId(id);
@@ -251,24 +194,18 @@ export default function DashboardPage() {
   const expiringListings = listings.filter(l => getExpiryStatus(l) === "expiring");
   const needsAttention   = expiredListings.length + expiringListings.length;
   const totalViews       = listings.reduce((s, l) => s + (Number(l.views) || 0), 0);
-  const totalInterests   = listings.reduce((s, l) => s + (Number(l.interests) || 0), 0);
   const availableCount   = listings.filter(l => l.availability === "Available Now").length;
   const highDemandCount  = listings.filter(l => (getConversionRate(l) ?? 0) >= 15).length;
-  const takenCount       = listings.filter(l => l.status === "taken").length;
 
   const listingsWithData = listings.filter(l => (Number(l.views) || 0) >= 5);
   const avgConversion    = listingsWithData.length > 0
     ? Math.round(listingsWithData.reduce((s, l) => s + getConversionRate(l), 0) / listingsWithData.length * 10) / 10
     : null;
 
-  const pendingInspCount = inspections.filter(i => i.status === "pending").length;
-
-
   /* filtered / sorted listings */
   const filtered = listings
     .filter(l => {
       if (filter === "All")         return true;
-      if (filter === "Taken")       return l.status === "taken";
       if (filter === "High Demand") return (getConversionRate(l) ?? 0) >= 15;
       if (filter === "Expiring")    return getExpiryStatus(l) !== "fresh";
       return l.availability === filter;
@@ -300,28 +237,12 @@ export default function DashboardPage() {
       tip:     "Sort by most viewed",
     },
     {
-      label:   "Interested students",
-      value:   totalInterests.toLocaleString(),
-      icon:    <HiOutlineBolt />,
-      accent:  "amber",
-      onClick: () => setSortBy("interests"),
-      tip:     "Sort by most interest",
-    },
-    {
       label:   "Available now",
       value:   availableCount,
       icon:    <HiOutlineCheckCircle />,
       accent:  "teal",
       onClick: () => setFilter("Available Now"),
       tip:     "Show available listings",
-    },
-    {
-      label:   "Visits to confirm",
-      value:   pendingInspCount,
-      icon:    <HiOutlineClipboardDocumentCheck />,
-      accent:  pendingInspCount > 0 ? "amber" : "gray",
-      onClick: () => setInspFilter("pending"),
-      tip:     "Review pending visits",
     },
     {
       label:    "Avg conversion",
@@ -342,14 +263,9 @@ export default function DashboardPage() {
     { key: "All",            label: "All" },
     { key: "Available Now",  label: "Available Now" },
     { key: "Available Soon", label: "Available Soon" },
-    { key: "Not Available",  label: "Not Available" },
-    { key: "Taken",          label: "Taken" },
     { key: "High Demand",    label: "High demand",  hot:   highDemandCount > 0 },
     { key: "Expiring",       label: "Needs attention", alert: needsAttention > 0 },
   ];
-
-  
-  const visibleInspections  = inspections.filter(i => inspFilter === "all" || i.status === inspFilter);
 
   /* ─────────────────────────── render ─────────────────────────── */
 
@@ -440,105 +356,6 @@ export default function DashboardPage() {
             </motion.div>
           ))}
         </motion.div>
-
-        {/* ══════════════════ VISITS (INSPECTIONS) ══════════════════ */}
-        <motion.div
-          className="db__section"
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.1 }}
-        >
-          <div className="db__section-head">
-            <div className="db__section-title">
-              <HiOutlineClipboardDocumentCheck />
-              <h2>Visit requests</h2>
-              {pendingInspCount > 0 && (
-                <span className="db__badge db__badge--amber">{pendingInspCount} pending</span>
-              )}
-            </div>
-            <div className="db__tabs">
-              {[
-                { key: "pending",   label: "Pending",   count: pendingInspCount },
-                { key: "confirmed", label: "Confirmed", count: inspections.filter(i => i.status === "confirmed").length },
-                { key: "cancelled", label: "Declined",  count: inspections.filter(i => i.status === "cancelled").length },
-                { key: "all",       label: "All",       count: inspections.length },
-              ].map(tab => (
-                <button
-                  key={tab.key}
-                  className={`db__tab${inspFilter === tab.key ? " active" : ""}`}
-                  onClick={() => setInspFilter(tab.key)}
-                >
-                  {tab.label}
-                  {tab.count > 0 && <span className="db__tab-count">{tab.count}</span>}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {inspLoading ? (
-            <div className="db__section-loading">
-              <span className="db__mini-spin" /> Loading visits…
-            </div>
-          ) : visibleInspections.length === 0 ? (
-            <div className="db__section-empty">
-              <HiOutlineClipboardDocumentCheck />
-              <p>{inspFilter === "pending" ? "No pending visit requests." : "Nothing here yet."}</p>
-            </div>
-          ) : (
-            <div className="db__req-list">
-              <AnimatePresence>
-                {visibleInspections.map(insp => (
-                  <motion.div
-                    key={insp.id}
-                    className={`db__req-card db__req-card--${insp.status}`}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -12 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <div className="db__req-left">
-                      <div className="db__req-avatar">
-                        {(insp.tenantName || "?")[0].toUpperCase()}
-                      </div>
-                      <div className="db__req-info">
-                        <p className="db__req-name">
-                          {insp.tenantName}
-                          <span className={`db__status db__status--${insp.status}`}>{insp.status}</span>
-                        </p>
-                        <p className="db__req-listing">{insp.listingTitle}</p>
-                        <div className="db__req-meta">
-                          <span><HiOutlineCalendarDays />{insp.date} at {insp.time}</span>
-                          {insp.tenantPhone && <span><HiOutlinePhone />{insp.tenantPhone}</span>}
-                        </div>
-                        {insp.note && <p className="db__req-note">"{insp.note}"</p>}
-                      </div>
-                    </div>
-
-                    {insp.status === "pending" && (
-                      <div className="db__req-actions">
-                        <button
-                          className="db__btn-confirm"
-                          onClick={() => handleInspectionStatus(insp.id, "confirmed")}
-                          disabled={updatingInspId === insp.id}
-                        >
-                          {updatingInspId === insp.id ? <span className="db__mini-spin" /> : <HiOutlineCheck />}
-                          Confirm visit
-                        </button>
-                        <button
-                          className="db__btn-decline"
-                          onClick={() => handleInspectionStatus(insp.id, "cancelled")}
-                          disabled={updatingInspId === insp.id}
-                        >
-                          <HiOutlineXCircle /> Decline
-                        </button>
-                      </div>
-                    )}
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          )}
-        </motion.div>
         
          {/* ══════════════════ LISTINGS ══════════════════ */}
 
@@ -553,7 +370,6 @@ export default function DashboardPage() {
             {filterTabs.map(tab => {
               const count =
                 tab.key === "All"         ? null :
-                tab.key === "Taken"       ? (takenCount > 0 ? takenCount : null) :
                 tab.key === "High Demand" ? (highDemandCount > 0 ? highDemandCount : null) :
                 tab.key === "Expiring"    ? (needsAttention > 0 ? needsAttention : null) :
                 listings.filter(l => l.availability === tab.key).length || null;
@@ -624,7 +440,6 @@ export default function DashboardPage() {
                 const interests  = Number(listing.interests) || 0;
                 const rate       = getConversionRate(listing);
                 const { text: convLabel, tier: convTier } = getConversionLabel(rate, views);
-                const barWidth   = rate !== null ? Math.min(rate, 100) : 0;
                 const availClass = listing.availability === "Available Now" ? "available"
                                  : listing.availability === "Available Soon" ? "soon"
                                  : "unavailable";
@@ -762,7 +577,7 @@ export default function DashboardPage() {
                           <HiOutlineBolt />{interests} interested
                         </span>
 
-                        {/* Conversion */}
+                        {/* Conversion (label only, no bar) */}
                         <div className={`db__conv db__conv--${convTier}`}>
                           <div className="db__conv-top">
                             <span className="db__conv-label">{convLabel}</span>
@@ -770,11 +585,6 @@ export default function DashboardPage() {
                               <span className="db__conv-rate">{rate}%</span>
                             )}
                           </div>
-                          {rate !== null && views >= 5 && (
-                            <div className="db__conv-bar">
-                              <div className="db__conv-fill" style={{ width: `${barWidth}%` }} />
-                            </div>
-                          )}
                         </div>
 
                         {/* Availability */}
