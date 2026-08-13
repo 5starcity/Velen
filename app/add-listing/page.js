@@ -25,6 +25,10 @@ const PROPERTY_TYPES = [
   "Studio Apartment",
 ];
 
+// Must match the Firestore rules whitelist exactly:
+// userDoc().data.role in ["student", "agent", "landlord"]
+const ALLOWED_OWNER_TYPES = ["student", "agent", "landlord"];
+
 const initialForm = {
   price: "",
   location: "",
@@ -253,6 +257,29 @@ export default function AddListingPage() {
       return;
     }
 
+    // ─────────────────────────────────────────────────────────
+    // GUARD: Firestore rules only accept ownerType values of
+    // "user" | "agent" | "landlord" (see canPostListing() in
+    // firestore.rules). If the role on /users/{uid} was written
+    // by an older signup flow with a different value (e.g.
+    // "student", "Landlord", or with stray whitespace), Firestore
+    // will reject the write with permission-denied and the
+    // console error alone won't tell you why.
+    //
+    // This check fails fast, client-side, with a message that
+    // actually tells you what's wrong.
+    // ─────────────────────────────────────────────────────────
+    console.log("DEBUG ownerType being sent:", JSON.stringify(userRole));
+
+    if (!ALLOWED_OWNER_TYPES.includes(userRole)) {
+      setErrors({
+        general: `Your account role ("${userRole}") isn't recognized by the system. Expected one of: ${ALLOWED_OWNER_TYPES.join(
+          ", "
+        )}. Please contact support or check your account's role field.`,
+      });
+      return;
+    }
+
     setSaving(true);
 
     try {
@@ -312,6 +339,21 @@ export default function AddListingPage() {
       const title = `${formData.type} in ${
         selectedLocation?.label || formData.location
       }`;
+
+      // ─────────────────────────────────────────────────────────
+      // DEBUG: log the exact values Firestore rules will check,
+      // right before the write. If permission-denied happens again,
+      // these four lines tell us which condition in
+      // `allow create` on /listings failed:
+      //   - title / title.length   -> title is string && title.size() > 3
+      //   - price / typeof price   -> price is number && price > 0
+      //   - ownerId                -> must equal request.auth.uid
+      //   - ownerType              -> must equal userDoc().data.role
+      // ─────────────────────────────────────────────────────────
+      console.log("DEBUG title:", JSON.stringify(title), "length:", title.length);
+      console.log("DEBUG price:", Number(formData.price), "typeof:", typeof Number(formData.price));
+      console.log("DEBUG ownerId:", user.uid);
+      console.log("DEBUG ownerType:", JSON.stringify(userRole));
 
       /*
        * IMPORTANT:
@@ -448,18 +490,31 @@ export default function AddListingPage() {
         router.push("/listings");
       }, 1200);
     } catch (err) {
-      console.error(
-        "Error creating listing:",
-        err
-      );
+      // Log full detail to console for debugging.
+      console.error("Error creating listing:", err);
+      console.error("DEBUG err.code:", err?.code);
+      console.error("DEBUG err.message:", err?.message);
 
-      setErrors({
-        general:
-          err?.code ===
-          "permission-denied"
-            ? "You don't have permission to create this listing. Please make sure your account is set up correctly."
-            : "Something went wrong. Try again.",
-      });
+      // ─────────────────────────────────────────────────────────
+      // Surface the real code/message on screen too — not just in
+      // console — so we're not depending on someone pasting console
+      // output every time this fails. Firestore's permission-denied
+      // is intentionally vague about WHICH rule condition failed, so
+      // this at least confirms which broad category we're dealing
+      // with instead of guessing blind.
+      // ─────────────────────────────────────────────────────────
+      let message = "Something went wrong. Try again.";
+
+      if (err?.code === "permission-denied") {
+        message =
+          "You don't have permission to create this listing. This usually means your account role doesn't match what's stored in the database — please contact support and mention error code: permission-denied.";
+      } else if (err?.code) {
+        message = `Something went wrong (${err.code}). Please try again or contact support if this keeps happening.`;
+      } else if (err?.message) {
+        message = `Something went wrong: ${err.message}`;
+      }
+
+      setErrors({ general: message });
 
       setUploadProgress("");
     } finally {
