@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { auth } from "@/lib/firebase";
 import { createListing } from "@/lib/firestoreListings";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import {
@@ -12,6 +13,7 @@ import {
 } from "@/lib/locations";
 import { trackEvent } from "@/lib/posthog";
 import { extractVideoThumbnail } from "@/lib/videoThumbnail";
+import LocationSelect from "@/components/LocationSelect";
 import "@/styles/add-listing.css";
 
 const PROPERTY_TYPES = [
@@ -41,6 +43,7 @@ const initialForm = {
   paymentTerms: "",
   cautionFee: "",
   legalFee: "",
+  inspectionFee: "",
   agencyFeePercent: "",
   serviceCharge: "",
   amenities: "",
@@ -76,16 +79,28 @@ export default function AddListingPage() {
     const rent = Number(formData.price) || 0;
     const caution = Number(formData.cautionFee) || 0;
     const legal = Number(formData.legalFee) || 0;
+    const inspection = Number(formData.inspectionFee) || 0;
     const service = Number(formData.serviceCharge) || 0;
 
-    return rent + caution + legal + agencyFeeAmount + service;
+    return rent + caution + legal + inspection + agencyFeeAmount + service;
   }, [
     formData.price,
     formData.cautionFee,
     formData.legalFee,
+    formData.inspectionFee,
     formData.serviceCharge,
     agencyFeeAmount,
   ]);
+
+  const formattedPrice = useMemo(() => {
+    if (!formData.price) return "";
+
+    const num = Number(formData.price);
+
+    if (Number.isNaN(num)) return "";
+
+    return num.toLocaleString();
+  }, [formData.price]);
 
   const selectedLocation = LOCATIONS.find(
     (l) => l.value === formData.location
@@ -115,6 +130,19 @@ export default function AddListingPage() {
     setErrors((prev) => ({
       ...prev,
       type: "",
+      general: "",
+    }));
+  }
+
+  function handleLocationSelect(value) {
+    setFormData((prev) => ({
+      ...prev,
+      location: value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      location: "",
       general: "",
     }));
   }
@@ -355,6 +383,31 @@ export default function AddListingPage() {
       console.log("DEBUG ownerId:", user.uid);
       console.log("DEBUG ownerType:", JSON.stringify(userRole));
 
+      // ─────────────────────────────────────────────────────────
+      // DEBUG: everything above assumes the browser is actually
+      // sending a valid, current Firebase ID token alongside this
+      // write. AuthContext's `user` object can look populated in
+      // React state while the real Firebase auth session underneath
+      // it is stale or gone — in that case request.auth on
+      // Firestore's side reads as null and canPostListing() fails
+      // at its very first check, producing the exact same generic
+      // permission-denied we've been chasing. This block checks the
+      // real, live Firebase Auth session directly, not the cached
+      // React state, and force-refreshes the ID token so we see its
+      // real expiry instead of a possibly-stale one.
+      // ─────────────────────────────────────────────────────────
+      console.log("DEBUG auth.currentUser:", auth.currentUser);
+      console.log("DEBUG auth.currentUser.uid:", auth.currentUser?.uid);
+
+      if (auth.currentUser) {
+        const tokenResult = await auth.currentUser.getIdTokenResult(true);
+        console.log("DEBUG token issued at:", tokenResult.issuedAtTime);
+        console.log("DEBUG token expires at:", tokenResult.expirationTime);
+        console.log("DEBUG token claims:", tokenResult.claims);
+      } else {
+        console.log("DEBUG auth.currentUser is NULL — this is the bug.");
+      }
+
       /*
        * IMPORTANT:
        *
@@ -404,6 +457,10 @@ export default function AddListingPage() {
 
         legalFee: formData.legalFee
           ? Number(formData.legalFee)
+          : 0,
+
+        inspectionFee: formData.inspectionFee
+          ? Number(formData.inspectionFee)
           : 0,
 
         agencyFeePercent:
@@ -608,7 +665,7 @@ export default function AddListingPage() {
                 </div>
               ))}
 
-              {videoFile && (
+              {videoFile ? (
                 <div className="alp__media-item alp__media-item--video">
                   {videoThumbnailPreview ? (
                     <img
@@ -636,6 +693,21 @@ export default function AddListingPage() {
                     ✕
                   </button>
                 </div>
+              ) : (
+                <label
+                  className="alp__media-add alp__media-add--video"
+                  htmlFor="video-input"
+                >
+                  <span className="alp__media-add-icon">
+                    +
+                  </span>
+                  <span className="alp__media-add-text">
+                    Video
+                  </span>
+                  <span className="alp__media-add-optional">
+                    optional
+                  </span>
+                </label>
               )}
             </div>
 
@@ -647,18 +719,6 @@ export default function AddListingPage() {
               className="alp__file-hidden"
               onChange={handleImageChange}
             />
-
-            {!videoFile && (
-              <label
-                className="alp__media-video-link"
-                htmlFor="video-input"
-              >
-                + Add a walkthrough video{" "}
-                <span className="alp__optional">
-                  optional
-                </span>
-              </label>
-            )}
 
             <input
               id="video-input"
@@ -697,6 +757,12 @@ export default function AddListingPage() {
                 autoFocus
               />
             </div>
+
+            {formattedPrice && (
+              <span className="alp__hint">
+                ₦{formattedPrice}
+              </span>
+            )}
 
             {errors.price && (
               <span className="alp__err">
@@ -800,37 +866,12 @@ export default function AddListingPage() {
           >
             <label>Area</label>
 
-            <select
-              name="location"
+            <LocationSelect
               value={formData.location}
-              onChange={handleChange}
-            >
-              <option value="">
-                Select area
-              </option>
-
-              <optgroup label="UST Gate Areas">
-                {ustAreas.map((loc) => (
-                  <option
-                    key={loc.value}
-                    value={loc.value}
-                  >
-                    {loc.label}
-                  </option>
-                ))}
-              </optgroup>
-
-              <optgroup label="Other Port Harcourt Areas">
-                {otherAreas.map((loc) => (
-                  <option
-                    key={loc.value}
-                    value={loc.value}
-                  >
-                    {loc.label}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
+              onChange={handleLocationSelect}
+              ustAreas={ustAreas}
+              otherAreas={otherAreas}
+            />
 
             {selectedLocation && (
               <span className="alp__hint">
@@ -1114,6 +1155,23 @@ export default function AddListingPage() {
                 </div>
 
                 <div className="alp__row">
+                  <div className="alp__field">
+                    <label className="alp__label-sm">
+                      Inspection fee (₦)
+                    </label>
+
+                    <input
+                      type="number"
+                      name="inspectionFee"
+                      placeholder="0"
+                      value={
+                        formData.inspectionFee
+                      }
+                      onChange={handleChange}
+                      inputMode="numeric"
+                    />
+                  </div>
+
                   <div className="alp__field">
                     <label className="alp__label-sm">
                       Service charge (₦)
