@@ -68,10 +68,6 @@ export default function Hero() {
           <br />
           Near Your Campus.
         </motion.h1>
-
-        <motion.p className="hero__subtext" {...rise(0.2)}>
-          Verified rentals and sales across Port Harcourt — easier, faster ,less stressful.
-        </motion.p>
       </div>
     </section>
   );

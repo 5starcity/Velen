@@ -1,4 +1,3 @@
-/* styles/profile.css — rezidence design system, optimized */
 
 .profile-page {
   max-width: 620px;
@@ -106,13 +105,20 @@
   min-width: 0;
 }
 
+.profile-page__hero-name-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
 .profile-page__hero h1 {
   font-size: 1.35rem;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.3px;
   line-height: 1.2;
-  margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -121,7 +127,7 @@
 .profile-page__hero-bio {
   font-size: 0.81rem;
   color: var(--text-muted);
-  margin: 0 0 6px;
+  margin: 0;
   line-height: 1.4;
   overflow: hidden;
   display: -webkit-box;
@@ -129,49 +135,37 @@
   -webkit-box-orient: vertical;
 }
 
-.profile-page__hero-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
+/* Role badge — color-coded per account type */
 
 .profile-page__role-badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
   padding: 3px 10px;
   border-radius: 999px;
   font-size: 0.72rem;
   font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  flex-shrink: 0;
 }
 
-.profile-page__role-badge.landlord {
-  background: var(--blue-bg);
-  border: 1px solid var(--blue-border);
-  color: var(--blue);
-}
-
-.profile-page__role-badge.tenant {
+.profile-page__role-badge--student {
   background: var(--green-bg);
-  border: 1px solid var(--green-border);
+  border-color: var(--green-border);
   color: var(--green);
 }
 
-.profile-page__uni-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
-  max-width: 200px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.profile-page__role-badge--landlord {
+  background: var(--blue-bg);
+  border-color: var(--blue-border);
+  color: var(--blue);
+}
+
+.profile-page__role-badge--agent {
+  background: var(--amber-bg, var(--bg-elevated));
+  border-color: var(--amber-border, var(--border));
+  color: var(--amber);
 }
 
 /* ── Avatar with upload ── */
@@ -237,22 +231,6 @@
   border-bottom: 1px solid var(--border);
 }
 
-.profile-page__card-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 0;
-}
-
-.profile-page__card-title-row .profile-page__card-title {
-  border-bottom: none;
-  padding-bottom: 0;
-  margin-bottom: 0;
-}
-
 .profile-page__muted {
   color: var(--text-muted);
   font-size: 0.83rem;
@@ -270,8 +248,7 @@
   border-bottom: 1px solid var(--border);
 }
 
-.profile-page__field:last-child,
-.profile-page__field--last {
+.profile-page__field:last-child {
   border-bottom: none;
   padding-bottom: 0;
 }
@@ -347,6 +324,21 @@
   border-color: var(--accent);
 }
 
+.profile-page__field-hint {
+  flex-basis: 100%;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.profile-page__pending-email-hint {
+  margin: -6px 0 4px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
 .profile-page__icon-btn {
   width: 32px;
   height: 32px;
@@ -380,23 +372,22 @@
   color: var(--text-primary);
 }
 
-/* Edit / readonly badges */
+/* Edit trigger — icon-only, sized to match icon-btn for visual consistency */
 
 .profile-page__edit-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 5px 10px;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
   background: transparent;
   border: 1px solid var(--border);
-  border-radius: 7px;
+  border-radius: 8px;
   color: var(--text-muted);
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.15s;
-  white-space: nowrap;
-  font-family: var(--font-body);
   flex-shrink: 0;
 }
 
@@ -404,16 +395,6 @@
   background: var(--bg-elevated);
   border-color: var(--border-strong);
   color: var(--text-primary);
-}
-
-.profile-page__readonly-badge {
-  font-size: 0.7rem !important;
-  color: var(--text-muted) !important;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  padding: 3px 9px;
-  border-radius: 999px;
-  flex-shrink: 0;
 }
 
 /* ── Bio ── */
@@ -573,106 +554,6 @@
   line-height: 1.5;
 }
 
-/* ── Password form ── */
-
-.profile-page__password-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.profile-page__pw-field {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-bottom: 10px;
-}
-
-.profile-page__pw-field label {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.profile-page__pw-field input {
-  padding: 9px 13px;
-  background: var(--bg-input);
-  border: 1.5px solid var(--border);
-  border-radius: 9px;
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  outline: none;
-  transition: border-color 0.18s;
-  font-family: var(--font-body);
-}
-
-.profile-page__pw-field input:focus {
-  border-color: var(--accent);
-}
-
-.profile-page__pw-error {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--red);
-  font-size: 0.8rem;
-  background: var(--red-bg);
-  border: 1px solid var(--red-border);
-  padding: 9px 13px;
-  border-radius: 9px;
-}
-
-.profile-page__pw-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 2px;
-}
-
-.profile-page__pw-save {
-  padding: 9px 20px;
-  background: var(--accent);
-  color: var(--text-inverse);
-  border: none;
-  border-radius: 9px;
-  font-weight: 700;
-  font-size: 0.84rem;
-  cursor: pointer;
-  transition: opacity 0.18s, transform 0.18s;
-  font-family: var(--font-body);
-}
-
-.profile-page__pw-save:hover {
-  opacity: 0.88;
-  transform: translateY(-1px);
-}
-
-.profile-page__pw-save:disabled {
-  background: var(--bg-elevated);
-  color: var(--text-muted);
-  cursor: not-allowed;
-  transform: none;
-}
-
-.profile-page__pw-cancel {
-  padding: 9px 16px;
-  background: none;
-  border: 1.5px solid var(--border);
-  color: var(--text-muted);
-  border-radius: 9px;
-  font-weight: 600;
-  font-size: 0.84rem;
-  cursor: pointer;
-  transition: all 0.18s;
-  font-family: var(--font-body);
-}
-
-.profile-page__pw-cancel:hover {
-  color: var(--text-primary);
-  border-color: var(--border-strong);
-}
-
 /* ── Quick Links ── */
 
 .profile-page__links {
@@ -736,42 +617,13 @@
   flex-shrink: 0;
 }
 
-/* ── Danger / Account ── */
-
-.profile-page__card--danger {
-  border-color: var(--border);
-}
-
-.profile-page__logout-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 9px 18px;
-  background: var(--red-bg);
-  border: 1px solid var(--red-border);
-  color: var(--red);
-  border-radius: 9px;
-  font-size: 0.84rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-  font-family: var(--font-body);
-}
-
-.profile-page__logout-btn:hover {
-  background: rgba(200, 48, 63, 0.12);
-  border-color: rgba(200, 48, 63, 0.3);
-}
-
-/* ── Roommate prefs ── */
+/* ── Roommate "also a student" toggle row ── */
 
 .profile-page__pref-toggle-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 13px 0;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 16px;
+  gap: 12px;
 }
 
 .profile-page__pref-toggle-label {
@@ -823,117 +675,6 @@
 .profile-page__toggle--on .profile-page__toggle-knob {
   transform: translateX(19px);
   background: var(--accent);
-}
-
-.profile-page__prefs-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.profile-page__pref-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.profile-page__pref-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.profile-page__pref-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-}
-
-.profile-page__pref-pill {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 7px 13px;
-  border-radius: 10px;
-  border: 1.5px solid var(--border);
-  background: var(--bg-elevated);
-  color: var(--text-secondary);
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-  line-height: 1.3;
-  font-family: var(--font-body);
-}
-
-.profile-page__pref-pill span {
-  font-size: 0.7rem;
-  font-weight: 400;
-  color: var(--text-muted);
-  margin-top: 1px;
-}
-
-.profile-page__pref-pill:hover:not(:disabled) {
-  border-color: var(--border-warm);
-  background: var(--accent-dim);
-  color: var(--accent);
-}
-
-.profile-page__pref-pill--active {
-  border-color: var(--border-warm) !important;
-  background: var(--accent-dim) !important;
-  color: var(--accent) !important;
-}
-
-.profile-page__pref-pill--active span {
-  color: var(--accent-light) !important;
-}
-
-.profile-page__pref-pill:disabled {
-  cursor: default;
-}
-
-.profile-page__pref-notes {
-  width: 100%;
-  padding: 9px 11px;
-  background: var(--bg-input);
-  border: 1.5px solid var(--border);
-  border-radius: 9px;
-  color: var(--text-primary);
-  font-size: 0.84rem;
-  outline: none;
-  resize: vertical;
-  min-height: 66px;
-  font-family: var(--font-body);
-  line-height: 1.5;
-  transition: border-color 0.18s;
-  box-sizing: border-box;
-}
-
-.profile-page__pref-notes:focus {
-  border-color: var(--accent);
-}
-
-.profile-page__pref-notes:read-only {
-  color: var(--text-secondary);
-  cursor: default;
-  background: var(--bg-elevated);
-}
-
-/* Save variant */
-
-.profile-page__edit-btn--save {
-  background: var(--accent-dim);
-  border-color: var(--border-warm);
-  color: var(--accent);
-}
-
-.profile-page__edit-btn--save:hover {
-  background: var(--accent);
-  color: var(--text-inverse);
-  border-color: var(--accent);
 }
 
 /* ── Responsive ── */
@@ -999,26 +740,6 @@
   .profile-page__bio-text {
     text-align: left;
     max-width: none;
-  }
-
-  .profile-page__pw-actions {
-    flex-direction: column;
-  }
-
-  .profile-page__pw-save,
-  .profile-page__pw-cancel {
-    width: 100%;
-    text-align: center;
-    justify-content: center;
-  }
-
-  .profile-page__pref-pills {
-    gap: 5px;
-  }
-
-  .profile-page__pref-pill {
-    padding: 6px 10px;
-    font-size: 0.75rem;
   }
 
   .profile-page__toggle {

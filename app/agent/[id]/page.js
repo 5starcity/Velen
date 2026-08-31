@@ -8,14 +8,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   HiOutlineCheckBadge,
   HiOutlineHomeModern,
-  HiOutlineMapPin,
   HiOutlineStar,
   HiStar,
   HiOutlineCalendarDays,
   HiOutlineArrowLeft,
   HiOutlineUserCircle,
   HiOutlineChatBubbleLeftRight,
-  HiOutlineShieldCheck,
 } from "react-icons/hi2";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -30,6 +28,15 @@ import "@/styles/agent-profile.css";
 
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.07 } } };
 const fadeUp  = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.35 } } };
+
+// Both "landlord" and "agent" are the same backend role now — this is a
+// display-only label so the profile page can still tell visitors which
+// kind of account they're looking at. Adjust the source field name below
+// if it's not `accountType` on the user doc.
+const ACCOUNT_TYPE_LABELS = {
+  landlord: "Landlord",
+  agent: "Agent",
+};
 
 function StarPicker({ value, onChange }) {
   const [hovered, setHovered] = useState(0);
@@ -200,6 +207,10 @@ export default function AgentProfilePage() {
     );
   }
 
+  // Front-end-only label — landlord and agent share one backend role now,
+  // so this reads a separate display field rather than `userRole`.
+  const accountTypeLabel = ACCOUNT_TYPE_LABELS[agent.accountType] || null;
+
   return (
     <main className="agent-page">
 
@@ -225,6 +236,11 @@ export default function AgentProfilePage() {
         <div className="agent-page__profile-info">
           <div className="agent-page__name-row">
             <h1>{agent.name}</h1>
+            {accountTypeLabel && (
+              <span className={`agent-page__account-badge agent-page__account-badge--${agent.accountType}`}>
+                {accountTypeLabel}
+              </span>
+            )}
             {agent.verified && (
               <span className="agent-page__verified">
                 <HiOutlineCheckBadge /> Verified
@@ -311,7 +327,7 @@ export default function AgentProfilePage() {
       >
         <div className="agent-page__reviews-header">
           <h2 className="agent-page__section-title">
-            <HiOutlineStar /> Student Reviews
+            <HiOutlineStar />Reviews
             {avgRating && <span className="agent-page__avg-badge">{avgRating} ★</span>}
           </h2>
 

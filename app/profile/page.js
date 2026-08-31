@@ -14,7 +14,6 @@ import {
   HiOutlineExclamationTriangle,
   HiOutlineChatBubbleBottomCenterText,
   HiOutlineBookmark,
-  HiOutlineClipboardDocumentCheck,
   HiOutlineAcademicCap,
   HiOutlineIdentification,
   HiOutlineCamera,
@@ -49,6 +48,13 @@ const YEAR_OPTIONS = [
 ];
 
 const GENDER_OPTIONS = ["Male", "Female", "Prefer not to say"];
+
+const ROLE_LABELS = {
+  student: "Student",
+  landlord: "Landlord",
+  agent: "Agent",
+  admin: "Admin",
+};
 
 // Completeness scoring — student fields only count if student details are relevant
 function getCompleteness(data, photoURL, showStudentDetails) {
@@ -133,7 +139,7 @@ export default function ProfilePage() {
           data = { ...data, email: user.email };
           setEmailPendingVerification(false);
         }
-        
+
         const normalized = normalizeUserDoc(data, user);
         // Write normalized back to fix inconsistent old docs
         await setDoc(ref, normalized, { merge: true });
@@ -301,6 +307,7 @@ export default function ProfilePage() {
   // agent/landlord that told us they're also a student
   const showStudentDetails = isStudentRole || profileData.isAlsoStudent;
   const completeness = getCompleteness(profileData, photoURL, showStudentDetails);
+  const roleLabel = ROLE_LABELS[userRole] || ROLE_LABELS[profileData.role] || null;
 
   // ── Inline edit field renderer ──
   function EditableField({ field, label, icon, placeholder = "Not set", type = "text", multiline = false, hint = null }) {
@@ -327,8 +334,8 @@ export default function ProfilePage() {
                 />
                 <div className="profile-page__bio-actions">
                   <span className="profile-page__bio-count">{inputs[field]?.length ?? 0}/200</span>
-                  <button className="profile-page__icon-btn profile-page__icon-btn--cancel" onClick={() => cancelEdit(field)}><HiOutlineXMark /></button>
-                  <button className="profile-page__icon-btn profile-page__icon-btn--save" onClick={() => saveField(field)} disabled={isSaving}>
+                  <button className="profile-page__icon-btn profile-page__icon-btn--cancel" onClick={() => cancelEdit(field)} aria-label="Cancel"><HiOutlineXMark /></button>
+                  <button className="profile-page__icon-btn profile-page__icon-btn--save" onClick={() => saveField(field)} disabled={isSaving} aria-label="Save">
                     {isSaving ? <span className="profile-page__mini-spinner" /> : <HiOutlineCheck />}
                   </button>
                 </div>
@@ -343,13 +350,13 @@ export default function ProfilePage() {
                   autoFocus
                   onKeyDown={e => e.key === "Enter" && saveField(field)}
                 />
-                <button className="profile-page__icon-btn profile-page__icon-btn--cancel" onClick={() => cancelEdit(field)}><HiOutlineXMark /></button>
-                <button className="profile-page__icon-btn profile-page__icon-btn--save" onClick={() => saveField(field)} disabled={isSaving}>
+                <button className="profile-page__icon-btn profile-page__icon-btn--cancel" onClick={() => cancelEdit(field)} aria-label="Cancel"><HiOutlineXMark /></button>
+                <button className="profile-page__icon-btn profile-page__icon-btn--save" onClick={() => saveField(field)} disabled={isSaving} aria-label="Save">
                   {isSaving ? <span className="profile-page__mini-spinner" /> : <HiOutlineCheck />}
                 </button>
               </>
             )}
-            {hint && <p className="profile-page__muted" style={{ marginTop: 6, fontSize: "0.82rem" }}>{hint}</p>}
+            {hint && <p className="profile-page__field-hint">{hint}</p>}
           </div>
         ) : (
           <div className="profile-page__field-value">
@@ -357,8 +364,8 @@ export default function ProfilePage() {
               ? <span className={multiline ? "profile-page__bio-text" : ""}>{value}</span>
               : <em>{placeholder}</em>
             }
-            <button className="profile-page__edit-btn" onClick={() => startEdit(field)}>
-              <HiOutlinePencilSquare /> Edit
+            <button className="profile-page__edit-btn" onClick={() => startEdit(field)} aria-label={`Edit ${label}`}>
+              <HiOutlinePencilSquare />
             </button>
           </div>
         )}
@@ -388,16 +395,16 @@ export default function ProfilePage() {
               <option value="">Select...</option>
               {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
             </select>
-            <button className="profile-page__icon-btn profile-page__icon-btn--cancel" onClick={() => cancelEdit(field)}><HiOutlineXMark /></button>
-            <button className="profile-page__icon-btn profile-page__icon-btn--save" onClick={() => saveField(field)} disabled={isSaving}>
+            <button className="profile-page__icon-btn profile-page__icon-btn--cancel" onClick={() => cancelEdit(field)} aria-label="Cancel"><HiOutlineXMark /></button>
+            <button className="profile-page__icon-btn profile-page__icon-btn--save" onClick={() => saveField(field)} disabled={isSaving} aria-label="Save">
               {isSaving ? <span className="profile-page__mini-spinner" /> : <HiOutlineCheck />}
             </button>
           </div>
         ) : (
           <div className="profile-page__field-value">
             {value ? <span>{value}</span> : <em>{placeholder}</em>}
-            <button className="profile-page__edit-btn" onClick={() => startEdit(field)}>
-              <HiOutlinePencilSquare /> Edit
+            <button className="profile-page__edit-btn" onClick={() => startEdit(field)} aria-label={`Edit ${label}`}>
+              <HiOutlinePencilSquare />
             </button>
           </div>
         )}
@@ -442,8 +449,8 @@ export default function ProfilePage() {
               />
             )}
             <div className="profile-page__field-edit-actions">
-              <button className="profile-page__icon-btn profile-page__icon-btn--cancel" onClick={() => { cancelEdit("university"); setUniIsOther(false); }}><HiOutlineXMark /></button>
-              <button className="profile-page__icon-btn profile-page__icon-btn--save" onClick={saveUniversity} disabled={isSaving}>
+              <button className="profile-page__icon-btn profile-page__icon-btn--cancel" onClick={() => { cancelEdit("university"); setUniIsOther(false); }} aria-label="Cancel"><HiOutlineXMark /></button>
+              <button className="profile-page__icon-btn profile-page__icon-btn--save" onClick={saveUniversity} disabled={isSaving} aria-label="Save">
                 {isSaving ? <span className="profile-page__mini-spinner" /> : <HiOutlineCheck />}
               </button>
             </div>
@@ -451,8 +458,8 @@ export default function ProfilePage() {
         ) : (
           <div className="profile-page__field-value">
             {value ? <span>{value}</span> : <em>Not set</em>}
-            <button className="profile-page__edit-btn" onClick={() => startEdit("university")}>
-              <HiOutlinePencilSquare /> Edit
+            <button className="profile-page__edit-btn" onClick={() => startEdit("university")} aria-label="Edit University">
+              <HiOutlinePencilSquare />
             </button>
           </div>
         )}
@@ -512,14 +519,12 @@ export default function ProfilePage() {
           </div>
 
           <div className="profile-page__hero-info">
-            <h1>{profileData.displayName || "Your Profile"}</h1>
+            <div className="profile-page__hero-name-row">
+              <h1>{profileData.displayName || "Your Profile"}</h1>
+              {roleLabel && <span className="profile-page__role-badge">{roleLabel}</span>}
+            </div>
             {profileData.bio && <p className="profile-page__hero-bio">{profileData.bio}</p>}
           </div>
-
-          {/* Link to Settings */}
-          <a href="/settings" className="profile-page__settings-link" title="Account settings">
-            <HiOutlineCog6Tooth /> Settings
-          </a>
         </div>
 
         {/* ── Profile Completeness ── */}
@@ -567,7 +572,7 @@ export default function ProfilePage() {
             hint="You'll get a verification link at the new address — the change only applies once you click it."
           />
           {emailPendingVerification && (
-            <p className="profile-page__muted" style={{ marginTop: -4, marginBottom: 8, fontSize: "0.82rem" }}>
+            <p className="profile-page__pending-email-hint">
               A verification link was sent to your new email. Your current email stays active until you confirm it.
             </p>
           )}
@@ -592,7 +597,7 @@ export default function ProfilePage() {
               </button>
             </div>
             {!profileData.isAlsoStudent && (
-              <p className="profile-page__muted" style={{ marginTop: 4 }}>
+              <p className="profile-page__muted">
                 Turn this on if you're studying while listing or managing properties — it'll add your student details below.
               </p>
             )}
@@ -614,18 +619,13 @@ export default function ProfilePage() {
         <motion.div className="profile-page__card profile-page__card--links" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.22 }}>
           <h2 className="profile-page__card-title">Quick Links</h2>
           <div className="profile-page__links">
-            {isStudentRole ? (
-              <>
-                <a href="/saved-listings" className="profile-page__link">
-                  <HiOutlineBookmark />
-                  <div><strong>Saved Listings</strong><span>Properties you have bookmarked</span></div>
-                </a>
-                <a href="/my-inspections" className="profile-page__link">
-                  <HiOutlineClipboardDocumentCheck />
-                  <div><strong>My Inspections</strong><span>Track your booked property visits</span></div>
-                </a>
-              </>
-            ) : (
+            {isStudentRole && (
+              <a href="/saved-listings" className="profile-page__link">
+                <HiOutlineBookmark />
+                <div><strong>Saved Listings</strong><span>Properties you have bookmarked</span></div>
+              </a>
+            )}
+            {!isStudentRole && (
               <a href="/dashboard" className="profile-page__link profile-page__link--dashboard">
                 <HiOutlineChartBarSquare />
                 <div><strong>My Dashboard</strong><span>View and manage your listings</span></div>
@@ -633,7 +633,7 @@ export default function ProfilePage() {
             )}
             <a href="/settings" className="profile-page__link">
               <HiOutlineCog6Tooth />
-              <div><strong>Account Settings</strong><span>Password, notifications, payout & more</span></div>
+              <div><strong>Account Settings</strong><span>Password, notifications & more</span></div>
             </a>
           </div>
         </motion.div>
