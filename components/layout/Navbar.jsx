@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -111,8 +112,14 @@ export default function Navbar() {
       <nav className="navbar">
         {/* Logo */}
         <Link href="/" className="navbar__logo" aria-label="Rezidence home">
-          <div className="navbar__logo-mark">R</div>
-          <span className="navbar__logo-text">Rezidence</span>
+          <Image
+            src="/favicon.ico"
+            alt="Rezidence"
+            width={32}
+            height={32}
+            className="navbar__logo-mark"
+            priority
+          />
         </Link>
 
         {isListingDetailPage && (
@@ -284,8 +291,13 @@ export default function Navbar() {
           <div className="drawer" role="dialog" aria-modal="true" aria-label="Menu">
             <div className="drawer__header">
               <div className="drawer__header-logo">
-                <div className="drawer__header-logo-mark">R</div>
-                <span className="drawer__header-logo-text">Rezidence</span>
+                <Image
+                  src="/favicon.ico"
+                  alt="Rezidence"
+                  width={28}
+                  height={28}
+                  className="drawer__header-logo-mark"
+                />
               </div>
               <button className="drawer__close-btn" aria-label="Close menu" onClick={() => setDrawerOpen(false)}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">

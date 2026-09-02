@@ -20,22 +20,10 @@
 .navbar__logo-mark {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
-  background: var(--paper, #efeee2);
-  color: var(--forest-950, #0a2a1f);
-  font-family: var(--font-mono, "IBM Plex Mono", monospace);
-  font-weight: 700;
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.navbar__logo-text {
-  font-family: var(--font-display, "Bricolage Grotesque", sans-serif);
-  font-weight: 800;
-  font-size: 1.2rem;
-  letter-spacing: -0.02em;
-  color: var(--paper, #efeee2);
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  flex-shrink: 0;
 }
 
 /* ── Desktop contextual search (listing detail pages) ── */
@@ -424,26 +412,10 @@
 .drawer__header-logo-mark {
   width: 28px;
   height: 28px;
-  border-radius: 7px;
-  background: var(--paper, #efeee2);
-  color: var(--forest-950, #0a2a1f);
-  font-family: var(--font-mono, "IBM Plex Mono", monospace);
-  font-weight: 700;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
   flex-shrink: 0;
-}
-.drawer__header-logo-text {
-  font-family: var(--font-display, "Bricolage Grotesque", sans-serif);
-  font-weight: 800;
-  font-size: 1.02rem;
-  letter-spacing: -0.02em;
-  color: var(--paper, #efeee2);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .drawer__close-btn {
   width: 34px;
@@ -703,9 +675,6 @@
   }
   .navbar__mobile-search-row {
     display: flex;
-  }
-  .navbar__logo-text {
-    font-size: 1.05rem;
   }
 }
 
