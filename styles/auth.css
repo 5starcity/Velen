@@ -78,6 +78,20 @@
   font-size: 0.9rem;
 }
 
+/* Centered variant — used by the post-submit "check your inbox" state */
+.auth-heading-row--center {
+  text-align: center;
+}
+
+.auth-heading-row--center p {
+  line-height: 1.5;
+}
+
+.auth-heading-row--center strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
 /* ── Legacy centered header (kept for pages still using it, e.g. signup) ── */
 .auth-header {
   text-align: center;
@@ -447,6 +461,19 @@
   box-shadow: none;
 }
 
+/* Ghost variant — secondary action on the "check your inbox" state */
+.auth-submit--ghost {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1.5px solid var(--border);
+  box-shadow: none;
+}
+
+.auth-submit--ghost:hover:not(:disabled) {
+  background: var(--bg-elevated);
+  box-shadow: none;
+}
+
 /* ── Switch ── */
 .auth-switch {
   text-align: center;
@@ -463,6 +490,57 @@
 
 .auth-switch a:hover {
   text-decoration: underline;
+}
+
+/* Back-to-login link with leading icon (forgot-password page) */
+.auth-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-back-link:hover {
+  text-decoration: underline;
+}
+
+.auth-back-link svg {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+/* ── Post-submit "check your inbox" state (forgot-password page) ── */
+.auth-sent-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.auth-sent-state__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+}
+
+.auth-sent-state .auth-heading-row {
+  margin-bottom: 0;
+}
+
+.auth-sent-state .auth-submit {
+  margin-top: 0;
+}
+
+.auth-sent-state .auth-switch {
+  margin-top: 0;
 }
 
 /* ── Role picker modal ── */
@@ -618,6 +696,12 @@
   .role-btn {
     font-size: 0.76rem;
     padding: 0.65rem 0.3rem;
+  }
+
+  .auth-sent-state__icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
   }
 }
 

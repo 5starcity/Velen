@@ -26,6 +26,7 @@ export default function Navbar() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
+  const [browseMenuOpen, setBrowseMenuOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -38,6 +39,7 @@ export default function Navbar() {
   const user = mounted ? authUser : null;
 
   const avatarMenuRef = useRef(null);
+  const browseMenuRef = useRef(null);
   const mobileSearchInputRef = useRef(null);
 
   const initials = user?.displayName?.slice(0, 2).toUpperCase() || "ME";
@@ -57,9 +59,21 @@ export default function Navbar() {
   }, [avatarMenuOpen]);
 
   useEffect(() => {
+    if (!browseMenuOpen) return;
+    function handleClick(e) {
+      if (browseMenuRef.current && !browseMenuRef.current.contains(e.target)) {
+        setBrowseMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [browseMenuOpen]);
+
+  useEffect(() => {
     function handleKey(e) {
       if (e.key === "Escape") {
         setAvatarMenuOpen(false);
+        setBrowseMenuOpen(false);
         setDrawerOpen(false);
         setMobileSearchOpen(false);
       }
@@ -122,6 +136,65 @@ export default function Navbar() {
           />
         </Link>
 
+        {/* ── Nav links (desktop) ── */}
+        <div className="navbar__nav-links">
+          <Link href="/" className="navbar__nav-link">
+            Home
+          </Link>
+
+          <div className="navbar__browse-wrap" ref={browseMenuRef}>
+            <button
+              type="button"
+              className="navbar__nav-link navbar__browse-trigger"
+              aria-expanded={browseMenuOpen}
+              onClick={() => setBrowseMenuOpen((v) => !v)}
+            >
+              Browse
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={
+                  browseMenuOpen
+                    ? "navbar__browse-chevron navbar__browse-chevron--open"
+                    : "navbar__browse-chevron"
+                }
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+
+            {browseMenuOpen && (
+              <div className="navbar__browse-panel">
+                <div className="navbar__browse-grid">
+                  {CATEGORIES.map((cat) => (
+                    <Link
+                      key={cat.value}
+                      href={`/listings?type=${cat.value}`}
+                      className="navbar__browse-category"
+                      onClick={() => setBrowseMenuOpen(false)}
+                    >
+                      {cat.label}
+                    </Link>
+                  ))}
+                </div>
+                <Link
+                  href="/listings"
+                  className="navbar__browse-viewall"
+                  onClick={() => setBrowseMenuOpen(false)}
+                >
+                  View all listings →
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+
         {isListingDetailPage && (
           <form className="navbar__search" onSubmit={handleSearchSubmit}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="navbar__search-icon">
@@ -140,15 +213,6 @@ export default function Navbar() {
 
         {/* ── Desktop actions ── */}
         <div className="navbar__actions">
-          <Link href="/listings" className="navbar__link">
-            Browse
-          </Link>
-
-          {/* Add listing — open to everyone, signed in or not */}
-          <Link href="/add-listing" className="navbar__btn-post">
-            + Add Listing
-          </Link>
-
           {user && (
             <>
               <Link href="/saved" className="navbar__icon-link" aria-label="Saved homes" title="Saved homes">
@@ -216,14 +280,24 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="navbar__guest-actions">
-              <Link href="/login" className="navbar__link">
-                Log in
+              <Link href="/login" className="navbar__guest-link">
+                Login
               </Link>
-              <Link href="/signup" className="navbar__btn-signup">
+              <span className="navbar__guest-divider">/</span>
+              <Link href="/signup" className="navbar__guest-link">
                 Sign up
               </Link>
             </div>
           )}
+
+          {/* Add listing — open to everyone, signed in or not — emphasized dark pill */}
+          <Link href="/add-listing" className="navbar__btn-post">
+            Add Listing
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 17 17 7" />
+              <path d="M7 7h10v10" />
+            </svg>
+          </Link>
         </div>
 
         {/* ── Mobile actions ── */}

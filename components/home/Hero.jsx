@@ -68,6 +68,12 @@ export default function Hero() {
           <br />
           Near Your Campus.
         </motion.h1>
+
+        <motion.div {...fade(0.4)}>
+          <Link href="/listings" className="hero__browse-link">
+            Browse all listings <HiOutlineArrowRight aria-hidden="true" />
+          </Link>
+        </motion.div>
       </div>
     </section>
   );

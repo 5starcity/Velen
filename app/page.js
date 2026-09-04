@@ -1,5 +1,4 @@
 import Hero           from "@/components/home/Hero";
-import Categories from "../components/home/Categories";
 import FeaturedListings from "@/components/home/FeaturedListings";
 
 
@@ -13,7 +12,6 @@ export default function HomePage() {
   return (
     <main>
       <Hero />
-         <Categories />
          <FeaturedListings />
    
     </main>

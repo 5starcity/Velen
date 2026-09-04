@@ -7,17 +7,14 @@
   justify-content: center;
   overflow: hidden;
   padding: 8rem 1.5rem 5rem;
-  background: #faf6ef;
+  background: #ffffff;
 }
 
 .hero__backdrop {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background:
-    radial-gradient(ellipse 60% 50% at 15% 10%, rgba(200, 134, 45, 0.14), transparent 60%),
-    radial-gradient(ellipse 55% 45% at 90% 15%, rgba(20, 17, 15, 0.06), transparent 55%),
-    linear-gradient(180deg, #fbf8f2 0%, #f6f0e6 100%);
+  background:#ffffff;
 }
 
 .hero__grain {
@@ -57,6 +54,24 @@
   box-shadow: 0 1px 2px rgba(20, 17, 15, 0.04);
 }
 
+.hero__badge svg {
+  width: 15px;
+  height: 15px;
+  color: #17513c;
+  flex-shrink: 0;
+}
+
+/* ── Headline ── */
+.hero__headline {
+  font-family: "Bricolage Grotesque", "Montserrat", sans-serif;
+  font-weight: 700;
+  font-size: clamp(2.2rem, 5.2vw, 3.6rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: #171f14;
+  margin-bottom: 1.25rem;
+}
+
 .hero__subtext {
   font-family: "Montserrat", sans-serif;
   font-size: clamp(1rem, 1.6vw, 1.2rem);
@@ -64,6 +79,28 @@
   color: #6b6058;
   max-width: 520px;
   margin-bottom: 2.5rem;
+}
+
+/* ── Secondary browse link ── */
+.hero__browse-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #17513c;
+  background: gainsboro;
+}
+
+.hero__browse-link svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.18s ease;
+}
+
+.hero__browse-link:hover svg {
+  transform: translateX(3px);
 }
 
 @media (max-width: 640px) {
